@@ -81,7 +81,7 @@ func test_fireball_executor_uses_caster_origin_facing_and_definition() -> void:
 	if projectile != null:
 		assert_eq(projectile.direction, Vector2.LEFT)
 		assert_eq(projectile.global_position, Vector2(142.0, 30.0))
-		assert_eq(projectile.hit.damage, 35.0)
+		assert_eq(projectile.hit.damage, 1.0)
 		assert_eq(projectile.hit.source, caster)
 
 
@@ -119,7 +119,7 @@ func test_receiver_rejects_disabled_invalid_and_own_hits() -> void:
 	receiver.enabled = true
 	hit.damage = -1.0
 	assert_false(receiver.receive_hit(hit))
-	hit.damage = 10.0
+	hit.damage = 0.5
 	hit.source = receiver
 	assert_false(receiver.receive_hit(hit))
 	hit.source = caster
@@ -161,7 +161,7 @@ func _hit(caster: Node) -> HitData:
 	var hit := HitData.new()
 	hit.source = caster
 	hit.skill_id = &"fixture"
-	hit.damage = 10.0
+	hit.damage = 0.5
 	return hit
 
 

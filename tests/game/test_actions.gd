@@ -43,8 +43,8 @@ func test_duplicate_upgrade_levels_are_rejected() -> void:
 	var second := SkillLevelOverride.new()
 	first.level = 2
 	second.level = 2
-	first.values = {"damage": 20.0}
-	second.values = {"damage": 30.0}
+	first.values = {"damage": 1.0}
+	second.values = {"damage": 2.0}
 	definition.level_overrides = [first, second]
 	assert_false(definition.resolve_level(2).resolution_errors.is_empty())
 
@@ -133,12 +133,12 @@ func test_new_skill_uses_same_controller_and_independent_binding() -> void:
 	var alternative := _definition()
 	alternative.id = &"alternative"
 	alternative.windup_seconds = 0.0
-	alternative.damage = 90.0
+	alternative.damage = 3.0
 	controller.bind_action(&"second", alternative, _capture)
 	assert_true(controller.request_action(&"second", _caster()))
 	assert_eq(_executions.size(), 1)
-	assert_eq(_executions[0].damage, 90.0)
-	assert_eq(controller.get_definition(&"test").damage, 10.0)
+	assert_eq(_executions[0].damage, 3.0)
+	assert_eq(controller.get_definition(&"test").damage, 0.5)
 	assert_eq(controller.get_cooldown_remaining(&"test"), 0.0)
 
 

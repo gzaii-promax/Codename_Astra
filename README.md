@@ -1,4 +1,4 @@
-# Ember Trial — 生命战斗与多语言原型
+# Ember Trial — 心容器战斗与多语言原型
 
 一个 Godot 4.7.2 / GDScript 的 2D 横版训练房间，暂用内部名称 Ember Trial。角色静态占位图可替换，地图是 gray box。
 
@@ -24,15 +24,15 @@ node tools/play.mjs
 | 切换火球 Lv.1/2，比较前摇 | F2（调试） |
 | 暂停菜单 / 返回 | Esc，或 HUD 的菜单按钮 |
 
-靠近稻草人按 J 测近战，远处按 K 测火球。目标无限生命，屏幕显示命中与累计伤害。火球 Lv.1 前摇 0.5 s，Lv.2 为 0.2 s，伤害均 35；普攻伤害 20。当前数值均为待试玩反馈的初值。
+靠近稻草人按 J 测近战，远处按 K 测火球。主角最大 3 心，普攻伤害 0.5 心、火球伤害 1 心；一颗完整心能承受两次半心伤害。稻草人有 10 个心容器，归零立即回满，屏幕命中与累计伤害统计继续保留，训练重置才清零。火球 Lv.1 前摇 0.5 s，Lv.2 为 0.2 s，伤害均 1 心。
 
-训练场右侧的红色敌人固定面朝左，每 1.5 秒尝试近战，前摇 0.3 秒、伤害 10，不追踪或移动。走过稻草人、靠近敌人即可交战。双方初始生命 100，头顶血条同步显示剩余生命；默认零血死亡，死亡后按 R 或菜单重置即可重新试玩。
+训练场右侧的红色敌人固定面朝左，每 1.5 秒尝试近战，前摇 0.3 秒、每击 0.5 心，不追踪或移动。主角与敌人各有 3 个心容器，头顶显示完整、半颗和空心；双方默认零血死亡，死亡后按 R 或菜单重置即可重新试玩。允许自伤或友伤的攻击直接按配置心数扣除，当前不计算旧增伤、减伤或类型抗性。
 
 菜单可选择简体中文、English、日本語；语言保存到用户设置，下次启动恢复。菜单中的帮助包含操作与技能说明，长文本可滚动。新增语言、自定义译文、字体与回退规则见 [localization/README.md](localization/README.md)。
 
 ## 工程入口
 
-开发规则/模块索引见 AGENTS.md；第一版基线见 docs/first-version.md；多语言范围见 docs/localization-v2.md；生命与定时敌人范围见 docs/health-combat-v3.md；实际验证和遗留见 docs/status.md。测试与错误协议见 docs/testing.md、docs/errors/README.md。
+开发规则/模块索引见 AGENTS.md；第一版基线见 docs/first-version.md；多语言范围见 docs/localization-v2.md；生命与定时敌人范围见 docs/health-combat-v3.md；心容器重设计范围见 [docs/heart-health-v5.md](docs/heart-health-v5.md)；实际验证和遗留见 docs/status.md。测试与错误协议见 docs/testing.md、docs/errors/README.md。
 
 统一尺度初值见 [docs/scale-movement-v4.md](docs/scale-movement-v4.md)：1 U=16 px，主角与稻草人受击框 16×32 px，地图外框 512×256 px，基础移动 24 px/s，无遮挡短至长跳上升 16–40 px。公共单位职责在 [shared/README.md](shared/README.md)。
 

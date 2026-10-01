@@ -6,8 +6,9 @@
 - 当前已授权下一版多语言入口，范围与验收见 [docs/localization-v2.md](docs/localization-v2.md)。本轮只创建或更新 draft PR，不合并或发布；此限制优先于下文持续合并授权。剧情脚本由用户以后编写。
 - 当前已追加授权通用生命、伤害目标规则、定时攻击敌人和双方血条，采纳规则、默认值与验收见 [docs/health-combat-v3.md](docs/health-combat-v3.md)。不实现敌人决策 AI；接续未合并多语言分支，独立 draft PR，不合并或发布。
 - 当前追加授权第一版统一尺度：1 U=16 px，主角/稻草人受击框 1×2 U、主角身体框同尺寸，地图外框 32×16 U、持键跳高 1–2.5 U、移动 1.5 U/s。范围与验收见 [docs/scale-movement-v4.md](docs/scale-movement-v4.md)，公共常数职责见 shared 模块。接续生命草稿，独立 draft PR，不合并或发布。
+- 当前追加授权心之容器与半心伤害：主角 3 心、普攻 0.5 心、火球 1 心；稻草人 10 心归零立即回满；定时敌人 3 心每击 0.5 心。撤销旧增减伤与类型抗性，允许的自伤/友伤按相同心数扣除。当前权威规则与验收见 [docs/heart-health-v5.md](docs/heart-health-v5.md)。接续尺度草稿，独立 draft PR，不合并或发布。
 - 首版基线见 [docs/first-version.md](docs/first-version.md)，实际进度与遗留见 [docs/status.md](docs/status.md)。暂不实现互动道具、完整技能树、敌人决策 AI 或正式背景。
-- CI 基础设施已由 [PR #5](https://github.com/gzaii-promax/Codename_Astra/pull/5) 合并到 main，范围与证据见 [docs/ci.md](docs/ci.md)。同步 CI 到功能草稿不扩大多语言或生命版本的合并授权；两个功能 PR 继续保持草稿。
+- CI 基础设施已由 [PR #5](https://github.com/gzaii-promax/Codename_Astra/pull/5) 合并到 main，范围与证据见 [docs/ci.md](docs/ci.md)。同步 CI 到功能草稿不扩大多语言或生命版本的合并授权；各功能 PR 继续保持草稿。
 - 已采纳的项目要求见本文件；测试协议见 [docs/testing.md](docs/testing.md)；错误处理见 [docs/errors/README.md](docs/errors/README.md)。
 - 工具模块的执行、结果判读与文件职责见 [tools/README.md](tools/README.md)。
 - 私有 GitHub 远端、分支与 PR 交接见 [docs/git-workflow.md](docs/git-workflow.md)。首版 PR 合并前从 `feat/combat-v1` 迭代；合并后从最新 `main` 创建后续功能分支。
@@ -19,7 +20,7 @@
 
 - [player/README.md](player/README.md)：主角控制、输入意图、可替换视觉。
 - [skills/README.md](skills/README.md)：动作阶段、技能定义、等级覆盖、执行器与效果。
-- [combat/README.md](combat/README.md)：公共命中数据与受击接口。
+- [combat/README.md](combat/README.md)：心容器、公共命中数据与受击接口。
 - [world/README.md](world/README.md)：gray box 地图、训练稻草人、重置。
 - [ui/README.md](ui/README.md)：训练信息与调试反馈。
 - [localization/README.md](localization/README.md)：语言清单、翻译资源、设置保存、缺译文回退与新增语言。

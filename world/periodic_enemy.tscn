@@ -18,6 +18,7 @@ script = ExtResource("2_actions")
 [node name="Combatant" type="Node" parent="."]
 script = ExtResource("3_combatant")
 faction = 1
+max_health = 3.0
 
 [node name="DamageReceiver" type="Area2D" parent="."]
 position = Vector2(0, -32)
