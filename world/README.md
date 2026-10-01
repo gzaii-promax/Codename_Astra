@@ -14,6 +14,8 @@
 
 `reset_training()` 无条件重置主角位置/动作/冷却，删除已发布火球和攻击效果，清空稻草人统计。F2 在 1/2 级火球间切换，不重置正在施放的动作。
 
+地图房间名和目标标签经 Localization.text() 读取 `arena.room`、`arena.target`，使用随语言配置的字体，语言切换信号触发重绘。暂停菜单和语言设置归 ui/localization，世界模块不保存语言，也不定义译文。
+
 ## 扩展与验证
 
 替换地图时复用 Player 场景与 DamageReceiver，不改变公共技能控制器。未来真实敌人自己处理 accepted hit 的生命/抗性/硬直规则。目标目前只接收既定伤害。

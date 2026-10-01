@@ -21,7 +21,8 @@ const POLICY_FLAGS: Array[String] = ["can_jump", "can_cancel_player", "can_inter
 
 @export_group("Identity")
 @export var id: StringName = &"skill"
-@export var display_name: String = "Skill"
+@export var name_key: String = ""
+@export var description_key: String = ""
 @export var damage_type: StringName = &"physical"
 
 @export_group("Hit")
@@ -106,7 +107,9 @@ func validate() -> Array[String]:
 
 
 func get_resolved_attributes() -> Dictionary:
-	var attributes: Dictionary = {"id": id, "display_name": display_name, "level": resolved_level}
+	var attributes: Dictionary = {
+		"id": id, "name_key": name_key, "description_key": description_key, "level": resolved_level
+	}
 	for field in NUMERIC_FIELDS:
 		attributes[field] = get(field)
 	attributes["damage_type"] = damage_type

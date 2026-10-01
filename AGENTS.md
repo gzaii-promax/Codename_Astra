@@ -3,8 +3,9 @@
 ## 当前阶段与权威入口
 
 - 第一版已合并：主角基础移动与跳跃、普通攻击、火球术、gray box 训练场和可被攻击的稻草人；角色使用可替换占位素材。
-- 本轮验收条件见 [docs/first-version.md](docs/first-version.md)，实际进度与遗留见 [docs/status.md](docs/status.md)。首版暂不实现互动道具、完整技能树、敌人 AI 或正式背景。
-- 当前追加授权 CI 环境安装与真实远端验收，范围、成功/失败验证及合并门槛见 [docs/ci.md](docs/ci.md)。CI 变更遵循持续提交与合并授权；多语言和生命功能的未合并草稿分别保留，不将该版本草稿例外自行扩展到所有后续工作。
+- 当前已授权下一版多语言入口，范围与验收见 [docs/localization-v2.md](docs/localization-v2.md)。本轮只创建或更新 draft PR，不合并或发布；此限制优先于下文持续合并授权。剧情脚本由用户以后编写。
+- 首版基线见 [docs/first-version.md](docs/first-version.md)，实际进度与遗留见 [docs/status.md](docs/status.md)。暂不实现互动道具、完整技能树、敌人 AI 或正式背景。
+- CI 基础设施已由 [PR #5](https://github.com/gzaii-promax/Codename_Astra/pull/5) 合并到 main，范围与证据见 [docs/ci.md](docs/ci.md)。当前同步 CI 到功能草稿不扩大多语言或生命版本的合并授权；功能仍保留草稿限制。
 - 已采纳的项目要求见本文件；测试协议见 [docs/testing.md](docs/testing.md)；错误处理见 [docs/errors/README.md](docs/errors/README.md)。
 - 工具模块的执行、结果判读与文件职责见 [tools/README.md](tools/README.md)。
 - 私有 GitHub 远端、分支与 PR 交接见 [docs/git-workflow.md](docs/git-workflow.md)。首版 PR 合并前从 `feat/combat-v1` 迭代；合并后从最新 `main` 创建后续功能分支。
@@ -19,6 +20,7 @@
 - [combat/README.md](combat/README.md)：公共命中数据与受击接口。
 - [world/README.md](world/README.md)：gray box 地图、训练稻草人、重置。
 - [ui/README.md](ui/README.md)：训练信息与调试反馈。
+- [localization/README.md](localization/README.md)：语言清单、翻译资源、设置保存、缺译文回退与新增语言。
 - [shared/README.md](shared/README.md)：公共输入配置与地图碰撞辅助。
 - [assets/README.md](assets/README.md)：占位角色素材、来源与替换。
 - [tests/README.md](tests/README.md)：可复现的自动验收用例。

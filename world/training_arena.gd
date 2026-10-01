@@ -13,6 +13,7 @@ func _enter_tree() -> void:
 
 
 func _ready() -> void:
+	Localization.language_changed.connect(_on_language_changed)
 	var geometry := Node2D.new()
 	geometry.name = "Geometry"
 	geometry.show_behind_parent = true
@@ -26,6 +27,10 @@ func _ready() -> void:
 	]
 	for solid in solids:
 		geometry.add_child(GrayboxSolid.create(solid[0], solid[1], solid[2]))
+	queue_redraw()
+
+
+func _on_language_changed(_locale: String) -> void:
 	queue_redraw()
 
 
@@ -52,6 +57,16 @@ func _draw() -> void:
 		draw_line(Vector2(20, y), Vector2(940, y), Color(0.6, 0.65, 0.7, 0.04))
 	draw_line(Vector2(20, 429), Vector2(940, 429), Color("8392a2"), 2.0)
 	draw_line(Vector2(565, 430), Vector2(725, 430), Color("d1aa6a"), 3.0)
-	var font := ThemeDB.fallback_font
-	draw_string(font, Vector2(24, 488), "01  /  GRAY BOX TRAINING ROOM", 0, -1, 14, Color("8a96a8"))
-	draw_string(font, Vector2(588, 465), "TRAINING TARGET", 0, -1, 12, Color("c6af85"))
+	var font := Localization.get_font()
+	draw_string(
+		font, Vector2(24, 488), Localization.text("arena.room"), 0, 490, 14, Color("8a96a8")
+	)
+	draw_string(
+		font,
+		Vector2(565, 465),
+		Localization.text("arena.target"),
+		HORIZONTAL_ALIGNMENT_CENTER,
+		160,
+		12,
+		Color("c6af85")
+	)

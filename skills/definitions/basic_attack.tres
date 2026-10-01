@@ -24,7 +24,8 @@ can_cancel_player = true
 [resource]
 script = ExtResource("1_definition")
 id = &"basic_attack"
-display_name = "普通攻击"
+name_key = "skill.basic_attack.name"
+description_key = "skill.basic_attack.description"
 damage = 20.0
 windup_seconds = 0.08
 active_seconds = 0.12

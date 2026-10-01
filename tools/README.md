@@ -17,6 +17,7 @@
 - `../.github/workflows/check.yml`：在 GitHub 上准备环境、执行同一验收入口并保存原始证据，规则见 [docs/ci.md](../docs/ci.md)。
 - `check.mjs`：唯一公共测试入口，支持 `--scope toolchain|game`，拒绝未知范围或参数。
 - `check-game.mjs`：game 范围实现，复制真实工程和固定 GUT 到独立快照，校验 tests/manifest.json，执行格式/lint/导入/真实测试/JUnit 读取/启动。测试名必须完整且唯一，不能用空执行得到通过。
+- game 范围还在两个实际引擎进程中验证语言设置写入及重启恢复。所有引擎进程用 `ASTRA_SETTINGS_PATH` 隔离本轮设置文件，并在日志/报告记录路径；不改 HOME，不碰玩家配置。检查数量以 expected_check_ids 为准，不硬编码历史的 12 项。
 - `play.mjs` 与根目录 `Play.command`：用固定引擎打开真实游戏，不安装工具、不代替验收。macOS launcher 使用本机 Node `/usr/local/bin/node`。
 - `read-junit.py`：用 Python 标准库独立解析 GUT JUnit XML；拒绝无法解析、空测试、无断言及计数矛盾的报告。
 - `.tools/`：工具本体；入口不安装工具，不修改系统配置，不建立 Git 仓库，不重新指定 `HOME`。

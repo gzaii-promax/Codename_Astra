@@ -4,20 +4,33 @@
 
 2026-10-01 已完成本地可运行工程：主角移动/跳跃、普通攻击、火球术、gray box 地图、训练稻草人、可替换静态占位角色及训练信息。使用项目固定 Godot 4.7.2，运行方式见根 README.md。手感与玩法数值仍等待用户试玩反馈。
 
+## 多语言下一版技术交付
+
+2026-10-01 在既有工程增加可配置语言模块、暂停菜单、语言选择与帮助。首批 en、ja、zh_CN，每种 30 个文本键，覆盖菜单、HUD、技能名称/说明、帮助和地图标签。语言保存到 ConfigFile，启动恢复；缺失/空译文回退默认简体中文，命名参数由文本入口替换，未知键保持字面值。语言清单与 JSON 可新增或自定义，UI 从清单生成选项；技能只声明文本键，战斗规则与数值保持原基线。
+
+本轮分支 `feat/localization-v2`，已创建并核实[草稿 PR #3](https://github.com/gzaii-promax/Codename_Astra/pull/3)：OPEN、isDraft=true，base=main。实现提交 `23c64a28b1237df2cd8c3f7dee46fabf623d7bec` 已推送；当前 head 以后续 GitHub 读取为准，本轮不合并或发布。剧情脚本以后由用户提供；本轮没有生成故事。范围见 localization-v2.md，新增语言与自定义译文方法见 ../localization/README.md。
+
 ## 已执行证据
 
 | 范围 | 最终 run_id | 实际结果 |
 | --- | --- | --- |
-| game（推送前） | `20261001T085453031Z-480c12f9` | 12/12 检查；34 tests、153 assertions；0 failures/errors/skipped |
-| toolchain（含 gh） | `20261001T085409035Z-768c274e` | 22/22 检查；预期失败与超时保留底层状态 |
+| game（多语言原交付） | `20261001T103447218Z-fb5fe550` | 14/14 检查；53 tests、649 assertions；0 failures/errors/skipped |
+| toolchain（CI接入前） | `20261001T102523641Z-7c23a1c9` | 22/22 检查；预期失败与超时保留底层状态 |
+| game（首版基线） | `20261001T085453031Z-480c12f9` | 12/12 检查；34 tests、153 assertions；0 failures/errors/skipped |
 
-报告分别在 `artifacts/test-runs/<run_id>/report.json`，game 同目录有 `game.xml`、`logs/gut.log`、`logs/startup.log` 和真实工程快照。测试 agent 已核原始 JUnit/引擎日志，主 agent 在当次首版交付时核对检查完整、日志存在与当时源码 SHA-256 完全一致：60 项文件哈希均匹配，没有阻塞。首次本地交付的原始报告 `20261001T082716048Z-759ee433` 另有第三 agent 的独立交接复核；本轮仅新增固定 gh 配置/工具版本检查及 Git 交接文档，游戏行为代码保持不变。原报告不随交付文档更新而改写。
+多语言最终报告覆盖全部 34 个既有回归与 19 个新增用例；93 项文件 SHA-256 与当时交付工程一致，原始 JUnit、引擎日志及 manifest 已核对。新增两个实际引擎进程验证保存/重启恢复，PID 38715 与 38716，使用同一独立 language-restart.cfg，读取进程未重新设置语言即恢复 ja。所有引擎子进程的 ASTRA_SETTINGS_PATH 在日志与 actual 中记录，不碰玩家设置。
+
+真实图形证据在 `artifacts/localization-visual/20261001T102716473Z/`：capture.log exit_code=0、无引擎错误，report.json、source-hashes.json、九张 1440×810 viewport PNG 齐全。主 agent 已实际打开三语 HUD/菜单/帮助全部九图，并另写 review.json（visual_review=pass），保留原 capture 的 pending 标记作为当时状态。可见中日文无缺字，面板均在 960×540 逻辑画布内；长帮助使用滚动区域。完整文字字形与布局测量另由 GUT 验证，不能把截图保存成功等同于手感或正式译文审核。
+
+报告分别在 `artifacts/test-runs/<run_id>/report.json`，game 同目录有 `game.xml`、`logs/gut.log`、`logs/startup.log` 和真实工程快照。首版验收当时的 60 项哈希对应首版代码，不将该旧报告替代本轮 93 项验证。首次本地交付原始报告 `20261001T082716048Z-759ee433` 另有独立交接复核；原报告不随交付文档更新而改写。
 
 实际非 headless 图形运行使用 Godot 4.7.2 Compatibility / Apple M4 Pro，已查看 `artifacts/first-version.png`（1440 × 810）与 `artifacts/render-capture.log`：占位主角、火球、目标、中文 HUD 与地图标签可见。截图由真实 viewport 获取；它不证明手感或硬件键盘人工试玩通过。
 
 ## 错误与修复
 
 初期项目未齐备阻塞、GUT fixture 的 current_scene 父节点错误均已记录并复跑关闭；动作方向、重置效果、左右贴墙火球的边界修复已添加真实回归并通过。见 errors/ 下对应记录。既往 Xcode/权限问题保留原记录，新的 agent 遇到同类错误应先核对环境。
+
+多语言首轮发现 HUD 在初始窄列换行后保留过大高度，底部 2648 超出画布。修复真实容器重排后，三语底部为 161，原 183 项布局断言通过；公共记录 ERR-20261001-LOCALIZATION-HUD-OVERFLOW 已关闭。独立截图探针的 autoload 提前编译问题也已修复并通过原图形方式复验，见 ERR-20261001-I18N-GRAPHICS-PROBE。所有失败与超时证据保留。
 
 ## Git 与交接
 
@@ -62,3 +75,11 @@ GitHub 分支保护 API 返回403，要求升级套餐或公开仓库，暂无�
 | 临时失败探针 | [36889794629](https://github.com/gzaii-promax/Codename_Astra/actions/runs/36889794629) | headf4ebc65；普通game/job真实失败；唯一失败case为test_large_tick_carries_time_through_all_phases，XML/原log含CI_FAILURE_PROBE；失败artifact成功上传，其余准备/工具检查通过 |
 
 本次恢复提交明确撤销失败探针，测试源码与正常验收的原合同一致；最终差异不保留错误断言，也不放宽正常game失败规则。[CI PR #5](https://github.com/gzaii-promax/Codename_Astra/pull/5) 的最新head必须重新通过 `macOS / repository-checks`，核对源码/实际配置/合并引用后按持续授权使用Merge commit合入main，再核对main push检查。最终动态状态及原始artifact见PR检查；不能用上述历史绿灯批准新head。两个功能草稿继续保留，CI同步进入它们只更新基础设施和验收记录。
+
+### CI 同步到多语言草稿
+
+CI [PR #5](https://github.com/gzaii-promax/Codename_Astra/pull/5) 已按持续授权合并，main实际提交 `6a7dd66b64f10831b502a8614c2844f2a7ba0e2c`；最终恢复 head90d8bf7 的 [run36890205920](https://github.com/gzaii-promax/Codename_Astra/actions/runs/36890205920) 全通过。main push检查 [36890671925](https://github.com/gzaii-promax/Codename_Astra/actions/runs/36890671925) 另验实际合并提交。
+
+本草稿同步main的安装器、工作流与配置读取；保留localization快照、字体、独立settings路径和跨进程恢复验收。多语言业务代码、素材与53项测试契约保持原样，三个交接文档冲突按各自版本范围并置。后续最新head仍须本地和远端必要验收通过，PR #3保持draft。
+
+main实际合并提交的push run36890671925已全通过并取回原artifact，head/实际commit一致6a7dd66，bootstrap23/23、toolchain21/21、game12/12、34/153、65源码hash匹配。多语言同步后的独立本地game `20261001T161745574Z-f9af9883` 为14/14、53tests649assertions、0失败/错误/跳过，98源码hash和有效CI配置一致；两个独立进程验证ja保存/重启恢复。最新远端head验收见PR #3检查。

@@ -4,6 +4,8 @@
 
 此模块将技能参数、等级差异、运行阶段和技能行为分开。输入映射与角色移动由主角模块负责；受击协议由 `../combat/` 提供。没有技能树 UI、消耗系统或解锁条件。
 
+多语言版以 `name_key`、`description_key` 代替原先写在资源中的 `display_name`，`get_resolved_attributes()` 同样返回这两个元数据键；UI 才经 Localization.text() 取得显示文本。技能 ID、等级解析、伤害与时序不依赖译文。新增技能时为资源配置两键，并在 localization/catalogs 下补名称与说明，动作控制器无需增加语言分支。
+
 | 文件 | 职责 |
 | --- | --- |
 | `skill_definition.gd` | Inspector 可见的基础参数、等级解析与最终值检查 |
@@ -21,7 +23,8 @@
 
 | 属性 | 默认值 | 含义与单位 |
 | --- | --- | --- |
-| `id` / `display_name` / `damage_type` | `skill` / `Skill` / `physical` | 稳定标识、显示名、伤害类别 |
+| `id` / `damage_type` | `skill` / `physical` | 稳定标识、伤害类别；不随语言变化 |
+| `name_key` / `description_key` | 空字符串 / 空字符串 | 显示名与说明的翻译键；正式资源映射到语言目录中的文本 |
 | `damage` / `knockback` | `10` / `0` | 单次伤害；击退速度，像素/秒，目前接收但尚不施加 |
 | `windup_seconds` / `active_seconds` / `recovery_seconds` | `0.1` / `0.1` / `0.1` | 前摇、执行、后摇秒数；`0` 明确表示没有该阶段 |
 | `cooldown_seconds` | `0.3` | 从启动时计算的冷却秒数；取消不退还冷却 |

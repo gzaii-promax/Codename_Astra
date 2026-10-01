@@ -1,0 +1,4 @@
+{
+  "greeting": "Bonjour {name}.",
+  "skill.damage": "Dégâts : {damage} ; préparation : {seconds}s"
+}

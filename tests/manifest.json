@@ -35,6 +35,25 @@
     "test_reverse_input_during_melee_keeps_facing_and_attack_origin_consistent",
     "test_reset_disables_old_effects_before_next_physics_hit",
     "test_fireball_cannot_spawn_beyond_right_wall",
-    "test_fireball_cannot_spawn_beyond_left_wall"
+    "test_fireball_cannot_spawn_beyond_left_wall",
+    "test_language_manifest_supports_a_fourth_locale_without_code_changes",
+    "test_language_selection_persists_and_a_new_service_restores_it",
+    "test_missing_empty_and_whitespace_translations_fall_back_to_default",
+    "test_named_placeholders_substitute_values_and_preserve_missing_arguments",
+    "test_unknown_locale_does_not_change_state_or_saved_preference",
+    "test_failed_settings_save_preserves_current_language",
+    "test_corrupt_settings_and_unsupported_saved_locale_use_default_with_diagnostics",
+    "test_invalid_manifest_is_rejected_with_a_readable_diagnostic",
+    "test_broken_optional_catalog_falls_back_without_engine_errors",
+    "test_initialize_is_idempotent_and_cannot_silently_change_storage_path",
+    "test_production_catalogs_cover_three_languages_and_all_declared_strings",
+    "test_bundled_fonts_have_glyphs_for_the_entire_three_language_corpus",
+    "test_actual_ui_switches_menu_hud_skill_and_manual_text_in_three_languages",
+    "test_actual_language_picker_updates_ui_and_saves_isolated_preference",
+    "test_open_menu_pauses_gameplay_and_resume_button_restores_movement",
+    "test_help_buttons_and_escape_follow_help_then_menu_close_order",
+    "test_reset_button_resets_training_and_closes_pause_menu",
+    "test_menu_close_preserves_a_preexisting_paused_state",
+    "test_engine_measured_ui_bounds_and_text_fit_all_three_languages"
   ]
 }

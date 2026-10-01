@@ -1,0 +1,7 @@
+{
+  "greeting": "こんにちは、{name}。",
+  "skill.damage": "ダメージ：{damage}、予備動作：{seconds}秒",
+  "fallback.empty": "",
+  "fallback.whitespace": "  \t  ",
+  "args.required": "こんにちは、{name}。未指定：{missing}。"
+}

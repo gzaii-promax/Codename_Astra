@@ -36,7 +36,8 @@ values = {"windup_seconds": 0.2}
 [resource]
 script = ExtResource("1_definition")
 id = &"fireball"
-display_name = "火球术"
+name_key = "skill.fireball.name"
+description_key = "skill.fireball.description"
 damage_type = &"fire"
 damage = 35.0
 windup_seconds = 0.5

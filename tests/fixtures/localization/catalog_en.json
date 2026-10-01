@@ -1,0 +1,9 @@
+{
+  "greeting": "Hello {name}.",
+  "skill.damage": "Damage: {damage}; windup: {seconds}s",
+  "fallback.absent": "Default missing-entry text",
+  "fallback.empty": "Default empty-entry text",
+  "fallback.whitespace": "Default whitespace-entry text",
+  "args.required": "Hello {name}; unknown {missing}.",
+  "fixture.only": "Original fixture text"
+}
