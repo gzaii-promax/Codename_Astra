@@ -21,6 +21,7 @@ Actions 按物理帧 tick。每阶段的 inertia_scale 只在进入阶段时缩�
 - `request_attack()` / `request_fireball()` 返回动作是否被接受；忙碌或冷却拒绝，不缓存攻击连招。
 - `get_action_controller()` 供界面/测试读取；`get_attack_origin()` 提供脚底上 1U（16 px）、面朝方向前 0.5U（8 px）的释放点。技能攻击框的尺寸和动作时序继续由技能定义维护，不随身体尺寸等比缩放。
 - `get_combatant()` 提供公共生命、阵营、无敌、零血行为和生命周期配置。场景默认 FRIENDLY、100 HP、无敌关闭、零血死亡。DamageReceiver 使用独立 1U × 2U（16 × 32 px）受击区；HealthBar 位于脚底上 82 px，订阅同一 Combatant。公共规则与默认值见 ../combat/README.md 和 ../docs/health-combat-v3.md。
+- 初始化时从 `CombatConfig.PLAYER_HIT_PROTECTION_SECONDS` 配置受击保护，当前 0.5 秒；正伤害后保护期间再次攻击不扣血，也不触发新的受击中断。暂停冻结剩余时间，训练重置清零；保护不阻止移动、跳跃或主动出招。公共常数见 ../shared/README.md，结算与零秒旁路见 ../combat/README.md。
 - `set_fireball_level(1|2)` 只重绑下一次施法定义，正在执行的动作保持开始时的定义。
 - `set_control_input(horizontal, jump_requested=false, jump_held=false)` 启用外部输入意图；jump_requested 是单次消费的起跳请求，jump_held 是保持到下次调用的持键状态。旧两参数跳跃调用表示短按；长按用 `set_control_input(0.0, true, true)` 起跳，松开时调用 `set_control_input(0.0, false, false)`。真实键盘分别读取 `Input.is_action_just_pressed("jump")` 和 `Input.is_action_pressed("jump")`，走相同跳跃路径。当前上升期间，外部松键提交与真实 `_input` 松键事件都会锁存到下一物理帧，因此同一物理帧间松开后重按仍会截断本次上升；锁存不会带入下一次跳跃。`clear_control_override()` 恢复真实键盘输入并清除输入锁存。测试、后续回放可以通过同一控制路径驱动真实物理。
 - `reset_state(position)` 无条件重置生命/生命周期、动作/冷却、位置与运动状态；外部控制模式保留以方便测试重置，真实训练场使用键盘模式。训练场整体重置同时删除场上效果并恢复敌人。

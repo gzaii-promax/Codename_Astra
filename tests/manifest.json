@@ -94,6 +94,16 @@
     "test_coyote_jump_expires_after_the_documented_point_one_seconds",
     "test_released_short_jump_buffer_fires_on_landing_at_one_unit_height",
     "test_real_ceiling_collision_stops_a_held_jump_and_returns_to_ground",
-    "test_release_and_repress_between_physics_samples_still_cuts_the_current_jump"
+    "test_release_and_repress_between_physics_samples_still_cuts_the_current_jump",
+    "test_hit_protection_defaults_match_public_config_and_real_actors",
+    "test_zero_protection_bypasses_consecutive_hits_for_enemy_and_dummy",
+    "test_invalid_hit_protection_configuration_and_damage_are_rejected",
+    "test_rejected_and_zero_settled_damage_do_not_start_hit_protection",
+    "test_protected_hit_has_no_damage_events_health_bar_change_or_action_interrupt",
+    "test_hit_protection_expires_after_half_second_and_rejected_hits_do_not_extend_it",
+    "test_hit_protection_prevents_same_frame_reentrant_signal_damage",
+    "test_pause_freezes_hit_protection_and_training_reset_clears_it",
+    "test_death_knockdown_and_recovery_clear_protection_without_breaking_recovery_timer",
+    "test_real_enemy_melee_and_fireball_obey_player_hit_protection"
   ]
 }
