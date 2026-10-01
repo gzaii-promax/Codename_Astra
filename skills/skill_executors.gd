@@ -30,10 +30,13 @@ static func fireball(caster: Node, definition: SkillDefinition) -> void:
 
 static func _make_hit(caster: Node, definition: SkillDefinition) -> HitData:
 	var hit := HitData.new()
-	hit.source = caster
+	hit.set_source(caster)
 	hit.skill_id = definition.id
 	hit.damage = definition.damage
 	hit.damage_type = definition.damage_type
+	hit.target_policy = definition.target_policy
+	hit.self_reduction = definition.self_reduction
+	hit.same_faction_reduction = definition.same_faction_reduction
 	hit.knockback = definition.knockback
 	hit.origin = _get_origin(caster)
 	hit.direction = Vector2(_get_facing(caster), 0.0)

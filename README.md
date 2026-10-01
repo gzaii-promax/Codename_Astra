@@ -1,4 +1,4 @@
-# Ember Trial — 战斗与多语言原型
+# Ember Trial — 生命战斗与多语言原型
 
 一个 Godot 4.7.2 / GDScript 的 2D 横版训练房间，暂用内部名称 Ember Trial。角色静态占位图可替换，地图是 gray box。
 
@@ -17,20 +17,24 @@ node tools/play.mjs
 | 操作 | 按键 |
 | --- | --- |
 | 左右移动 | A / D 或 ← / → |
-| 跳跃 | 空格、W 或 ↑ |
+| 跳跃 | 空格、W 或 ↑；短按低跳，长按高跳 |
 | 普通攻击 | J |
 | 火球术 | K |
-| 重置角色、目标与冷却 | R |
+| 重置双方生命、位置、目标与冷却 | R |
 | 切换火球 Lv.1/2，比较前摇 | F2（调试） |
 | 暂停菜单 / 返回 | Esc，或 HUD 的菜单按钮 |
 
 靠近稻草人按 J 测近战，远处按 K 测火球。目标无限生命，屏幕显示命中与累计伤害。火球 Lv.1 前摇 0.5 s，Lv.2 为 0.2 s，伤害均 35；普攻伤害 20。当前数值均为待试玩反馈的初值。
 
+训练场右侧的红色敌人固定面朝左，每 1.5 秒尝试近战，前摇 0.3 秒、伤害 10，不追踪或移动。走过稻草人、靠近敌人即可交战。双方初始生命 100，头顶血条同步显示剩余生命；默认零血死亡，死亡后按 R 或菜单重置即可重新试玩。
+
 菜单可选择简体中文、English、日本語；语言保存到用户设置，下次启动恢复。菜单中的帮助包含操作与技能说明，长文本可滚动。新增语言、自定义译文、字体与回退规则见 [localization/README.md](localization/README.md)。
 
 ## 工程入口
 
-开发规则/模块索引见 AGENTS.md；第一版基线见 docs/first-version.md；下一版多语言范围见 docs/localization-v2.md；实际验证和遗留见 docs/status.md。测试与错误协议见 docs/testing.md、docs/errors/README.md。
+开发规则/模块索引见 AGENTS.md；第一版基线见 docs/first-version.md；多语言范围见 docs/localization-v2.md；生命与定时敌人范围见 docs/health-combat-v3.md；实际验证和遗留见 docs/status.md。测试与错误协议见 docs/testing.md、docs/errors/README.md。
+
+统一尺度初值见 [docs/scale-movement-v4.md](docs/scale-movement-v4.md)：1 U=16 px，主角与稻草人受击框 16×32 px，地图外框 512×256 px，基础移动 24 px/s，无遮挡短至长跳上升 16–40 px。公共单位职责在 [shared/README.md](shared/README.md)。
 
 ```sh
 node tools/check.mjs --scope game
@@ -41,4 +45,4 @@ node tools/check.mjs --scope toolchain
 
 ## 当前限制
 
-首版没有完整技能树、互动道具、敌人 AI、存档、音乐或正式场景。角色为单帧图片，移动偏移/施法光点/攻击轨迹是程序反馈。正式美术与用户手感验收仍待后续反馈，自动通过不能代替试玩判断。
+当前没有完整技能树、互动道具、敌人决策 AI、存档、音乐或正式场景。反弹只提供归属切换接口，击倒协助/定时恢复只提供可复用接口，未新增反弹技能、友方交互单位或自动复活玩法。角色为单帧图片，移动偏移/施法光点/攻击轨迹是程序反馈。正式美术与用户手感验收仍待后续反馈，自动通过不能代替试玩判断。

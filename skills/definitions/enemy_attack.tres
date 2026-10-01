@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="SkillDefinition" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://skills/skill_definition.gd" id="1_definition"]
+
+[resource]
+script = ExtResource("1_definition")
+id = &"enemy_attack"
+name_key = "skill.enemy_attack.name"
+description_key = "skill.enemy_attack.description"
+damage = 10.0
+windup_seconds = 0.3
+active_seconds = 0.12
+recovery_seconds = 0.25
+cooldown_seconds = 0.67
+melee_reach = 72.0
+melee_height = 48.0
