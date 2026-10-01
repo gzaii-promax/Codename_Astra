@@ -10,7 +10,7 @@
 
 首轮四项测试调度失败报告保留并关闭，见 [采样与等待修复](errors/ERR-20261002-SCALE-TEST-SAMPLING.md)。额外工作区直接启动检查发现旧类缓存，刷新导入后实际主场景 120 帧无错误，见 [工作区类缓存](errors/ERR-20261002-WORKSPACE-CLASS-CACHE.md)。原始失败不会当作通过记录。
 
-本轮分支 `codex/scale-movement-v4` 接续 `codex/health-combat-v3`；提交后创建独立 draft PR，以生命分支为 base。依赖 PR #3/#4 继续保持草稿，本轮不合并或发布。用户试玩手感仍待反馈；当前远端 CI 以该 PR 最新 head 的实际检查与 artifact 为准，不使用旧版本绿灯代替。
+本轮实现提交 `05efebb1ab74fd2764ddae8a4b111672c8ead4e8` 已推送，已创建并核实[草稿 PR #6](https://github.com/gzaii-promax/Codename_Astra/pull/6)：OPEN、isDraft=true、base=codex/health-combat-v3、head=codex/scale-movement-v4，已附加到本 Codex 任务。依赖 PR #3/#4 继续保持草稿，本轮不合并或发布。用户试玩手感仍待反馈；交接时远端普通 PR CI 已启动，最终 head 和结果以该 PR 当前检查与原始 artifact 为准，不使用旧版本绿灯代替。
 
 ## 通用生命与定时敌人技术交付
 

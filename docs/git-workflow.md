@@ -9,6 +9,7 @@
 - 用户已授权持续提交与合并：在本项目已授权开发范围内，通过必要验收并提交 PR 后，可自行合并，无需再次确认提交或合并。功能范围和重要架构决策仍按用户已有分工处理。
 - 当前多语言下一版有更具体的新限制：只创建或更新 draft PR，不自动合并或发布，见 docs/localization-v2.md。此轮限制优先于持续合并授权；后续按最新用户范围执行。
 - 生命与定时敌人接续未合并的 `feat/localization-v2`，分支 `codex/health-combat-v3` 已创建并核实独立[草稿 PR #4](https://github.com/gzaii-promax/Codename_Astra/pull/4)，以 `feat/localization-v2` 为 base，差异只包含本轮功能。实现提交为 `85473836829e5b876178ff0e1cc265e6f7f725de`；最终 head 以当前 GitHub 读取为准。依赖 PR #3 保持草稿；本轮不合并或发布。范围与验收见 docs/health-combat-v3.md、docs/status.md。
+- 统一尺度与可变跳跃接续生命分支，分支 `codex/scale-movement-v4` 已核实独立[草稿 PR #6](https://github.com/gzaii-promax/Codename_Astra/pull/6)，base=codex/health-combat-v3；实现提交 `05efebb1ab74fd2764ddae8a4b111672c8ead4e8`。本地 game 93 项验收与真实图形已完成，范围/证据见 docs/scale-movement-v4.md、docs/status.md。依赖 #3/#4 及本 PR 均保持草稿，不合并或发布；最终 head 与远端 CI 读取当前 PR。
 
 ## 首次发布的历史
 
