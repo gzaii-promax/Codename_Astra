@@ -53,3 +53,12 @@ GitHub 分支保护 API 返回403，要求升级套餐或公开仓库，暂无�
 第一轮远端运行 [36888487517](https://github.com/gzaii-promax/Codename_Astra/actions/runs/36888487517) 在 setup-python 未找到固定3.12.14 ARM64包而失败；业务检查未执行，原始job log已保存，详见 errors/ERR-20261002-CI-PYTHON.md。修复保留同版本，改用固定Astral PBS归档。实际下载重装 `20261001T160323835Z-f71e0171` 为21/21通过，Python3.12.14/darwin-arm64/稳定base_path均记录，单测增至10项。旧本地验收仅对应旧源码，新源码验收与远端复跑另行记录。
 
 修复版独立本地验收：Node10/10；CI toolchain `20261001T160452470Z-75687419` 为21/21；game `20261001T160529698Z-fa10d4aa` 为12/12、34 tests/153 assertions、0 failures/errors/skipped。全部65份game源码哈希、配置哈希与原始证据路径一致。对应新PBS运行时配置，远端复跑待核实。
+
+普通PR远端证据（已下载至 `artifacts/ci-runs/<GitHub run_id>/`，另有主/测试agent独立核查）：
+
+| 情形 | GitHub run | 实际结果 |
+| --- | --- | --- |
+| 正常源码 | [36889507143](https://github.com/gzaii-promax/Codename_Astra/actions/runs/36889507143) | Python阻断修复；bootstrap23/23、Node10/10、toolchain21/21、game12/12；34tests153assertions无失败/跳过；65源码hash匹配head817c119 |
+| 临时失败探针 | [36889794629](https://github.com/gzaii-promax/Codename_Astra/actions/runs/36889794629) | headf4ebc65；普通game/job真实失败；唯一失败case为test_large_tick_carries_time_through_all_phases，XML/原log含CI_FAILURE_PROBE；失败artifact成功上传，其余准备/工具检查通过 |
+
+本次恢复提交明确撤销失败探针，测试源码与正常验收的原合同一致；最终差异不保留错误断言，也不放宽正常game失败规则。[CI PR #5](https://github.com/gzaii-promax/Codename_Astra/pull/5) 的最新head必须重新通过 `macOS / repository-checks`，核对源码/实际配置/合并引用后按持续授权使用Merge commit合入main，再核对main push检查。最终动态状态及原始artifact见PR检查；不能用上述历史绿灯批准新head。两个功能草稿继续保留，CI同步进入它们只更新基础设施和验收记录。
