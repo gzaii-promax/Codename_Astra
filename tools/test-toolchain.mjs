@@ -6,7 +6,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import test from 'node:test';
 import { loadToolchain, toolPath, versionMatches } from './toolchain-config.mjs';
-import { bootstrap, execute, fileHash, resolveExecutable, verifyArchive } from './bootstrap.mjs';
+import { bootstrap, execute, fileHash, pythonRuntimeSource, resolveExecutable, verifyArchive } from './bootstrap.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const fixture = async (t) => {
@@ -24,6 +24,19 @@ test('local configuration retains exact versions and has official pinned archive
   assert.match(manifest.tools.godot.archive_url, /^https:\/\/github.com\/godotengine\/godot-builds\/releases\/download\//);
   assert.match(manifest.tools.gut.archive_url, /^https:\/\/github.com\/bitwes\/Gut\/archive\//);
   assert.match(manifest.download_checksums.godot_archive, /^[a-f0-9]{64}$/);
+});
+
+test('default Python uses exact standalone release rather than any host Python; explicit override remains available', async () => {
+  const { manifest } = await loadToolchain(root, {});
+  const source = pythonRuntimeSource(manifest, { PATH: '/usr/bin' });
+  assert.equal(source.kind, 'archive');
+  assert.equal(source.release, '20260929');
+  assert.match(source.url, /20260929\/cpython-3\.12\.14%2B20260929-aarch64-apple-darwin-install_only_stripped\.tar\.gz$/);
+  assert.equal(source.sha256, '1bb3e53d231ee2c8881e8daf6426f4dd95bff0dda496af0f3af300357aa998d0');
+  assert.deepEqual(pythonRuntimeSource(manifest, { ASTRA_PYTHON: '/explicit/python3' }), { kind: 'explicit', executable: '/explicit/python3' });
+  const invalid = structuredClone(manifest);
+  delete invalid.download_checksums.python_archive;
+  assert.throws(() => pythonRuntimeSource(invalid, {}), /Missing pinned standalone/);
 });
 
 test('relative and absolute explicit configurations load actual bytes and SHA256', async (t) => {
@@ -93,8 +106,8 @@ test('runtime lookup honors explicit path, PATH order and executable bit', async
   await assert.rejects(resolveExecutable('missing-python', directory, { PATH: second }), /not found/);
 });
 
-test('every archive checksum is recomputed; corruption and absent digests fail', async (t) => {
-  const directory = await fixture(t), file = path.join(directory, 'cached.zip');
+test('every archive checksum is recomputed; cached Python tarball corruption and absent digests fail', async (t) => {
+  const directory = await fixture(t), file = path.join(directory, 'python.tar.gz');
   await writeFile(file, 'verified official fixture');
   const expected = await fileHash(file);
   assert.equal(await verifyArchive(file, expected), expected);

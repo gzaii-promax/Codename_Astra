@@ -21,7 +21,6 @@ jobs:
     timeout-minutes: 15
     env:
       ASTRA_TOOLCHAIN_CONFIG: .tools/ci/toolchain.json
-      ASTRA_PYTHON: python3
       ASTRA_PR_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
       ASTRA_PR_BASE_SHA: ${{ github.event.pull_request.base.sha || '' }}
     steps:
@@ -30,15 +29,6 @@ jobs:
         with:
           fetch-depth: 0
           persist-credentials: false
-      - name: Prepare Node.js
-        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
-        with:
-          node-version: '24.17.0'
-      - name: Prepare Python
-        id: python
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
-        with:
-          python-version: '3.12.14'
       - name: Record CI revision
         run: |
           node --input-type=module <<'NODE'
@@ -47,10 +37,12 @@ jobs:
           await mkdir('artifacts', { recursive: true });
           await writeFile('artifacts/ci-context.json', JSON.stringify(Object.fromEntries(keys.map(key => [key, process.env[key] ?? null])), null, 2) + '\n');
           NODE
+      - name: Prepare Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '24.17.0'
       - name: Install pinned dependencies
         id: bootstrap
-        env:
-          ASTRA_PYTHON: ${{ steps.python.outputs.python-path }}
         run: node tools/bootstrap.mjs
       - name: Check dependency preparation
         run: node --test tools/test-toolchain.mjs

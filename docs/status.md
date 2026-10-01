@@ -49,3 +49,7 @@
 GitHub 分支保护 API 返回403，要求升级套餐或公开仓库，暂无法对私有 main 设置必需检查；未修改可见性或付费设置。合并前仍由 agent 核对最新 head、实际检查、原始报告与源码哈希。
 
 独立本地验收：安装/配置 Node 单测9/9；CI 配置 toolchain `20261001T155653795Z-06765dcf` 为21/21通过；game `20261001T155734136Z-1d5d0e3c` 为12/12通过、34 tests / 153 assertions、0 failures/errors/skipped。主 agent 复读报告、JUnit 与日志路径，65份游戏/入口源码 SHA-256 全部匹配。非法配置回归 `20261001T155620615Z-7a58ec62` 正确 exit1/blocked，保留12项与配置路径，未回退本机配置。远端成功、故意失败与恢复验证尚待实际运行，不以本地通过代替 GitHub 结论。
+
+第一轮远端运行 [36888487517](https://github.com/gzaii-promax/Codename_Astra/actions/runs/36888487517) 在 setup-python 未找到固定3.12.14 ARM64包而失败；业务检查未执行，原始job log已保存，详见 errors/ERR-20261002-CI-PYTHON.md。修复保留同版本，改用固定Astral PBS归档。实际下载重装 `20261001T160323835Z-f71e0171` 为21/21通过，Python3.12.14/darwin-arm64/稳定base_path均记录，单测增至10项。旧本地验收仅对应旧源码，新源码验收与远端复跑另行记录。
+
+修复版独立本地验收：Node10/10；CI toolchain `20261001T160452470Z-75687419` 为21/21；game `20261001T160529698Z-fa10d4aa` 为12/12、34 tests/153 assertions、0 failures/errors/skipped。全部65份game源码哈希、配置哈希与原始证据路径一致。对应新PBS运行时配置，远端复跑待核实。

@@ -41,4 +41,4 @@ GitHub CLI 2.102.0 已从官方 macOS arm64 发布包安装到 `.tools/gh-2.102.
 
 仓库为私有 `gzaii-promax/Codename_Astra`，Git/PR 流程见 [docs/git-workflow.md](../docs/git-workflow.md)。GitHub connector 和本机 CLI 各自有权限；连接能返回 profile 不代表能访问当前私有仓库。不要因 connector 404 就判断仓库不存在。
 
-CI 已获实现授权，先在 macos-15 ARM64 runner 上实际验证全新安装。Node/Python 由固定官方 setup action 准备，bootstrap 精确校验后创建 venv；Godot/GUT 归档和 pip 包使用 SHA-256。CI 的 Git 使用最低版本策略并记录实际值；不安装 gh、不获取个人凭据。是否已跑通及实际 run 见 docs/status.md，不将工作流文件存在等同于成功。
+CI 已获实现授权，先在 macos-15 ARM64 runner 上实际验证全新安装。Node 由固定官方 setup action 准备，Python 使用固定 Astral python-build-standalone 归档及 SHA-256；bootstrap 精确校验后创建 venv；Godot/GUT 归档和 pip 包使用 SHA-256。CI 的 Git 使用最低版本策略并记录实际值；不安装 gh、不获取个人凭据。是否已跑通及实际 run 见 docs/status.md，不将工作流文件存在等同于成功。

@@ -18,6 +18,11 @@
     "python": {
       "path": ".tools/gdtoolkit-venv/bin/python",
       "version": "3.12.14",
+      "source_release": "20260929",
+      "source_url": "https://github.com/astral-sh/python-build-standalone/releases/tag/20260929",
+      "archive_url": "https://github.com/astral-sh/python-build-standalone/releases/download/20260929/cpython-3.12.14%2B20260929-aarch64-apple-darwin-install_only_stripped.tar.gz",
+      "archive_platform": "aarch64-apple-darwin",
+      "archive_flavor": "install_only_stripped",
       "base_path": "/Users/hanguo/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3"
     },
     "gdlint": {
@@ -40,6 +45,7 @@
   },
   "download_checksums": {
     "algorithm": "sha256",
+    "python_archive": "1bb3e53d231ee2c8881e8daf6426f4dd95bff0dda496af0f3af300357aa998d0",
     "godot_archive": "c58a24e31d720be9d62f60cb5627c4e695fb72f21b0cfe1bc9ccaa9a3b3ba63e",
     "gut_archive": "14969aa46adc84aa08cdd21b9f6d1a64addd92ae60b36f02d0521ed305aa4086",
     "gh_archive": "da922c20d1792e5b2cbf375593d7a658acf034c12c84e007e71c76ef959c337e"

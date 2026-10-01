@@ -20,6 +20,14 @@ export async function verifyArchive(file, expected) {
   return actual;
 }
 
+export function pythonRuntimeSource(manifest, environment = process.env) {
+  if (environment.ASTRA_PYTHON) return { kind: 'explicit', executable: environment.ASTRA_PYTHON };
+  const url = manifest.tools.python.archive_url, sha256 = manifest.download_checksums.python_archive;
+  if (typeof url !== 'string' || !url.startsWith('https://github.com/astral-sh/python-build-standalone/releases/download/')
+    || !/^[a-f0-9]{64}$/.test(sha256 ?? '')) throw new Error('Missing pinned standalone Python archive URL or SHA256.');
+  return { kind: 'archive', url, sha256, release: manifest.tools.python.source_release };
+}
+
 export async function resolveExecutable(candidate, root, environment = process.env) {
   const options = path.isAbsolute(candidate) || candidate.includes(path.sep)
     ? [path.resolve(root, candidate)] : (environment.PATH ?? '').split(path.delimiter).filter(Boolean).map((entry) => path.resolve(entry, candidate));
@@ -106,12 +114,48 @@ export async function bootstrap(root, environment = process.env) {
       if (!versionMatches(manifest.tools.node, nodeVersion)) throw new Error(`Node version mismatch: expected ${manifest.tools.node.version}, got ${nodeVersion}.`);
       return { path: process.execPath, version: nodeVersion };
     });
-    const python = await resolveExecutable(environment.ASTRA_PYTHON || 'python3', root, environment);
+    await mkdir(stage, { recursive: true });
+    const archiveDirectory = path.join(destination, 'downloads');
+    await mkdir(archiveDirectory, { recursive: true });
+    async function archive(id, url, expected, extension = 'zip') {
+      const target = path.join(archiveDirectory, `${id}.${extension}`);
+      const exists = await stat(target).then(() => true).catch((error) => { if (error.code === 'ENOENT') return false; throw error; });
+      if (!exists) await step(`download-${id}`, async (logPath) => {
+        const temporary = path.join(stage, `${id}.${extension}`);
+        const actual = await command(logPath, ['/usr/bin/curl', '--disable', '--fail', '--location', '--silent', '--show-error', '--connect-timeout', '20', '--max-time', '240', '--output', temporary, url], 250000);
+        await verifyArchive(temporary, expected);
+        await rename(temporary, target);
+        return { ...actual, url, sha256: expected };
+      });
+      await step(`verify-${id}-archive`, async () => ({ archive: relative(target), sha256: await verifyArchive(target, expected), cached: exists }));
+      return target;
+    }
+    const pythonSource = await step('python-source', async () => pythonRuntimeSource(manifest, environment));
+    let python;
+    if (pythonSource.kind === 'explicit') python = await resolveExecutable(pythonSource.executable, root, environment);
+    else {
+      const pythonArchive = await archive('python', pythonSource.url, pythonSource.sha256, 'tar.gz');
+      const pythonExtraction = path.join(stage, 'python');
+      await mkdir(pythonExtraction, { recursive: true });
+      await step('extract-python', async (logPath) => command(logPath, ['/usr/bin/tar', '-xzf', pythonArchive, '-C', pythonExtraction], 60000));
+      const entries = await readdir(pythonExtraction);
+      if (entries.length !== 1 || entries[0] !== 'python') throw new Error('Unexpected standalone Python archive structure.');
+      const pythonDestination = path.join(destination, 'python-runtime');
+      await rm(pythonDestination, { recursive: true, force: true });
+      await rename(path.join(pythonExtraction, 'python'), pythonDestination);
+      python = await resolveExecutable(path.join(pythonDestination, 'bin', 'python3'), root, environment);
+    }
     await step('runtime-python', async (logPath) => {
       const actual = await command(logPath, [python, '--version']);
       const version = (actual.stdout + actual.stderr).match(/\d+\.\d+\.\d+/)?.[0];
       if (!versionMatches(manifest.tools.python, version)) throw new Error(`Python version mismatch: expected ${manifest.tools.python.version}, got ${version}.`);
       return { ...actual, version };
+    });
+    await step('python-platform', async (logPath) => {
+      const actual = await command(logPath, [python, '-c', 'import json,platform,sys;print(json.dumps({"platform":sys.platform,"machine":platform.machine(),"executable":sys.executable,"prefix":sys.prefix}))']);
+      const identity = JSON.parse(actual.stdout.trim());
+      if (identity.platform !== 'darwin' || !['arm64', 'aarch64'].includes(identity.machine)) throw new Error(`Python platform mismatch: ${identity.platform}-${identity.machine}.`);
+      return { ...actual, identity };
     });
     const git = await resolveExecutable(environment.ASTRA_GIT || 'git', root, environment);
     const gitPolicy = { path: git, version_policy: 'minimum', min_version: manifest.ci?.git_min_version };
@@ -122,22 +166,6 @@ export async function bootstrap(root, environment = process.env) {
       if (!versionMatches(gitPolicy, version)) throw new Error(`Git must satisfy minimum ${gitPolicy.min_version}; got ${version}.`);
       return { ...actual, version, policy: gitPolicy };
     });
-    await mkdir(stage, { recursive: true });
-    const archiveDirectory = path.join(destination, 'downloads');
-    await mkdir(archiveDirectory, { recursive: true });
-    async function archive(id, url, expected) {
-      const target = path.join(archiveDirectory, `${id}.zip`);
-      const exists = await stat(target).then(() => true).catch((error) => { if (error.code === 'ENOENT') return false; throw error; });
-      if (!exists) await step(`download-${id}`, async (logPath) => {
-        const temporary = path.join(stage, `${id}.zip`);
-        const actual = await command(logPath, ['/usr/bin/curl', '--disable', '--fail', '--location', '--silent', '--show-error', '--connect-timeout', '20', '--max-time', '240', '--output', temporary, url], 250000);
-        await verifyArchive(temporary, expected);
-        await rename(temporary, target);
-        return { ...actual, url, sha256: expected };
-      });
-      await step(`verify-${id}-archive`, async () => ({ archive: relative(target), sha256: await verifyArchive(target, expected), cached: exists }));
-      return target;
-    }
     const godotArchive = await archive('godot', manifest.tools.godot.archive_url, manifest.download_checksums.godot_archive);
     const gutArchive = await archive('gut', manifest.tools.gut.archive_url, manifest.download_checksums.gut_archive);
     await step('extract-godot', async (logPath) => command(logPath, ['/usr/bin/ditto', '-x', '-k', godotArchive, path.join(stage, 'godot')], 60000));
@@ -181,7 +209,7 @@ export async function bootstrap(root, environment = process.env) {
     effective.scope = 'CI darwin-arm64; reproducible dependencies and existing toolchain/game checks';
     effective.tools.godot.path = relative(path.join(destination, 'godot', 'Godot.app', 'Contents', 'MacOS', 'Godot'));
     effective.tools.gut.addons_path = relative(path.join(destination, 'gut', 'addons', 'gut'));
-    effective.tools.python = { path: relative(venvPython), version: manifest.tools.python.version, base_path: python };
+    effective.tools.python = { ...manifest.tools.python, path: relative(venvPython), base_path: python };
     for (const name of ['gdlint', 'gdformat']) effective.tools[name].path = relative(path.join(venv, 'bin', name));
     effective.tools.node = { path: process.execPath, version: manifest.tools.node.version };
     effective.tools.git = gitPolicy;
