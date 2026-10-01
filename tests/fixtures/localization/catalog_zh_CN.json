@@ -1,0 +1,4 @@
+{
+  "greeting": "你好，{name}。",
+  "skill.damage": "伤害：{damage}；前摇：{seconds}秒"
+}

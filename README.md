@@ -1,4 +1,4 @@
-# Ember Trial — 第一版战斗原型
+# Ember Trial — 战斗与多语言原型
 
 一个 Godot 4.7.2 / GDScript 的 2D 横版训练房间，暂用内部名称 Ember Trial。角色静态占位图可替换，地图是 gray box。
 
@@ -22,12 +22,15 @@ node tools/play.mjs
 | 火球术 | K |
 | 重置角色、目标与冷却 | R |
 | 切换火球 Lv.1/2，比较前摇 | F2（调试） |
+| 暂停菜单 / 返回 | Esc，或 HUD 的菜单按钮 |
 
 靠近稻草人按 J 测近战，远处按 K 测火球。目标无限生命，屏幕显示命中与累计伤害。火球 Lv.1 前摇 0.5 s，Lv.2 为 0.2 s，伤害均 35；普攻伤害 20。当前数值均为待试玩反馈的初值。
 
+菜单可选择简体中文、English、日本語；语言保存到用户设置，下次启动恢复。菜单中的帮助包含操作与技能说明，长文本可滚动。新增语言、自定义译文、字体与回退规则见 [localization/README.md](localization/README.md)。
+
 ## 工程入口
 
-开发规则/模块索引见 AGENTS.md；第一版验收范围见 docs/first-version.md；实际验证和遗留见 docs/status.md。测试与错误协议见 docs/testing.md、docs/errors/README.md。
+开发规则/模块索引见 AGENTS.md；第一版基线见 docs/first-version.md；下一版多语言范围见 docs/localization-v2.md；实际验证和遗留见 docs/status.md。测试与错误协议见 docs/testing.md、docs/errors/README.md。
 
 ```sh
 node tools/check.mjs --scope game

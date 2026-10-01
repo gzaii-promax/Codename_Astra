@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "default_language": "zh_CN",
+  "languages": [
+    {
+      "locale": "zh_CN",
+      "name": "简体中文",
+      "catalog": "res://localization/catalogs/zh_CN.json",
+      "font": "res://assets/fonts/NotoSansCJKsc-Regular.otf"
+    },
+    {
+      "locale": "en",
+      "name": "English",
+      "catalog": "res://localization/catalogs/en.json",
+      "font": "res://assets/fonts/NotoSansCJKsc-Regular.otf"
+    },
+    {
+      "locale": "ja",
+      "name": "日本語",
+      "catalog": "res://localization/catalogs/ja.json",
+      "font": "res://assets/fonts/NotoSansCJKjp-Regular.otf"
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "default_language": "en",
+  "languages": [
+    { "locale": "en", "name": "English", "catalog": "catalog_en.json", "font": "" },
+    { "locale": "ja", "name": "日本語", "catalog": "catalog_ja.json", "font": "" },
+    { "locale": "zh_CN", "name": "简体中文", "catalog": "catalog_zh_CN.json", "font": "" },
+    { "locale": "fr", "name": "Français", "catalog": "catalog_fr.json", "font": "" }
+  ]
+}

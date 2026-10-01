@@ -4,20 +4,33 @@
 
 2026-10-01 已完成本地可运行工程：主角移动/跳跃、普通攻击、火球术、gray box 地图、训练稻草人、可替换静态占位角色及训练信息。使用项目固定 Godot 4.7.2，运行方式见根 README.md。手感与玩法数值仍等待用户试玩反馈。
 
+## 多语言下一版技术交付
+
+2026-10-01 在既有工程增加可配置语言模块、暂停菜单、语言选择与帮助。首批 en、ja、zh_CN，每种 30 个文本键，覆盖菜单、HUD、技能名称/说明、帮助和地图标签。语言保存到 ConfigFile，启动恢复；缺失/空译文回退默认简体中文，命名参数由文本入口替换，未知键保持字面值。语言清单与 JSON 可新增或自定义，UI 从清单生成选项；技能只声明文本键，战斗规则与数值保持原基线。
+
+本轮分支 `feat/localization-v2`，仅提交 draft PR，不合并或发布。剧情脚本以后由用户提供；本轮没有生成故事。范围见 localization-v2.md，新增语言与自定义译文方法见 ../localization/README.md。
+
 ## 已执行证据
 
 | 范围 | 最终 run_id | 实际结果 |
 | --- | --- | --- |
-| game（推送前） | `20261001T085453031Z-480c12f9` | 12/12 检查；34 tests、153 assertions；0 failures/errors/skipped |
-| toolchain（含 gh） | `20261001T085409035Z-768c274e` | 22/22 检查；预期失败与超时保留底层状态 |
+| game（多语言最终） | `20261001T103447218Z-fb5fe550` | 14/14 检查；53 tests、649 assertions；0 failures/errors/skipped |
+| toolchain（当前协议） | `20261001T102523641Z-7c23a1c9` | 22/22 检查；预期失败与超时保留底层状态 |
+| game（首版基线） | `20261001T085453031Z-480c12f9` | 12/12 检查；34 tests、153 assertions；0 failures/errors/skipped |
 
-报告分别在 `artifacts/test-runs/<run_id>/report.json`，game 同目录有 `game.xml`、`logs/gut.log`、`logs/startup.log` 和真实工程快照。测试 agent 已核原始 JUnit/引擎日志，主 agent 核对检查完整、日志存在与当前源码 SHA-256 完全一致：60 项文件哈希均匹配，没有阻塞。首次本地交付的原始报告 `20261001T082716048Z-759ee433` 另有第三 agent 的独立交接复核；本轮仅新增固定 gh 配置/工具版本检查及 Git 交接文档，游戏行为代码保持不变。原报告不随交付文档更新而改写。
+多语言最终报告覆盖全部 34 个既有回归与 19 个新增用例；93 项文件 SHA-256 与当前工程一致，原始 JUnit、引擎日志及 manifest 已核对。新增两个实际引擎进程验证保存/重启恢复，PID 38715 与 38716，使用同一独立 language-restart.cfg，读取进程未重新设置语言即恢复 ja。所有引擎子进程的 ASTRA_SETTINGS_PATH 在日志与 actual 中记录，不碰玩家设置。
+
+真实图形证据在 `artifacts/localization-visual/20261001T102716473Z/`：capture.log exit_code=0、无引擎错误，report.json、source-hashes.json、九张 1440×810 viewport PNG 齐全。主 agent 已实际打开三语 HUD/菜单/帮助全部九图，并另写 review.json（visual_review=pass），保留原 capture 的 pending 标记作为当时状态。可见中日文无缺字，面板均在 960×540 逻辑画布内；长帮助使用滚动区域。完整文字字形与布局测量另由 GUT 验证，不能把截图保存成功等同于手感或正式译文审核。
+
+报告分别在 `artifacts/test-runs/<run_id>/report.json`，game 同目录有 `game.xml`、`logs/gut.log`、`logs/startup.log` 和真实工程快照。首版验收当时的 60 项哈希对应首版代码，不将该旧报告替代本轮 93 项验证。首次本地交付原始报告 `20261001T082716048Z-759ee433` 另有独立交接复核；原报告不随交付文档更新而改写。
 
 实际非 headless 图形运行使用 Godot 4.7.2 Compatibility / Apple M4 Pro，已查看 `artifacts/first-version.png`（1440 × 810）与 `artifacts/render-capture.log`：占位主角、火球、目标、中文 HUD 与地图标签可见。截图由真实 viewport 获取；它不证明手感或硬件键盘人工试玩通过。
 
 ## 错误与修复
 
 初期项目未齐备阻塞、GUT fixture 的 current_scene 父节点错误均已记录并复跑关闭；动作方向、重置效果、左右贴墙火球的边界修复已添加真实回归并通过。见 errors/ 下对应记录。既往 Xcode/权限问题保留原记录，新的 agent 遇到同类错误应先核对环境。
+
+多语言首轮发现 HUD 在初始窄列换行后保留过大高度，底部 2648 超出画布。修复真实容器重排后，三语底部为 161，原 183 项布局断言通过；公共记录 ERR-20261001-LOCALIZATION-HUD-OVERFLOW 已关闭。独立截图探针的 autoload 提前编译问题也已修复并通过原图形方式复验，见 ERR-20261001-I18N-GRAPHICS-PROBE。所有失败与超时证据保留。
 
 ## Git 与交接
 

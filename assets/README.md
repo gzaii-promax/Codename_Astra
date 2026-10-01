@@ -6,6 +6,8 @@
 
 此模块存放可替换的视觉素材；碰撞、角色移动、技能和伤害逻辑不应依赖纹理内容、画布大小或透明边距。
 
+下一版增加随工程分发的中日文字体，来源、固定版本、许可和校验见 [fonts/README.md](fonts/README.md)。字体用于菜单、HUD、帮助和地图标签；不依赖本机安装中文或日文字体。
+
 ## 来源与生成方式
 
 - 工具：内置 `image_gen.imagegen`，默认 built-in 模式，`transparent_background: true`。
@@ -48,4 +50,3 @@ Constraints: one single static sprite only; no sprite sheet; no extra poses; no 
 ## 验证与遗留
 
 文件已保存并完成外观查看、PNG 格式/alpha 只读分析；游戏导入和场景中显示由主 agent 的统一测试与运行检查负责。正式素材规格、动画帧、美术一致性与用户视觉反馈仍待定。
-

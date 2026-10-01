@@ -6,7 +6,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const sourceDirs = ['shared', 'combat', 'skills', 'player', 'world', 'assets', 'ui', 'tests'];
+const sourceDirs = ['shared', 'combat', 'skills', 'player', 'world', 'assets', 'ui', 'localization', 'tests'];
 const hash = (data) => createHash('sha256').update(data).digest('hex');
 const relative = (value) => path.relative(root, value).split(path.sep).join('/');
 const clean = (result) => result.exit_code === 0 && !result.timed_out && !result.spawn_error;
@@ -26,13 +26,13 @@ async function filesUnder(directory) {
 }
 
 // Uses argv without a shell and kills the process group on timeout.
-async function execute(command, logPath, timeoutMs = 15000) {
+async function execute(command, logPath, timeoutMs = 15000, environmentOverrides = {}) {
   let stdout = '', stderr = '', timedOut = false, spawnError = null, terminationError = null;
   const started = Date.now();
   let pid;
   const result = await new Promise((resolve) => {
     const child = spawn(command[0], command.slice(1), {
-      cwd: root, env: process.env, detached: process.platform !== 'win32', stdio: ['ignore', 'pipe', 'pipe'],
+      cwd: root, env: { ...process.env, ...environmentOverrides }, detached: process.platform !== 'win32', stdio: ['ignore', 'pipe', 'pipe'],
     });
     pid = child.pid;
     child.stdout.on('data', (data) => { stdout += data; });
@@ -56,9 +56,9 @@ async function execute(command, logPath, timeoutMs = 15000) {
   try { if (pid) { process.kill(process.platform === 'win32' ? pid : -pid, 0); terminated = false; } }
   catch (error) { if (error.code !== 'ESRCH') terminated = false; }
   const actual = { ...result, stdout, stderr, timed_out: timedOut, spawn_error: spawnError,
-    termination_error: terminationError, terminated, duration_ms: Date.now() - started,
+    termination_error: terminationError, terminated, duration_ms: Date.now() - started, environment_overrides: environmentOverrides,
     observed_status: spawnError ? 'blocked' : timedOut ? 'timeout' : result.exit_code === 0 ? 'pass' : 'fail' };
-  await writeFile(logPath, `command(argv): ${JSON.stringify(command)}\ncwd: ${root}\ntimeout_ms: ${timeoutMs}\n--- stdout ---\n${stdout}\n--- stderr ---\n${stderr}\n--- process result ---\n${JSON.stringify({ ...actual, stdout: undefined, stderr: undefined })}\n`);
+  await writeFile(logPath, `command(argv): ${JSON.stringify(command)}\ncwd: ${root}\nenvironment_overrides: ${JSON.stringify(environmentOverrides)}\ntimeout_ms: ${timeoutMs}\n--- stdout ---\n${stdout}\n--- stderr ---\n${stderr}\n--- process result ---\n${JSON.stringify({ ...actual, stdout: undefined, stderr: undefined })}\n`);
   return actual;
 }
 
@@ -83,7 +83,8 @@ export async function runGameChecks() {
     try {
       if (unmet.length) item.actual = { observed_status: 'blocked', unmet_dependencies: unmet };
       else if (command) {
-        const result = await execute(command, logPath, timeoutMs);
+        const environmentOverrides = command[0] === tool('godot') ? { ASTRA_SETTINGS_PATH: path.join(runDir, 'settings.cfg') } : {};
+        const result = await execute(command, logPath, timeoutMs, environmentOverrides);
         item.exit_code = result.exit_code;
         item.status = await judge(result) ? 'pass' : result.observed_status === 'pass' ? 'fail' : result.observed_status;
         item.actual = { ...result, stdout_tail: result.stdout.slice(-4000), stderr_tail: result.stderr.slice(-4000) };
@@ -156,6 +157,23 @@ export async function runGameChecks() {
     return evidence.tests === expectedTests.length && new Set(names).size === names.length && expectedTests.every((name) => names.includes(name)) && evidence.failures === 0 && evidence.errors === 0 && evidence.skipped === 0;
   }, ['import', 'version-python']);
   await check('startup', 'Run main scene for 120 headless frames and reject engine errors.', { exit_code: 0, engine_errors: 0, frames: 120 }, engine('startup', ['--quit-after', '120']), (result) => clean(result) && noEngineErrors(result), ['import'], 15000);
+  const restartSettings = path.join(runDir, 'language-restart.cfg');
+  let writePid;
+  const restartEvidence = (result) => {
+    const match = result.stdout.match(/^LOCALIZATION_RESTART=(.+)$/m);
+    const evidence = match ? JSON.parse(match[1]) : null;
+    result.restart_evidence = evidence;
+    return evidence;
+  };
+  await check('localization-restart-write', 'Save Japanese to an isolated ConfigFile in a real engine process.', { locale: 'ja', settings_path: relative(restartSettings) }, engine('localization-restart-write', ['--script', 'res://tests/probes/language_restart.gd', '--', 'write', restartSettings, 'ja']), (result) => {
+    const evidence = restartEvidence(result);
+    writePid = evidence?.pid;
+    return clean(result) && noEngineErrors(result) && evidence?.status === 'pass' && evidence.mode === 'write' && evidence.locale === 'ja' && evidence.settings_path === restartSettings && Number.isInteger(writePid);
+  }, ['import'], 15000);
+  await check('localization-restart-read', 'Start a new engine process and restore Japanese without setting its language.', { locale: 'ja', fresh_process: true }, engine('localization-restart-read', ['--script', 'res://tests/probes/language_restart.gd', '--', 'read', restartSettings, 'ja']), (result) => {
+    const evidence = restartEvidence(result);
+    return clean(result) && noEngineErrors(result) && evidence?.status === 'pass' && evidence.mode === 'read' && evidence.restored_locale === 'ja' && evidence.locale === 'ja' && evidence.settings_path === restartSettings && Number.isInteger(evidence.pid) && evidence.pid !== writePid;
+  }, ['import', 'localization-restart-write'], 15000);
   const unexpected = report.checks.filter((item) => item.status !== 'pass');
   report.summary = { expected: report.expected_check_ids.length, executed: report.checks.length, matched: report.checks.length - unexpected.length, unexpected: unexpected.map(({ id, status, error_id }) => ({ id, status, error_id })), missing: [] };
   report.status = unexpected.some((item) => item.status === 'fail') ? 'fail' : unexpected.some((item) => item.status === 'timeout') ? 'timeout' : unexpected.length ? 'blocked' : 'pass';

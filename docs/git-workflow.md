@@ -7,6 +7,7 @@
 - 默认分支：main；首版功能分支：feat/combat-v1。
 - 首版[PR #1](https://github.com/gzaii-promax/Codename_Astra/pull/1)已附加到 Codex 任务，并于 2026-10-01 合并；合并提交为 `09f35ec8b0ffaba38f6e77974ecc943721828083`。后续实际分支状态与提交以 GitHub 读取结果为准。
 - 用户已授权持续提交与合并：在本项目已授权开发范围内，通过必要验收并提交 PR 后，可自行合并，无需再次确认提交或合并。功能范围和重要架构决策仍按用户已有分工处理。
+- 当前多语言下一版有更具体的新限制：只创建或更新 draft PR，不自动合并或发布，见 docs/localization-v2.md。此轮限制优先于持续合并授权；后续按最新用户范围执行。
 
 ## 首次发布的历史
 
@@ -25,4 +26,4 @@
 7. 按持续合并授权核对最新 head 与验收证据、源码哈希、适用的 GitHub 检查及冲突状态。必要检查未通过或证据与最新代码不对应时，先修复/复验；没有 CI 的仓库要明确本地证据范围。草稿在条件齐备后转 ready，默认用 Merge commit 保留详细历史，合并命令用 --match-head-commit 锁定已核对的 SHA，不绕过仓库要求。
 8. 合并后读取实际 merged 状态/合并提交，核对远端 main，再 fetch 并用 fast-forward 同步本地 main。后续从最新 main 创建新分支。合并不等于用户手感验收，待反馈仍保留；不因合并自动删除分支。
 
-授权存在系统 keyring；本地 git credential helper 调用当前项目的 gh，凭据不会写入 tracked files。新机器或移动目录后需重新配置工具路径/登录。本轮不新建 CI，不发布安装包；按已授权范围的验收结果提交并自行合并 PR。
+授权存在系统 keyring；本地 git credential helper 调用当前项目的 gh，凭据不会写入 tracked files。新机器或移动目录后需重新配置工具路径/登录。本轮不新建 CI，验证通过后只创建或更新 draft PR，不合并或发布。

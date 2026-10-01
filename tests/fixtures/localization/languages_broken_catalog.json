@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "default_language": "en",
+  "languages": [
+    { "locale": "en", "name": "English", "catalog": "catalog_en.json", "font": "" },
+    { "locale": "de", "name": "Deutsch", "catalog": "invalid_catalog.json", "font": "" }
+  ]
+}
