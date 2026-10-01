@@ -5,14 +5,14 @@
 - 仓库：`https://github.com/gzaii-promax/Codename_Astra`，私有；本机 CLI 已核实 private=true、push=true。
 - origin：`https://github.com/gzaii-promax/Codename_Astra.git`。
 - 默认分支：main；首版功能分支：feat/combat-v1。
-- 首版[PR #1](https://github.com/gzaii-promax/Codename_Astra/pull/1)已创建并附加到 Codex 任务；实际状态与提交以 GitHub 读取结果为准。
+- 首版[PR #1](https://github.com/gzaii-promax/Codename_Astra/pull/1)已附加到 Codex 任务，并于 2026-10-01 合并；合并提交为 `09f35ec8b0ffaba38f6e77974ecc943721828083`。后续实际分支状态与提交以 GitHub 读取结果为准。
 - 用户已授权持续提交与合并：在本项目已授权开发范围内，通过必要验收并提交 PR 后，可自行合并，无需再次确认提交或合并。功能范围和重要架构决策仍按用户已有分工处理。
 
 ## 首次发布的历史
 
 远端初始为空。为使首版全部代码可以在同一个 PR 审查，创建空 main 初始化提交 `8f585ab`，并在功能分支把该基线合入原本地首版提交 `172c38e`；连接提交为 `e07e4d5`。原首版提交及游戏内容树均保留，不强推或覆盖其他历史。
 
-首次 PR 合并前 main 没有游戏功能，下一次开发应先读取当前 PR/提交，从 feat/combat-v1 接续用户反馈。合并后再从最新 main 创建后续功能分支。
+首次 PR 合并前 main 仅有空基线；PR #1 合并后已包含完整首版工程，本地 main 已同步。后续开发先读取最新 PR/提交，再从最新 main 创建功能分支接续用户反馈。
 
 ## Agent 固定步骤
 
