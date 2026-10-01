@@ -1,5 +1,9 @@
 # 当前交付状态
 
+## 主分支整合（2026-10-02）
+
+用户授权将生命与多语言分支合入 main，并补齐原反馈中的心形与跳跃。整合同时保留受击保护，当前范围、验收和 PR 交接见 [integration-main.md](integration-main.md)。本轮完整 game `20261001T185434427Z-1a47966d` 已通过 112 tests、2172 assertions、126 项源码哈希核对；原目录启动和三语 12 图已核实，远端合并以本轮整合 PR 当前状态为准。以下各节保留原交付时点证据与当时 PR 状态，不能据其旧 draft 描述推断当前远端状态。
+
 ## 受击保护技术交付（2026-10-02）
 
 新增公共 `shared/combat_config.gd`：主角保护 0.5 秒，其他生命角色默认 0 秒。正伤害后由公共 `Combatant` 先启动保护再发送事件；保护内不扣血、不更新血条、不重复受击中断，拒绝不续期。零秒显式跳过保护判定，零伤害不启动计时。暂停冻结计时，训练重置、死亡、击倒与起身清零；剧情死亡继续生效。完整约定见 [hit-protection.md](hit-protection.md)。
@@ -13,6 +17,17 @@
 已核实远端 PR #3 合入 main、尺度 PR #6 合入生命分支；生命 PR #4 当前仍为 OPEN draft。本轮从生命 head `06718c78a27e4ffd822d8d8ec9e61ca48897fa79` 接续到 `codex/hit-protection`，独立草稿、不合并或发布。下方旧版本描述保留各轮原交付时点；当前版本未进入 main，用户手感仍待试玩反馈。
 
 实现提交 `98ab99e` 已推送，并创建、读回核实[受击保护草稿 PR #8](https://github.com/gzaii-promax/Codename_Astra/pull/8)：OPEN、isDraft=true、base=codex/health-combat-v3、head=codex/hit-protection，已附加到当前 Codex 任务。最终 head 与远端 CI 结果按当前 PR 实际检查核对；草稿继续保留。
+## 心之容器技术交付（2026-10-02）
+
+按用户本轮规则改为心之容器：主角3心上限、普攻0.5心、火球1心；稻草人10心，归零立即回满并持续累计命中/伤害；定时敌人采用用户确认的3心上限、每击0.5心，原周期与前摇不变。生命内部以整数半心储存，公共字段、事件、恢复及统计以心为单位；拒绝不合法容器和非0.5倍数伤害。取消旧一般减伤、类型抗性、自伤/友伤减伤；允许的伤害直接按配置心数扣除。完整心、半心和空容器由公共组件绘制，稻草人10个容器为两行。详细采纳需求与接口见 [heart-health-v5.md](heart-health-v5.md) 及各模块说明。
+
+独立 game 验收 `20261001T174929088Z-c237683c`：14/14 检查，101 tests、1996 assertions，0 failures/errors/skipped。保留尺度版93项并新增8项；强化攻击、全额自伤/友伤、半心恢复、稻草人20次普攻/10次火球循环、真实碰撞、生命周期、三语和尺度/跳跃回归均执行。主 agent 复读原始JUnit、manifest和21份日志，所有测试有断言、无引擎错误，122份源码/协议SHA-256与工程一致。两个实际引擎进程PID78075/78076验证ja保存和重启恢复，不碰玩家设置。
+
+真实图形证据 `artifacts/heart-visual/20261001T175314663Z/` 从同一通过快照捕获：exit0、stderr为空，三语受伤/稻草人回满/敌人死亡/主角击倒共12张1440×810PNG、原日志及122源码哈希齐全。主 agent 与独立审查 agent分别逐图打开全部12张，primary-review.json、review.json均为pass；半颗和空心清楚，0.5不取整，回满保留统计，第三角色心读数与长状态文字分开，浮字分行可读。
+
+首轮测试设施失败及实际截图发现的三角色遮挡均保留并已修复复验，见 [测试记录](errors/ERR-20261002-HEART-TEST-FIXTURE.md)、[读数遮挡](errors/ERR-20261002-HEART-READOUT-OVERLAP.md)。自动通过不能替代图形检查，截图也不代表用户手感或平衡验收。
+
+本轮分支 `codex/heart-health-v5` 接续 `codex/scale-movement-v4`，已创建并核实[草稿 PR #7](https://github.com/gzaii-promax/Codename_Astra/pull/7)：OPEN、isDraft=true、base=codex/scale-movement-v4，已附加到本Codex任务。实现提交 `46f3f8c6ebbfe2c13514385feae12a2ede4c2382` 已推送，提交树122项哈希与最终本地报告一致；交接文档提交不改变该验证范围。依赖 #3/#4/#6 及本PR继续草稿，不合并或发布。远端普通PR CI已经启动，最终head与运行结果以当前PR检查和原始artifact为准，见 [git-workflow.md](git-workflow.md)。当前主角仍为占位素材，未新增心拾取、护盾心或正式死亡/击倒动画；用户试玩待反馈。
 
 ## 统一尺度与可变跳跃技术交付（2026-10-02）
 
@@ -52,6 +67,7 @@ CI接入前的生命版本 game 报告 `20261001T152213740Z-0f6367a4`：14/14 �
 
 | 范围 | 最终 run_id | 实际结果 |
 | --- | --- | --- |
+| game（心系统） | `20261001T174929088Z-c237683c` | 14/14 检查；101 tests、1996 assertions；0 failures/errors/skipped |
 | game（生命原交付） | `20261001T152213740Z-0f6367a4` | 14/14 检查；79 tests、1121 assertions；0 failures/errors/skipped |
 | game（多语言原交付） | `20261001T103447218Z-fb5fe550` | 14/14 检查；53 tests、649 assertions；0 failures/errors/skipped |
 | toolchain（CI接入前） | `20261001T102523641Z-7c23a1c9` | 22/22 检查；预期失败与超时保留底层状态 |

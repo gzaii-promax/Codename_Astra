@@ -33,12 +33,18 @@ func test_periodic_enemy_attacks_stationary_player_after_interval_without_chasin
 	player.set_control_input(0.0)
 	var enemy_x := enemy.global_position.x
 	await wait_physics_frames(60)
-	assert_eq(player.get_combatant().current_health, 100.0, "No early attack before full interval")
+	assert_eq(player.get_combatant().current_health, 3.0, "No early attack before full interval")
 	await wait_physics_frames(65)
-	assert_lt(player.get_combatant().current_health, 100.0, "Real enemy attack damages player")
+	assert_eq(
+		player.get_combatant().current_health, 2.5, "One real enemy attack removes half a heart"
+	)
 	var first_health := player.get_combatant().current_health
 	await wait_physics_frames(100)
-	assert_lt(player.get_combatant().current_health, first_health, "Attacks repeat")
+	assert_eq(
+		player.get_combatant().current_health,
+		first_health - 0.5,
+		"Each repeat removes half a heart"
+	)
 	assert_almost_eq(enemy.global_position.x, enemy_x, 0.01, "Prototype does not chase")
 
 
@@ -52,17 +58,17 @@ func test_player_melee_and_fireball_damage_and_kill_real_enemy() -> void:
 	await wait_physics_frames(6)
 	assert_true(player.request_attack())
 	await wait_physics_frames(30)
-	assert_eq(enemy.get_combatant().current_health, 80.0)
+	assert_eq(enemy.get_combatant().current_health, 2.5)
 	player.reset_state(enemy.global_position + Vector2(-90.0, 0.0))
 	player.set_control_input(0.0)
-	for expected_health in [45.0, 10.0, 0.0]:
+	for expected_health in [1.5, 0.5, 0.0]:
 		assert_true(player.request_fireball())
 		await wait_physics_frames(85)
 		assert_eq(enemy.get_combatant().current_health, expected_health)
 	assert_eq(enemy.get_combatant().life_state, Combatant.LifeState.DEAD)
 	enemy.attack_enabled = true
 	await wait_physics_frames(120)
-	assert_eq(player.get_combatant().current_health, 100.0, "Dead enemy cannot attack")
+	assert_eq(player.get_combatant().current_health, 3.0, "Dead enemy cannot attack")
 	assert_eq(enemy.actions.phase, ActionController.Phase.IDLE)
 
 
@@ -85,12 +91,12 @@ func test_training_dummy_counts_resolved_damage_without_mutating_original_hit() 
 	var arena := _arena()
 	arena.enemy.attack_enabled = false
 	arena.enemy.get_combatant().faction = Combatant.Faction.NEUTRAL
-	var hit := _hit(arena.enemy, 10.0, HitData.TargetPolicy.ALL_WITH_SAME_FACTION_REDUCTION)
+	var hit := _hit(arena.enemy, 0.5, HitData.TargetPolicy.ALL)
 	assert_true(arena.dummy.get_receiver().receive_hit(hit))
 	assert_eq(arena.dummy.hit_count, 1)
-	assert_eq(arena.dummy.total_damage, 5.0, "Neutral same-faction dummy counts settled damage")
+	assert_eq(arena.dummy.total_damage, 0.5, "Same-faction damage is counted without reduction")
 	assert_eq(arena.dummy.last_hit, hit)
-	assert_eq(hit.damage, 10.0, "Settling receiver damage preserves the reusable hit payload")
+	assert_eq(hit.damage, 0.5, "Settling receiver damage preserves the reusable hit payload")
 
 
 func test_real_active_melee_obeys_hit_interrupt_policy_and_preserves_cooldown() -> void:
@@ -117,7 +123,7 @@ func test_real_active_melee_obeys_hit_interrupt_policy_and_preserves_cooldown() 
 			if child is MeleeStrike and child.hit.source == player:
 				windows.append(child)
 		assert_eq(windows.size(), 1, "Real active melee window exists before receiving damage")
-		assert_true(_receiver(player).receive_hit(_hit(enemy, 5.0)))
+		assert_true(_receiver(player).receive_hit(_hit(enemy, 0.5)))
 		assert_gt(actions.get_cooldown_remaining(&"basic_attack"), 0.0)
 		enemy.global_position = player.global_position + Vector2(50.0, 0.0)
 		if interruptible:
@@ -131,7 +137,7 @@ func test_real_active_melee_obeys_hit_interrupt_policy_and_preserves_cooldown() 
 		await wait_physics_frames(6)
 		assert_eq(
 			enemy.get_combatant().current_health,
-			100.0 if interruptible else 80.0,
+			3.0 if interruptible else 2.5,
 			"A cancelled window cannot hit a target entering its old reach"
 		)
 
@@ -142,8 +148,8 @@ func test_training_reset_restores_both_units_and_restarts_enemy_attack_clock() -
 	arena.player.get_combatant().force_death()
 	arena.enemy.get_combatant().force_death()
 	arena.reset_training()
-	assert_eq(arena.player.get_combatant().current_health, 100.0)
-	assert_eq(arena.enemy.get_combatant().current_health, 100.0)
+	assert_eq(arena.player.get_combatant().current_health, 3.0)
+	assert_eq(arena.enemy.get_combatant().current_health, 3.0)
 	assert_eq(arena.player.get_combatant().life_state, Combatant.LifeState.ACTIVE)
 	assert_eq(arena.enemy.get_combatant().life_state, Combatant.LifeState.ACTIVE)
 	assert_eq(arena.enemy.actions.phase, ActionController.Phase.IDLE)
@@ -152,10 +158,10 @@ func test_training_reset_restores_both_units_and_restarts_enemy_attack_clock() -
 	arena.player.set_control_input(0.0)
 	await wait_physics_frames(60)
 	assert_eq(
-		arena.player.get_combatant().current_health, 100.0, "Reset does not retain old elapsed time"
+		arena.player.get_combatant().current_health, 3.0, "Reset does not retain old elapsed time"
 	)
 	await wait_physics_frames(65)
-	assert_lt(arena.player.get_combatant().current_health, 100.0)
+	assert_lt(arena.player.get_combatant().current_health, 3.0)
 
 
 func test_pause_menu_freezes_enemy_attack_and_optional_recovery_timer() -> void:
@@ -167,23 +173,23 @@ func test_pause_menu_freezes_enemy_attack_and_optional_recovery_timer() -> void:
 	await wait_physics_frames(60)
 	hud.open_menu()
 	await wait_physics_frames(130)
-	assert_eq(player.get_combatant().current_health, 100.0, "Menu freezes enemy attack clock")
+	assert_eq(player.get_combatant().current_health, 3.0, "Menu freezes enemy attack clock")
 	hud.close_menu()
 	await wait_physics_frames(60)
-	assert_lt(player.get_combatant().current_health, 100.0)
+	assert_lt(player.get_combatant().current_health, 3.0)
 	arena.enemy.attack_enabled = false
 	var health := player.get_combatant()
 	health.zero_health_behavior = Combatant.ZeroHealthBehavior.KNOCKDOWN
 	await wait_physics_frames(31)
-	assert_true(_receiver(player).receive_hit(_hit(arena.enemy, 200.0)))
-	assert_true(health.schedule_recovery(0.15, 30.0))
+	assert_true(_receiver(player).receive_hit(_hit(arena.enemy, 3.0)))
+	assert_true(health.schedule_recovery(0.15, 0.5))
 	hud.open_menu()
 	await wait_physics_frames(20)
 	assert_eq(health.life_state, Combatant.LifeState.DOWNED, "Paused recovery does not expire")
 	hud.close_menu()
 	await wait_physics_frames(20)
 	assert_eq(health.life_state, Combatant.LifeState.ACTIVE)
-	assert_eq(health.current_health, 30.0)
+	assert_eq(health.current_health, 0.5)
 
 
 func test_both_health_bars_follow_damage_state_reset_and_three_language_fonts() -> void:
@@ -193,28 +199,44 @@ func test_both_health_bars_follow_damage_state_reset_and_three_language_fonts() 
 	arena.player.set_control_input(0.0)
 	var player_bar := arena.player.get_node("HealthBar") as HealthBar
 	var enemy_bar := arena.enemy.get_node("HealthBar") as HealthBar
+	var dummy_bar := arena.dummy.get_node("HealthBar") as HealthBar
 	assert_not_null(player_bar)
 	assert_not_null(enemy_bar)
+	assert_not_null(dummy_bar)
+	assert_almost_eq(
+		absf(arena.player.global_position.x - arena.enemy.global_position.x), 50.0, 0.01
+	)
+	assert_almost_eq(
+		absf(arena.player.global_position.x - arena.dummy.global_position.x), 62.0, 0.01
+	)
 	assert_eq(player_bar.get_fill_ratio(), 1.0)
 	assert_eq(enemy_bar.get_fill_ratio(), 1.0)
-	assert_true(_receiver(arena.player).receive_hit(_hit(arena.enemy, 25.0)))
-	assert_true(_receiver(arena.enemy).receive_hit(_hit(arena.player, 40.0)))
-	assert_almost_eq(player_bar.get_fill_ratio(), 0.75, 0.0001)
-	assert_almost_eq(enemy_bar.get_fill_ratio(), 0.6, 0.0001)
+	assert_eq(player_bar.get_container_fills(), [1.0, 1.0, 1.0])
+	assert_eq(enemy_bar.get_container_fills(), [1.0, 1.0, 1.0])
+	assert_true(_receiver(arena.player).receive_hit(_hit(arena.enemy, 0.5)))
+	assert_true(_receiver(arena.enemy).receive_hit(_hit(arena.player, 1.5)))
+	assert_almost_eq(player_bar.get_fill_ratio(), 5.0 / 6.0, 0.0001)
+	assert_almost_eq(enemy_bar.get_fill_ratio(), 0.5, 0.0001)
+	assert_eq(player_bar.get_container_fills(), [1.0, 1.0, 0.5])
+	assert_eq(enemy_bar.get_container_fills(), [1.0, 0.5, 0.0])
 	for locale in ["zh_CN", "en", "ja"]:
 		assert_true(Localization.set_language(locale, false))
 		await wait_frames(3)
-		assert_true(player_bar.get_display_text().contains("75"))
-		assert_true(enemy_bar.get_display_text().contains("60"))
+		assert_true(player_bar.get_display_text().contains("2.5"))
+		assert_true(enemy_bar.get_display_text().contains("1.5"))
 		_assert_bar_text_visible(player_bar, locale)
 		_assert_bar_text_visible(enemy_bar, locale)
+		_assert_bar_text_visible(dummy_bar, locale)
 		_assert_bars_do_not_overlap(player_bar, enemy_bar, locale)
+		_assert_bars_do_not_overlap(player_bar, dummy_bar, locale)
+		_assert_bars_do_not_overlap(dummy_bar, enemy_bar, locale)
 	arena.enemy.get_combatant().force_death()
 	assert_eq(enemy_bar.get_fill_ratio(), 0.0)
+	assert_eq(enemy_bar.get_container_fills(), [0.0, 0.0, 0.0])
 	assert_true(enemy_bar.get_display_text().contains(Localization.text("health.dead")))
 	arena.player.get_combatant().zero_health_behavior = Combatant.ZeroHealthBehavior.KNOCKDOWN
 	await wait_physics_frames(31)
-	assert_true(_receiver(arena.player).receive_hit(_hit(arena.enemy, 200.0)))
+	assert_true(_receiver(arena.player).receive_hit(_hit(arena.enemy, 3.0)))
 	for locale in ["zh_CN", "en", "ja"]:
 		assert_true(Localization.set_language(locale, false))
 		await wait_frames(3)
@@ -222,10 +244,132 @@ func test_both_health_bars_follow_damage_state_reset_and_three_language_fonts() 
 		assert_true(enemy_bar.get_display_text().contains(Localization.text("health.dead")))
 		_assert_bar_text_visible(player_bar, locale)
 		_assert_bar_text_visible(enemy_bar, locale)
+		_assert_bar_text_visible(dummy_bar, locale)
 		_assert_bars_do_not_overlap(player_bar, enemy_bar, locale)
+		_assert_bars_do_not_overlap(player_bar, dummy_bar, locale)
+		_assert_bars_do_not_overlap(dummy_bar, enemy_bar, locale)
 	arena.reset_training()
 	assert_eq(player_bar.get_fill_ratio(), 1.0)
 	assert_eq(enemy_bar.get_fill_ratio(), 1.0)
+	assert_eq(player_bar.get_container_fills(), [1.0, 1.0, 1.0])
+	assert_eq(enemy_bar.get_container_fills(), [1.0, 1.0, 1.0])
+
+
+func test_actual_dummy_refills_from_twenty_melee_then_ten_fireballs_without_losing_stats() -> void:
+	var arena := _arena()
+	arena.enemy.attack_enabled = false
+	var player := arena.player
+	var dummy_health := arena.dummy.get_combatant()
+	assert_eq(dummy_health.max_health, 10.0)
+	assert_eq(dummy_health.current_health, 10.0)
+	assert_eq(dummy_health.zero_health_behavior, Combatant.ZeroHealthBehavior.REFILL)
+	watch_signals(dummy_health)
+	player.reset_state(arena.dummy.global_position + Vector2(-50.0, 0.0))
+	player.set_control_input(0.0)
+	await wait_physics_frames(6)
+	for index in 20:
+		assert_true(player.request_attack())
+		await wait_physics_frames(26)
+		assert_eq(arena.dummy.hit_count, index + 1)
+		assert_eq(arena.dummy.total_damage, (index + 1) * 0.5)
+		assert_eq(dummy_health.current_health, 10.0 if index == 19 else 10.0 - (index + 1) * 0.5)
+		assert_eq(dummy_health.life_state, Combatant.LifeState.ACTIVE)
+		assert_eq(arena.dummy.last_hit.skill_id, &"basic_attack")
+	player.reset_state(arena.dummy.global_position + Vector2(-56.0, 0.0))
+	player.set_control_input(0.0)
+	await wait_physics_frames(6)
+	for index in 10:
+		assert_true(player.request_fireball())
+		await wait_physics_frames(85)
+		assert_eq(arena.dummy.hit_count, 21 + index)
+		assert_eq(arena.dummy.total_damage, 11.0 + index)
+		assert_eq(dummy_health.current_health, 10.0 if index == 9 else 9.0 - index)
+		assert_eq(dummy_health.life_state, Combatant.LifeState.ACTIVE)
+		assert_eq(arena.dummy.last_hit.skill_id, &"fireball")
+	assert_signal_emit_count(dummy_health, "damaged", 30)
+	assert_signal_not_emitted(dummy_health, "state_changed")
+
+
+func test_dummy_overkill_refills_without_carry_and_training_reset_clears_statistics() -> void:
+	var arena := _arena()
+	arena.enemy.attack_enabled = false
+	var health := arena.dummy.get_combatant()
+	var strong_hit := _hit(arena.player, 12.0)
+	assert_true(arena.dummy.get_receiver().receive_hit(strong_hit))
+	assert_eq(health.current_health, 10.0)
+	assert_eq(health.life_state, Combatant.LifeState.ACTIVE)
+	assert_eq(arena.dummy.total_damage, 12.0)
+	assert_eq(arena.dummy.hit_count, 1)
+	assert_eq(strong_hit.damage, 12.0)
+	assert_true(arena.dummy.get_receiver().receive_hit(_hit(arena.player, 0.5)))
+	assert_eq(health.current_health, 9.5)
+	assert_eq(arena.dummy.total_damage, 12.5)
+	assert_eq(arena.dummy.hit_count, 2)
+	arena.reset_training()
+	assert_eq(health.current_health, 10.0)
+	assert_eq(arena.dummy.total_damage, 0.0)
+	assert_eq(arena.dummy.hit_count, 0)
+	assert_null(arena.dummy.last_hit)
+	# Formatting accepts large half-heart values without rendering an enormous container grid.
+	health.max_health = 100001.0
+	health.reset_state()
+	assert_true(arena.dummy.get_receiver().receive_hit(_hit(arena.player, 50000.5)))
+	assert_eq(health.current_health, 50000.5)
+	assert_eq(arena.dummy.total_damage, 50000.5)
+	assert_eq(arena.dummy.get_damage_label_texts(), ["50000.5"])
+	var hearts := arena.dummy.get_node("HealthBar") as HealthBar
+	for locale in ["zh_CN", "en", "ja"]:
+		assert_true(Localization.set_language(locale, false))
+		assert_eq(
+			hearts.get_display_text(),
+			Localization.text("health.values", {"current": "50000.5", "max": "100001"})
+		)
+	health.max_health = 10.0
+	health.reset_state()
+	for locale in ["zh_CN", "en", "ja"]:
+		assert_true(Localization.set_language(locale, false))
+		await wait_frames(3)
+		assert_eq(
+			(arena.get_node("HUD") as TrainingHUD).get_ui_control("TargetStats").get("text"),
+			Localization.text("hud.target", {"damage": "50000.5", "hits": 1})
+		)
+	arena.reset_training()
+
+
+func test_ten_dummy_containers_wrap_and_show_half_heart_values_in_three_languages() -> void:
+	var arena := _arena()
+	arena.enemy.attack_enabled = false
+	var hearts := arena.dummy.get_node("HealthBar") as HealthBar
+	assert_not_null(hearts)
+	if hearts == null:
+		return
+	assert_eq(hearts.get_container_fills().size(), 10)
+	for fill in hearts.get_container_fills():
+		assert_eq(fill, 1.0)
+	assert_true(arena.dummy.get_receiver().receive_hit(_hit(arena.player, 0.5)))
+	assert_eq(hearts.get_container_fills(), [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.5])
+	var rectangles := hearts.get_container_rects()
+	assert_eq(rectangles.size(), 10)
+	for index in 5:
+		assert_eq(rectangles[index].position.y, rectangles[0].position.y)
+		assert_eq(rectangles[index + 5].position.y, rectangles[5].position.y)
+	assert_gt(rectangles[5].position.y, rectangles[0].end.y)
+	for first in rectangles.size():
+		for second in range(first + 1, rectangles.size()):
+			assert_false(rectangles[first].intersects(rectangles[second]))
+	for locale in ["zh_CN", "en", "ja"]:
+		assert_true(Localization.set_language(locale, false))
+		await wait_frames(3)
+		assert_eq(
+			hearts.get_display_text(),
+			Localization.text("health.values", {"current": "9.5", "max": "10"})
+		)
+		_assert_bar_text_visible(hearts, locale)
+		assert_eq(
+			(arena.get_node("HUD") as TrainingHUD).get_ui_control("TargetStats").get("text"),
+			Localization.text("hud.target", {"damage": "0.5", "hits": 1})
+		)
+		assert_eq(arena.dummy.get_combatant().current_health, 9.5)
 
 
 func _receiver(actor: Node) -> DamageReceiver:
@@ -262,14 +406,24 @@ func _assert_bar_text_visible(bar: HealthBar, locale: String) -> void:
 	assert_gte(bar.global_position.x - measured.x * 0.5, viewport.position.x)
 	assert_lte(bar.global_position.x + measured.x * 0.5, viewport.end.x)
 	assert_gte(bar.global_position.y - measured.y - 4.0, viewport.position.y)
+	var presentation := bar.global_transform * bar.get_presentation_rect()
+	assert_gte(
+		presentation.position.x, viewport.position.x, "Heart/text bounds left in %s" % locale
+	)
+	assert_gte(presentation.position.y, viewport.position.y, "Heart/text bounds top in %s" % locale)
+	assert_lte(presentation.end.x, viewport.end.x, "Heart/text bounds right in %s" % locale)
+	assert_lte(presentation.end.y, viewport.end.y, "Heart/text bounds bottom in %s" % locale)
 
 
 func _assert_bars_do_not_overlap(
-	player_bar: HealthBar, enemy_bar: HealthBar, locale: String
+	first_bar: HealthBar, second_bar: HealthBar, locale: String
 ) -> void:
 	assert_false(
-		_bar_draw_rect(player_bar).intersects(_bar_draw_rect(enemy_bar)),
-		"Both full health readouts remain separate at melee distance in %s" % locale
+		_bar_draw_rect(first_bar).intersects(_bar_draw_rect(second_bar)),
+		(
+			"%s and %s complete heart/text bounds stay separate in %s"
+			% [first_bar.get_parent().name, second_bar.get_parent().name, locale]
+		)
 	)
 
 
@@ -287,5 +441,7 @@ func _bar_draw_rect(bar: HealthBar) -> Rect2:
 		)
 		. grow(3.0)
 	)
-	var fill_rect := Rect2(-bar.bar_width * 0.5, 0.0, bar.bar_width, bar.bar_height).grow(1.0)
-	return bar.global_transform * text_rect.merge(fill_rect)
+	var bounds := text_rect
+	for heart_rect in bar.get_container_rects():
+		bounds = bounds.merge(heart_rect)
+	return bar.global_transform * bounds

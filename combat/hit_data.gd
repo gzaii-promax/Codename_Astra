@@ -2,7 +2,7 @@ class_name HitData
 extends RefCounted
 ## Target eligibility and damage category are independent; source is current ownership.
 
-enum TargetPolicy { OTHER_FACTIONS, OTHER_FACTIONS_AND_SELF, ALL_WITH_SAME_FACTION_REDUCTION, ALL }
+enum TargetPolicy { OTHER_FACTIONS, OTHER_FACTIONS_AND_SELF, ALL }
 
 var source: Node:
 	set(actor):
@@ -18,8 +18,6 @@ var direction: Vector2 = Vector2.RIGHT
 var knockback: float = 0.0
 var damage_type: StringName = &"physical"
 var target_policy: TargetPolicy = TargetPolicy.OTHER_FACTIONS
-var self_reduction: float = 0.5
-var same_faction_reduction: float = 0.5
 var is_environment: bool = false
 
 var _source_actor_id: int = 0
@@ -60,40 +58,26 @@ func permits_target(target: Node, target_faction: Combatant.Faction) -> bool:
 			return not own_target and not same_faction
 		TargetPolicy.OTHER_FACTIONS_AND_SELF:
 			return own_target or not same_faction
-		TargetPolicy.ALL_WITH_SAME_FACTION_REDUCTION, TargetPolicy.ALL:
+		TargetPolicy.ALL:
 			return true
 	return false
 
 
-func get_target_reduction(target: Node, target_faction: Combatant.Faction) -> float:
-	if target_policy == TargetPolicy.OTHER_FACTIONS_AND_SELF and is_self(target):
-		return self_reduction
-	if (
-		target_policy == TargetPolicy.ALL_WITH_SAME_FACTION_REDUCTION
-		and (is_self(target) or get_source_faction() == target_faction)
-	):
-		return same_faction_reduction
-	return 0.0
-
-
 func is_valid() -> bool:
 	return (
-		is_finite(damage)
-		and damage >= 0.0
+		is_valid_damage(damage)
 		and is_finite(knockback)
 		and knockback >= 0.0
 		and origin.is_finite()
 		and direction.is_finite()
 		and not damage_type.is_empty()
 		and target_policy in TargetPolicy.values()
-		and is_finite(self_reduction)
-		and self_reduction >= 0.0
-		and self_reduction <= 1.0
-		and is_finite(same_faction_reduction)
-		and same_faction_reduction >= 0.0
-		and same_faction_reduction <= 1.0
 		and (not is_environment or target_policy == TargetPolicy.ALL)
 	)
+
+
+static func is_valid_damage(amount: float) -> bool:
+	return is_finite(amount) and amount >= 0.0 and fmod(amount, 0.5) == 0.0
 
 
 func _capture_source() -> void:

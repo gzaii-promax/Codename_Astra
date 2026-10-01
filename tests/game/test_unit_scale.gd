@@ -175,7 +175,7 @@ func test_death_and_knockdown_recovery_clear_variable_jump_state() -> void:
 			health.zero_health_behavior = Combatant.ZeroHealthBehavior.KNOCKDOWN
 			var hit := HitData.new()
 			hit.set_source(arena.enemy)
-			hit.damage = 200.0
+			hit.damage = 3.0
 			assert_true((player.get_node("DamageReceiver") as DamageReceiver).receive_hit(hit))
 			assert_eq(health.life_state, Combatant.LifeState.DOWNED)
 		else:
@@ -185,7 +185,8 @@ func test_death_and_knockdown_recovery_clear_variable_jump_state() -> void:
 		await wait_physics_frames(60)
 		assert_true(player.is_on_floor(), "Inactive unit still falls to real ground")
 		if downed:
-			assert_true(health.recover(50.0))
+			assert_true(health.recover(1.5))
+			assert_eq(health.current_health, 1.5)
 		else:
 			health.reset_state()
 		player.set_control_input(0.0, false, true)

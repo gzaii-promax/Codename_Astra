@@ -1,6 +1,6 @@
 class_name DamageReceiver
 extends Area2D
-## Eligibility comes first; percentage reductions share one additive calculation.
+## Eligibility comes first; accepted hits spend the same heart amount for every faction.
 
 signal hit_received(hit: HitData)
 
@@ -29,10 +29,7 @@ func receive_hit(hit: HitData) -> bool:
 		return false
 	if combatant != null and not combatant.can_receive_damage():
 		return false
-	var reduction := hit.get_target_reduction(self, target_faction)
-	if combatant != null:
-		reduction += combatant.general_reduction + combatant.get_type_reduction(hit.damage_type)
-	var resolved_damage := hit.damage * (1.0 - clampf(reduction, 0.0, 1.0))
+	var resolved_damage := hit.damage
 	last_damage = resolved_damage
 	if combatant != null and not combatant.apply_damage(hit, resolved_damage):
 		last_damage = 0.0

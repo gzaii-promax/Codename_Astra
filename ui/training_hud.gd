@@ -282,7 +282,7 @@ func _refresh_readout() -> void:
 			{
 				"skill": Localization.text(definition.name_key),
 				"level": _player.fireball_level,
-				"damage": "%.0f" % definition.damage,
+				"damage": _heart_number(definition.damage),
 				"windup": "%.2f" % definition.windup_seconds,
 				"recovery": "%.2f" % definition.recovery_seconds,
 				"cooldown": "%.2f" % definition.cooldown_seconds,
@@ -290,7 +290,7 @@ func _refresh_readout() -> void:
 		)
 	)
 	_target.text = Localization.text(
-		"hud.target", {"damage": "%.0f" % _dummy.total_damage, "hits": _dummy.hit_count}
+		"hud.target", {"damage": _heart_number(_dummy.total_damage), "hits": _dummy.hit_count}
 	)
 	_phase.text = (
 		Localization
@@ -302,6 +302,10 @@ func _refresh_readout() -> void:
 			}
 		)
 	)
+
+
+func _heart_number(value: float) -> String:
+	return "%.0f" % value if value == floorf(value) else "%.1f" % value
 
 
 func _resize_interface() -> void:

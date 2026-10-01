@@ -4,7 +4,7 @@
 
 `training_hud.gd` 提供 `TrainingHUD extends CanvasLayer`。训练读数读取 Player 的有效火球定义、动作阶段、剩余冷却及 TrainingDummy 的累计伤害/命中次数；不修改技能数值。菜单负责暂停/恢复场景树、调用现有训练场重置接口，以及显示语言选择和帮助；不创建新场景、不保存成长。
 
-依赖 autoload `Localization`、主角动作控制器、稻草人与训练场。文本全部通过 `Localization.text(key, args)`，字体通过 `Localization.get_font()` 写入共享 Theme；语言选项动态读取 `available_languages()` 的 locale/name，不在 UI 写死语言数量或 locale。收到 `language_changed` 后立即刷新 HUD、菜单、手册和字体。技能名称/描述取 `get_definition(action_id)` 返回的 `name_key/description_key`。公共头顶血条 `health_bar.gd` 另读取同角色的 Combatant，不依赖角色控制方式。
+依赖 autoload `Localization`、主角动作控制器、稻草人与训练场。文本全部通过 `Localization.text(key, args)`，字体通过 `Localization.get_font()` 写入共享 Theme；语言选项动态读取 `available_languages()` 的 locale/name，不在 UI 写死语言数量或 locale。收到 `language_changed` 后立即刷新 HUD、菜单、手册和字体。技能名称/描述取 `get_definition(action_id)` 返回的 `name_key/description_key`。公共头顶心容器 `health_bar.gd` 另读取同角色的 Combatant，不依赖角色控制方式。
 
 ## 玩家操作
 
@@ -24,17 +24,26 @@ HUD 在填入文本前设置视口宽度，并在 `minimum_size_changed` 后延�
 
 HUD 文本键：`app.title`、`hud.controls/debug_controls/skill_stats/target/phase`、`phase.idle/windup/active/recovery`。菜单键：`menu.open/title/resume/reset/help/close/language/hint/save_error`。手册键：`manual.title/movement/combat/training/languages` 加两种技能的名称与描述。
 
-参数仍显示原实际数据：damage 为整数文本，windup/recovery/cooldown 保留两位小数，剩余 cooldown 一位小数；翻译仅改变标签，不更改战斗或等级值。HUD 读取绑定后的火球定义，因此 F2 切级显示下次施法属性，当前已开始动作仍使用其原定义。
+参数仍显示实际数据：damage 与累计伤害以心为单位，整数无小数、半心保留一位小数；windup/recovery/cooldown 保留两位小数，剩余 cooldown 一位小数；翻译仅改变标签，不更改战斗或等级值。HUD 读取绑定后的火球定义，因此 F2 切级显示下次施法属性，当前已开始动作仍使用其原定义。
 
-## 通用头顶血条
+## 通用头顶心容器
 
-`HealthBar extends Node2D` 是纯显示组件，默认从 `../Combatant` 读取当前/最大生命、生命周期状态和阵营；可通过 `combatant_path` 绑定其他节点。它不扣血，不决定目标是否可受伤，也不以血条为空判断死亡。主角在脚底上 82 px、PeriodicEnemy 在脚底上 114 px 放置 `HealthBar`，错开高度避免当前地面近战距离下的条框及长状态文本重叠；其他单位可通过场景节点偏移调整。
+`HealthBar extends Node2D` 保留原类名和节点名以便现有角色复用，但现在绘制心容器。它默认从 `../Combatant` 读取当前/最大心数、生命周期和阵营，可通过 `combatant_path` 绑定其他节点。组件不扣血、不判断目标规则，也不根据空心推断死亡。当前主角 3 个容器、PeriodicEnemy 3 个容器、TrainingDummy 10 个容器；稻草人自动回满时立即显示满心。
 
-默认条宽 54 px、高 6 px、字体 12 px，可在 Inspector 调整。填充比例由真实生命值计算并限于 0..1；当前/最大生命显示在上方，整数无小数、非整数显示一位小数。友方为绿色、敌方红色、中立金色；击倒边框黄色、死亡边框灰色，空条仍保留以区分击倒和死亡。状态词取 `health.downed`、`health.dead`，数值格式取 `health.values` 的 `{current}`/`{max}`，正常状态只显示生命读数。
+心形由 10 × 8 的像素几何构成，不使用字体中的心字符或外部图片。每个容器填充值为 1、0.5 或 0，分别显示完整、左半填充和空心轮廓。默认像素边长 1 px、横向间隙 2 px、行间隙 2 px，每行最多 5 颗；10 心自动排成两行，每行居中。Inspector 可调整 `heart_pixel_size`、`containers_per_row`、`container_gap`、`row_gap`、`font_size`。为避免误配巨大上限导致绘制失控，当前最多枚举 100 个图形容器；数值文字仍显示真实上限，超过 100 个容器需要后续专用布局，不改变战斗的上限规则。
 
-组件订阅 `health_changed(current, max)`、`state_changed(state)`、`faction_changed(faction)` 和 `Localization.language_changed(locale)` 触发重绘；字体同样来自 `Localization.get_font()`。血条文字使用自由绘制，不受条宽裁切。未来正式 HUD 或 Boss 血条可使用同一信号和生命状态，不需要重复战斗结算。
+主角心容器位于脚底上 82 px，PeriodicEnemy 位于脚底上 114 px，保留 32 px 高度差，避免 50 px 近战距离下三语数值/状态与心图形重叠；稻草人心容器位于脚底上 50 px，两行图形止于脚底上 32 px，与稻草人头部相接；其数值文字位于主角心图形下方，避免近距主角击倒长文本覆盖第三个角色。浮动伤害从脚底上 142 px 起，旧标签在最新标签上方按 24 px 行距排列，整组使用最新标签的 elapsed 同步上移，各标签保留自己的淡出时间。其他角色通过节点位置调整。友方绿色、敌方红色、中立金色；击倒变黄色、死亡变灰色，空心与状态仍可见。读数使用 `health.values` 的 `{current}`/`{max}`，附带本地化心单位；状态来自 `health.downed`、`health.dead`。
 
-自动验收可读取 actor 下 `HealthBar` 节点的 `get_fill_ratio() -> float` 与 `get_display_text() -> String`，核对伤害、重置、阵营变化和语言切换后显示是否同步。空生命值附加的击倒/死亡标识来自生命周期状态；未绑定有效 Combatant 时返回比例 0、空文本并停止绘制。
+受击保护期间拒绝攻击，不发新的生命事件，心容器保持首击后的真实状态；组件不维护独立保护计时。
+
+组件订阅 `health_changed(current, max)`、`state_changed(state)`、`faction_changed(faction)` 和 `Localization.language_changed(locale)` 重绘。文字使用 `Localization.get_font()`，几何图形不依赖字体。未绑定或配置无效时停止绘制，返回空容器/文本及比例 0。
+
+可供验收与其他界面读取：
+
+- `get_container_fills() -> Array[float]`：按从左到右、从上到下顺序返回每个容器的 1/0.5/0 填充；例如 3 心受 0.5 心伤害后为 `[1.0, 1.0, 0.5]`。
+- `get_container_rects() -> Array[Rect2]`：各心图形的局部坐标矩形，便于验证换行与间距。
+- `get_presentation_rect() -> Rect2`：合并心图形、当前字体 ascent/height 和 3 px 文字描边后的真实局部绘制范围，便于验证近距三语布局。
+- `get_fill_ratio() -> float` 和 `get_display_text() -> String`：保留整体血量比例及本地化心数/状态读数。
 
 ## 稳定接口与节点
 
@@ -60,6 +69,6 @@ HUD 文本键：`app.title`、`hud.controls/debug_controls/skill_stats/target/ph
 
 ## 验证与限制
 
-统一入口 `node tools/check.mjs --scope game` 验证正式场景的语言切换、菜单暂停/恢复、按钮重置、键对应关系及 960 × 540 布局。游戏 headless 不能证明字形实际可见；root 的图形查看和截图是独立证据。新增或改动验证流程后立即执行，结果以本轮报告为准。
+统一入口 `node tools/check.mjs --scope game` 验证正式场景的语言切换、菜单暂停/恢复、按钮重置、键对应关系及 960 × 540 布局。游戏 headless 不能证明字形和心图形实际可见；`tests/probes/heart_health_visual.gd` 通过真实 viewport 捕获三语受伤、稻草人回满、敌人死亡和主角击倒画面，截图人工查看是独立证据。新增或改动验证流程后立即执行，结果以本轮报告为准。
 
 界面仍为原型样式，未实现正式 HUD 美术、技能后台编辑或技能树。正式字体规格与用户手感反馈分别由其他模块/用户负责。

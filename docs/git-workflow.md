@@ -1,6 +1,13 @@
 # GitHub 与分支交接
 
-## 已授权的远端
+## 当前整合授权（2026-10-02）
+
+用户明确要求把 `codex/health-combat-v3` 和 `feat/localization-v2` 合入主分支。本轮保留两个分支历史，同时整合 `codex/scale-movement-v4` 中已经合入的心形 PR #7；处理公共生命代码与测试冲突，保留主角 0.5 秒保护、严格半心伤害、稻草人归零回满和可变跳跃。通过本轮必要验收后创建整合 PR，base 必须为 `main`，按持续授权合并并同步本地 main。
+
+本轮开始时远端：main=`a3015e2`，多语言=`c9293b7`，生命=`d211fa9`，尺度/心形=`fa1324e`。PR #4/#6/#7/#8 均为 MERGED，但分别进入原依赖分支，后续提交未自动进入 main。旧草稿限制已由用户本轮明确合并授权取代；不发布安装包。最新证据见 [integration-main.md](integration-main.md)。
+
+
+## 历史交付记录（当前状态以上方核实为准）
 
 - 仓库：`https://github.com/gzaii-promax/Codename_Astra`，私有；本机 CLI 已核实 private=true、push=true。
 - origin：`https://github.com/gzaii-promax/Codename_Astra.git`。
@@ -40,4 +47,4 @@
 
 CI 接入本轮已获授权，工作流与验收见 [ci.md](ci.md)。接入后，合并前须读取当前 head 的 `macOS / repository-checks` 实际运行与 artifact，核对有效配置、完整验收及源码哈希；PR 合并引用不能混同 head。当前私有套餐不支持分支保护（API 403 已核实），仍由 agent 执行同一门槛。工作流限只读权限，不持有自动合并或发布令牌；合并由已有授权流程执行，本轮不发布安装包。
 
-多语言 PR #3 与生命 PR #4 的版本草稿例外继续有效：仅创建/更新 draft PR，不合并或发布。CI PR #5已独立按持续授权合入main；把CI基础设施同步进草稿不意味着合并功能版本。
+原轮次多语言 PR #3 与生命 PR #4 有草稿例外；本轮明确合并授权已取代该限制。CI PR #5已独立按持续授权合入main；把CI基础设施同步进草稿不意味着合并功能版本。

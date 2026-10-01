@@ -31,7 +31,10 @@ func test_hit_protection_defaults_match_public_config_and_real_actors() -> void:
 	assert_eq(arena.enemy.get_combatant().hit_protection_seconds, 0.0)
 	assert_eq(arena.player.get_combatant().get_hit_protection_remaining(), 0.0)
 	assert_eq(arena.enemy.get_combatant().get_hit_protection_remaining(), 0.0)
-	assert_null(arena.dummy.get_receiver().get_combatant(), "Immortal dummy has no life timer")
+	assert_eq(arena.dummy.get_receiver().get_combatant(), arena.dummy.get_combatant())
+	assert_eq(arena.dummy.get_combatant().hit_protection_seconds, 0.0)
+	assert_eq(arena.dummy.get_combatant().max_health, 10.0)
+	assert_eq(arena.dummy.get_combatant().zero_health_behavior, Combatant.ZeroHealthBehavior.REFILL)
 	var default_health := Combatant.new()
 	autofree(default_health)
 	assert_eq(default_health.hit_protection_seconds, 0.0)
@@ -41,18 +44,20 @@ func test_zero_protection_bypasses_consecutive_hits_for_enemy_and_dummy() -> voi
 	var arena := _arena()
 	var enemy := arena.enemy.get_combatant()
 	for index in range(3):
-		assert_true(arena.enemy.get_receiver().receive_hit(_hit(arena.player, 10.0)))
-		assert_eq(enemy.current_health, 100.0 - 10.0 * (index + 1))
+		assert_true(arena.enemy.get_receiver().receive_hit(_hit(arena.player, 0.5)))
+		assert_eq(enemy.current_health, 3.0 - 0.5 * (index + 1))
 		assert_eq(enemy.get_hit_protection_remaining(), 0.0)
-		assert_true(arena.dummy.get_receiver().receive_hit(_hit(arena.player, 10.0)))
+		assert_true(arena.dummy.get_receiver().receive_hit(_hit(arena.player, 0.5)))
+		assert_eq(arena.dummy.get_combatant().current_health, 10.0 - 0.5 * (index + 1))
+		assert_eq(arena.dummy.get_combatant().get_hit_protection_remaining(), 0.0)
 	assert_eq(arena.dummy.hit_count, 3)
-	assert_eq(arena.dummy.total_damage, 30.0)
+	assert_eq(arena.dummy.total_damage, 1.5)
 	var health := _actor(0.5).get_node("Combatant") as Combatant
-	assert_true(health.apply_damage(_hit(null, 5.0), 5.0))
+	assert_true(health.apply_damage(_hit(null, 0.5), 0.5))
 	health.hit_protection_seconds = 0.0
 	assert_true(health.can_receive_damage(), "Zero configuration bypasses a previous timer")
-	assert_true(health.apply_damage(_hit(null, 5.0), 5.0))
-	assert_eq(health.current_health, 90.0)
+	assert_true(health.apply_damage(_hit(null, 0.5), 0.5))
+	assert_eq(health.current_health, 2.0)
 
 
 func test_invalid_hit_protection_configuration_and_damage_are_rejected() -> void:
@@ -62,14 +67,14 @@ func test_invalid_hit_protection_configuration_and_damage_are_rejected() -> void
 		health.hit_protection_seconds = duration
 		assert_gt(health.validate().size(), 0)
 		assert_false(health.can_receive_damage())
-		assert_false(_receiver(actor).receive_hit(_hit(null, 10.0)))
+		assert_false(_receiver(actor).receive_hit(_hit(null, 0.5)))
 		assert_eq(health.get_hit_protection_remaining(), 0.0)
 	health.hit_protection_seconds = 0.5
 	assert_eq(health.validate().size(), 0)
-	assert_false(health.apply_damage(null, 10.0))
-	for amount in [-1.0, INF, NAN]:
-		assert_false(health.apply_damage(_hit(null, 10.0), amount))
-	assert_eq(health.current_health, 100.0)
+	assert_false(health.apply_damage(null, 0.5))
+	for amount in [-0.5, 0.25, 0.499999, INF, NAN]:
+		assert_false(health.apply_damage(_hit(null, 0.5), amount))
+	assert_eq(health.current_health, 3.0)
 	assert_eq(health.get_hit_protection_remaining(), 0.0)
 
 
@@ -78,27 +83,25 @@ func test_rejected_and_zero_settled_damage_do_not_start_hit_protection() -> void
 	var health := actor.get_node("Combatant") as Combatant
 	var receiver := _receiver(actor)
 	receiver.enabled = false
-	assert_false(receiver.receive_hit(_hit(null, 10.0)))
+	assert_false(receiver.receive_hit(_hit(null, 0.5)))
 	receiver.enabled = true
 	assert_false(receiver.receive_hit(_hit(null, -1.0)))
-	assert_false(receiver.receive_hit(_hit(actor, 10.0, HitData.TargetPolicy.OTHER_FACTIONS)))
+	assert_false(receiver.receive_hit(_hit(actor, 0.5, HitData.TargetPolicy.OTHER_FACTIONS)))
 	health.invulnerable = true
-	assert_false(receiver.receive_hit(_hit(null, 10.0)))
+	assert_false(receiver.receive_hit(_hit(null, 0.5)))
 	health.invulnerable = false
 	assert_eq(health.get_hit_protection_remaining(), 0.0)
 	watch_signals(health)
 	watch_signals(receiver)
 	assert_true(receiver.receive_hit(_hit(null, 0.0)))
-	health.general_reduction = 1.0
-	assert_true(receiver.receive_hit(_hit(null, 10.0)))
+	assert_true(health.apply_damage(_hit(null, 0.0), 0.0))
 	assert_eq(receiver.last_damage, 0.0)
-	assert_eq(health.current_health, 100.0)
+	assert_eq(health.current_health, 3.0)
 	assert_eq(health.get_hit_protection_remaining(), 0.0)
 	assert_signal_emit_count(health, "damaged", 2, "Zero settled damage remains accepted")
-	assert_signal_emit_count(receiver, "hit_received", 2)
-	health.general_reduction = 0.0
-	assert_true(receiver.receive_hit(_hit(null, 10.0)))
-	assert_eq(health.current_health, 90.0)
+	assert_signal_emit_count(receiver, "hit_received", 1)
+	assert_true(receiver.receive_hit(_hit(null, 0.5)))
+	assert_eq(health.current_health, 2.5)
 	assert_eq(health.get_hit_protection_remaining(), 0.5)
 	assert_false(health.invulnerable, "Timed protection does not mutate manual invulnerability")
 
@@ -109,7 +112,7 @@ func test_protected_hit_has_no_damage_events_health_bar_change_or_action_interru
 	var health := player.get_combatant()
 	var receiver := _receiver(player)
 	var bar := player.get_node("HealthBar") as HealthBar
-	assert_true(receiver.receive_hit(_hit(arena.enemy, 10.0)))
+	assert_true(receiver.receive_hit(_hit(arena.enemy, 0.5)))
 	var actions := player.get_action_controller()
 	var definition := actions.get_definition(&"basic_attack").duplicate(true) as SkillDefinition
 	definition.windup_seconds = 0.0
@@ -121,12 +124,13 @@ func test_protected_hit_has_no_damage_events_health_bar_change_or_action_interru
 	watch_signals(health)
 	watch_signals(receiver)
 	assert_false(health.can_receive_damage())
-	assert_false(health.apply_damage(_hit(arena.enemy, 20.0), 20.0))
-	assert_false(receiver.receive_hit(_hit(arena.enemy, 20.0)))
+	assert_false(health.apply_damage(_hit(arena.enemy, 1.0), 1.0))
+	assert_false(receiver.receive_hit(_hit(arena.enemy, 1.0)))
 	assert_eq(receiver.last_damage, 0.0)
-	assert_eq(health.current_health, 90.0)
-	assert_almost_eq(bar.get_fill_ratio(), 0.9, 0.0001)
-	assert_true(bar.get_display_text().contains("90"))
+	assert_eq(health.current_health, 2.5)
+	assert_almost_eq(bar.get_fill_ratio(), 5.0 / 6.0, 0.0001)
+	assert_eq(bar.get_container_fills(), [1.0, 1.0, 0.5])
+	assert_true(bar.get_display_text().contains("2.5"))
 	assert_eq(actions.phase, ActionController.Phase.ACTIVE, "Rejected hit cannot interrupt")
 	assert_signal_not_emitted(health, "health_changed")
 	assert_signal_not_emitted(health, "state_changed")
@@ -140,12 +144,12 @@ func test_hit_protection_expires_after_half_second_and_rejected_hits_do_not_exte
 	var receiver := _receiver(actor)
 	await _physics_frames(1)
 	var start_frame := Engine.get_physics_frames()
-	assert_true(receiver.receive_hit(_hit(null, 10.0)))
+	assert_true(receiver.receive_hit(_hit(null, 0.5)))
 	await _physics_frames(12)
 	assert_eq(Engine.get_physics_frames() - start_frame, 12)
 	assert_almost_eq(health.get_hit_protection_remaining(), 0.3, 0.00001)
 	var remaining := health.get_hit_protection_remaining()
-	assert_false(receiver.receive_hit(_hit(null, 10.0)))
+	assert_false(receiver.receive_hit(_hit(null, 0.5)))
 	assert_eq(
 		health.get_hit_protection_remaining(), remaining, "Rejected hit keeps original expiry"
 	)
@@ -156,8 +160,8 @@ func test_hit_protection_expires_after_half_second_and_rejected_hits_do_not_exte
 	assert_eq(Engine.get_physics_frames() - start_frame, 30)
 	assert_eq(health.get_hit_protection_remaining(), 0.0)
 	assert_true(health.can_receive_damage(), "Exactly 30 frames complete the 0.5 s interval")
-	assert_true(receiver.receive_hit(_hit(null, 10.0)))
-	assert_eq(health.current_health, 80.0)
+	assert_true(receiver.receive_hit(_hit(null, 0.5)))
+	assert_eq(health.current_health, 2.0)
 	assert_eq(health.get_hit_protection_remaining(), 0.5)
 
 
@@ -165,7 +169,7 @@ func test_hit_protection_prevents_same_frame_reentrant_signal_damage() -> void:
 	var actor := _actor(0.5)
 	var health := actor.get_node("Combatant") as Combatant
 	var receiver := _receiver(actor)
-	var hit := _hit(null, 10.0)
+	var hit := _hit(null, 0.5)
 	var results: Array[bool] = []
 	var settled_amounts: Array[float] = []
 	health.health_changed.connect(
@@ -178,7 +182,7 @@ func test_hit_protection_prevents_same_frame_reentrant_signal_damage() -> void:
 		func(_hit_data: HitData, _amount: float):
 			if results.size() == 1:
 				results.append(false)
-				results[1] = health.apply_damage(hit, 10.0)
+				results[1] = health.apply_damage(hit, 0.5)
 	)
 	receiver.hit_received.connect(
 		func(_hit_data: HitData): settled_amounts.append(receiver.last_damage)
@@ -187,10 +191,10 @@ func test_hit_protection_prevents_same_frame_reentrant_signal_damage() -> void:
 	watch_signals(receiver)
 	assert_true(receiver.receive_hit(hit))
 	assert_eq(results, [false, false], "Timer is installed before any damage signal callback")
-	assert_eq(health.current_health, 90.0)
+	assert_eq(health.current_health, 2.5)
 	assert_eq(health.get_hit_protection_remaining(), 0.5)
-	assert_eq(settled_amounts, [10.0], "Outer accepted event retains its settled amount")
-	assert_eq(receiver.last_damage, 10.0)
+	assert_eq(settled_amounts, [0.5], "Outer accepted event retains its settled amount")
+	assert_eq(receiver.last_damage, 0.5)
 	assert_signal_emit_count(health, "health_changed", 1)
 	assert_signal_emit_count(health, "damaged", 1)
 	assert_signal_emit_count(receiver, "hit_received", 1)
@@ -200,7 +204,7 @@ func test_pause_freezes_hit_protection_and_training_reset_clears_it() -> void:
 	var arena := _arena()
 	var health := arena.player.get_combatant()
 	var hud := arena.get_node("HUD") as TrainingHUD
-	assert_true(_receiver(arena.player).receive_hit(_hit(arena.enemy, 10.0)))
+	assert_true(_receiver(arena.player).receive_hit(_hit(arena.enemy, 0.5)))
 	await _physics_frames(6)
 	var remaining := health.get_hit_protection_remaining()
 	hud.open_menu()
@@ -210,19 +214,19 @@ func test_pause_freezes_hit_protection_and_training_reset_clears_it() -> void:
 	hud.close_menu()
 	await _physics_frames(31)
 	assert_eq(health.get_hit_protection_remaining(), 0.0)
-	assert_true(_receiver(arena.player).receive_hit(_hit(arena.enemy, 10.0)))
+	assert_true(_receiver(arena.player).receive_hit(_hit(arena.enemy, 0.5)))
 	arena.reset_training()
 	assert_eq(health.get_hit_protection_remaining(), 0.0)
-	assert_eq(health.current_health, 100.0)
+	assert_eq(health.current_health, 3.0)
 	assert_true(health.can_receive_damage())
-	assert_true(_receiver(arena.player).receive_hit(_hit(arena.enemy, 10.0)))
+	assert_true(_receiver(arena.player).receive_hit(_hit(arena.enemy, 0.5)))
 
 
 func test_death_knockdown_and_recovery_clear_protection_without_breaking_recovery_timer() -> void:
 	var actor := _actor(0.5)
 	var health := actor.get_node("Combatant") as Combatant
 	var receiver := _receiver(actor)
-	assert_true(receiver.receive_hit(_hit(null, 10.0)))
+	assert_true(receiver.receive_hit(_hit(null, 0.5)))
 	health.invulnerable = true
 	health.force_death()
 	assert_eq(health.life_state, Combatant.LifeState.DEAD)
@@ -230,30 +234,28 @@ func test_death_knockdown_and_recovery_clear_protection_without_breaking_recover
 	assert_true(health.invulnerable)
 	health.invulnerable = false
 	health.reset_state()
-	assert_true(receiver.receive_hit(_hit(null, 100.0)))
+	assert_true(receiver.receive_hit(_hit(null, 3.0)))
 	assert_eq(health.life_state, Combatant.LifeState.DEAD)
 	assert_eq(health.get_hit_protection_remaining(), 0.0, "Lethal hit cannot leave a timer")
 	health.zero_health_behavior = Combatant.ZeroHealthBehavior.KNOCKDOWN
 	health.reset_state()
-	assert_true(receiver.receive_hit(_hit(null, 100.0)))
+	assert_true(receiver.receive_hit(_hit(null, 3.0)))
 	assert_eq(health.life_state, Combatant.LifeState.DOWNED)
 	assert_eq(health.get_hit_protection_remaining(), 0.0)
-	assert_true(health.recover(30.0))
+	assert_true(health.recover(1.5))
 	assert_eq(health.get_hit_protection_remaining(), 0.0)
-	assert_true(
-		receiver.receive_hit(_hit(null, 30.0)), "Recovered unit receives damage immediately"
-	)
-	assert_true(health.schedule_recovery(0.1, 25.0))
+	assert_true(receiver.receive_hit(_hit(null, 1.5)), "Recovered unit receives damage immediately")
+	assert_true(health.schedule_recovery(0.1, 1.0))
 	get_tree().paused = true
 	await _physics_frames(12)
 	assert_eq(health.life_state, Combatant.LifeState.DOWNED)
 	get_tree().paused = false
 	await _physics_frames(12)
 	assert_eq(health.life_state, Combatant.LifeState.ACTIVE)
-	assert_eq(health.current_health, 25.0)
+	assert_eq(health.current_health, 1.0)
 	assert_eq(health.get_hit_protection_remaining(), 0.0)
-	assert_true(receiver.receive_hit(_hit(null, 5.0)))
-	assert_eq(health.current_health, 20.0)
+	assert_true(receiver.receive_hit(_hit(null, 0.5)))
+	assert_eq(health.current_health, 0.5)
 	assert_eq(health.get_hit_protection_remaining(), 0.5)
 
 
@@ -266,31 +268,84 @@ func test_real_enemy_melee_and_fireball_obey_player_hit_protection() -> void:
 	await _physics_frames(3)
 	SkillExecutors.melee(enemy, ENEMY_ATTACK)
 	await _physics_frames(3)
-	assert_eq(player.get_combatant().current_health, 90.0, "Actual melee opens protection")
+	assert_eq(player.get_combatant().current_health, 2.5, "Actual melee opens protection")
 	watch_signals(_receiver(player))
 	SkillExecutors.melee(enemy, ENEMY_ATTACK)
 	var fireball := SkillDefinition.new()
-	fireball.damage = 7.0
+	fireball.damage = 1.0
 	SkillExecutors.fireball(enemy, fireball)
 	var projectile := arena.get_child(arena.get_child_count() - 1) as Fireball
 	assert_not_null(projectile)
 	await _physics_frames(10)
-	assert_eq(player.get_combatant().current_health, 90.0)
+	assert_eq(player.get_combatant().current_health, 2.5)
 	assert_false(is_instance_valid(projectile), "Protected contact still consumes a fireball")
 	assert_signal_not_emitted(_receiver(player), "hit_received")
 	var long_melee := ENEMY_ATTACK.duplicate(true) as SkillDefinition
 	long_melee.active_seconds = 0.8
 	SkillExecutors.melee(enemy, long_melee)
 	await _physics_frames(31)
-	assert_eq(player.get_combatant().current_health, 80.0, "Long window first hits after expiry")
+	assert_eq(player.get_combatant().current_health, 2.0, "Long window first hits after expiry")
 	assert_signal_emit_count(_receiver(player), "hit_received", 1)
 	await _physics_frames(20)
-	assert_eq(player.get_combatant().current_health, 80.0, "Same window still hits only once")
+	assert_eq(player.get_combatant().current_health, 2.0, "Same window still hits only once")
 	assert_signal_emit_count(_receiver(player), "hit_received", 1)
 	SkillExecutors.fireball(enemy, fireball)
 	await _physics_frames(6)
-	assert_eq(player.get_combatant().current_health, 73.0, "Actual projectile damages after expiry")
+	assert_eq(player.get_combatant().current_health, 1.0, "Actual projectile damages after expiry")
 	assert_signal_emit_count(_receiver(player), "hit_received", 2)
+
+
+func test_refill_with_nonzero_protection_blocks_reentry_and_force_death_clears_it() -> void:
+	var arena := _arena()
+	var dummy := arena.dummy
+	var health := dummy.get_combatant()
+	var receiver := dummy.get_receiver()
+	health.hit_protection_seconds = 0.5
+	var refill_hit := _hit(arena.player, 12.0)
+	var followup_hit := _hit(arena.player, 0.5)
+	var reentrant_results: Array[bool] = []
+	health.health_changed.connect(
+		func(_current: float, _maximum: float):
+			if reentrant_results.is_empty():
+				reentrant_results.append(false)
+				reentrant_results[0] = receiver.receive_hit(followup_hit)
+	)
+	health.damaged.connect(
+		func(_hit_data: HitData, _amount: float):
+			if reentrant_results.size() == 1:
+				reentrant_results.append(false)
+				reentrant_results[1] = health.apply_damage(followup_hit, 0.5)
+	)
+	watch_signals(health)
+	watch_signals(receiver)
+	assert_true(receiver.receive_hit(refill_hit))
+	assert_eq(health.current_health, 10.0, "Positive overkill immediately refills all containers")
+	assert_eq(health.life_state, Combatant.LifeState.ACTIVE)
+	assert_eq(health.get_hit_protection_remaining(), 0.5)
+	assert_eq(reentrant_results, [false, false], "Refill installs protection before signals")
+	assert_eq(receiver.last_damage, 12.0)
+	assert_eq(dummy.total_damage, 12.0, "A refill keeps full overkill statistics exactly once")
+	assert_eq(dummy.hit_count, 1)
+	assert_signal_emit_count(health, "health_changed", 1)
+	assert_signal_emit_count(health, "damaged", 1)
+	assert_signal_emit_count(receiver, "hit_received", 1)
+	assert_signal_not_emitted(health, "state_changed")
+	assert_false(receiver.receive_hit(followup_hit))
+	assert_eq(dummy.total_damage, 12.0)
+	assert_eq(dummy.hit_count, 1)
+	await _physics_frames(31)
+	assert_true(receiver.receive_hit(followup_hit))
+	assert_eq(health.current_health, 9.5)
+	assert_eq(health.get_hit_protection_remaining(), 0.5)
+	health.force_death()
+	assert_eq(health.life_state, Combatant.LifeState.DEAD)
+	assert_eq(health.current_health, 0.0)
+	assert_eq(health.get_hit_protection_remaining(), 0.0)
+	health.reset_state()
+	assert_eq(health.current_health, 10.0)
+	assert_eq(health.get_hit_protection_remaining(), 0.0)
+	assert_true(receiver.receive_hit(followup_hit), "Reset removes the old refill protection")
+	assert_eq(health.current_health, 9.5)
 
 
 func _arena() -> TrainingArena:
