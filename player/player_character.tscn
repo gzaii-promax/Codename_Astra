@@ -1,0 +1,24 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://player/player_character.gd" id="1_player"]
+[ext_resource type="Script" path="res://skills/action_controller.gd" id="2_actions"]
+[ext_resource type="Script" path="res://player/player_visual.gd" id="3_visual"]
+
+[sub_resource type="RectangleShape2D" id="Body"]
+size = Vector2(22, 54)
+
+[node name="Player" type="CharacterBody2D"]
+collision_layer = 2
+collision_mask = 1
+floor_snap_length = 6.0
+script = ExtResource("1_player")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, -27)
+shape = SubResource("Body")
+
+[node name="Actions" type="Node" parent="."]
+script = ExtResource("2_actions")
+
+[node name="Visual" type="Node2D" parent="."]
+script = ExtResource("3_visual")

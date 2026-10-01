@@ -1,0 +1,6 @@
+.tools/
+.godot/
+artifacts/*
+!artifacts/.gdignore
+__pycache__/
+.DS_Store

@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "platform": "darwin-arm64",
+  "scope": "first playable prototype; toolchain and game checks",
+  "tools": {
+    "godot": {
+      "path": ".tools/godot-4.7.2/Godot.app/Contents/MacOS/Godot",
+      "version": "4.7.2.stable.official.ed1daf0bf",
+      "source_url": "https://godotengine.org/download/archive/4.7.2-stable/"
+    },
+    "gut": {
+      "addons_path": ".tools/gut-9.7.1/addons/gut",
+      "version": "9.7.1",
+      "source_url": "https://github.com/bitwes/Gut/releases/tag/v9.7.1"
+    },
+    "python": {
+      "path": ".tools/gdtoolkit-venv/bin/python",
+      "version": "3.12.14",
+      "base_path": "/Users/hanguo/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3"
+    },
+    "gdlint": {
+      "path": ".tools/gdtoolkit-venv/bin/gdlint",
+      "version": "4.5.0",
+      "source_url": "https://pypi.org/project/gdtoolkit/4.5.0/"
+    },
+    "gdformat": {
+      "path": ".tools/gdtoolkit-venv/bin/gdformat",
+      "version": "4.5.0",
+      "source_url": "https://pypi.org/project/gdtoolkit/4.5.0/"
+    },
+    "node": { "path": "/usr/local/bin/node", "version": "24.17.0" },
+    "git": { "path": "/usr/bin/git", "version": "2.54.0" },
+    "gh": {
+      "path": ".tools/gh-2.102.0/gh_2.102.0_macOS_arm64/bin/gh",
+      "version": "2.102.0",
+      "source_url": "https://github.com/cli/cli/releases/tag/v2.102.0"
+    }
+  },
+  "download_checksums": {
+    "algorithm": "sha256",
+    "godot_archive": "c58a24e31d720be9d62f60cb5627c4e695fb72f21b0cfe1bc9ccaa9a3b3ba63e",
+    "gut_archive": "14969aa46adc84aa08cdd21b9f6d1a64addd92ae60b36f02d0521ed305aa4086",
+    "gh_archive": "da922c20d1792e5b2cbf375593d7a658acf034c12c84e007e71c76ef959c337e"
+  },
+  "system_tools_verified": {
+    "git": "2.54.0 (Apple Git-157)",
+    "python": "3.9.6",
+    "xcode_license": "user completed acceptance; git and python execution verified"
+  },
+  "godot_signature": {
+    "status": "verified",
+    "execution_context": "outside filesystem sandbox",
+    "result": "valid on disk; satisfies its Designated Requirement"
+  },
+  "deferred": {
+    "ci": "Remote selected; CI awaits reproducible dependency bootstrap and a separate workflow decision."
+  }
+}

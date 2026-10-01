@@ -1,0 +1,37 @@
+[gd_resource type="Resource" script_class="SkillDefinition" load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://skills/skill_definition.gd" id="1_definition"]
+[ext_resource type="Script" path="res://skills/phase_policy.gd" id="2_policy"]
+
+[sub_resource type="Resource" id="Windup"]
+script = ExtResource("2_policy")
+control_scale = 0.55
+inertia_scale = 0.8
+can_cancel_player = false
+
+[sub_resource type="Resource" id="Active"]
+script = ExtResource("2_policy")
+control_scale = 0.45
+inertia_scale = 0.65
+can_cancel_player = false
+
+[sub_resource type="Resource" id="Recovery"]
+script = ExtResource("2_policy")
+control_scale = 0.75
+inertia_scale = 0.8
+can_cancel_player = true
+
+[resource]
+script = ExtResource("1_definition")
+id = &"basic_attack"
+display_name = "普通攻击"
+damage = 20.0
+windup_seconds = 0.08
+active_seconds = 0.12
+recovery_seconds = 0.17
+cooldown_seconds = 0.37
+windup_policy = SubResource("Windup")
+active_policy = SubResource("Active")
+recovery_policy = SubResource("Recovery")
+melee_reach = 54.0
+melee_height = 44.0

@@ -1,0 +1,52 @@
+[gd_resource type="Resource" script_class="SkillDefinition" load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://skills/skill_definition.gd" id="1_definition"]
+[ext_resource type="Script" path="res://skills/phase_policy.gd" id="2_policy"]
+[ext_resource type="Script" path="res://skills/skill_level_override.gd" id="3_level"]
+
+[sub_resource type="Resource" id="Windup"]
+script = ExtResource("2_policy")
+control_scale = 0.25
+inertia_scale = 0.35
+can_jump = false
+can_cancel_player = false
+can_interrupt_hit = true
+
+[sub_resource type="Resource" id="Active"]
+script = ExtResource("2_policy")
+control_scale = 0.25
+inertia_scale = 0.35
+can_jump = false
+can_cancel_player = false
+can_interrupt_hit = true
+
+[sub_resource type="Resource" id="Recovery"]
+script = ExtResource("2_policy")
+control_scale = 0.5
+inertia_scale = 0.5
+can_jump = true
+can_cancel_player = true
+can_interrupt_hit = true
+
+[sub_resource type="Resource" id="Level2"]
+script = ExtResource("3_level")
+level = 2
+values = {"windup_seconds": 0.2}
+
+[resource]
+script = ExtResource("1_definition")
+id = &"fireball"
+display_name = "火球术"
+damage_type = &"fire"
+damage = 35.0
+windup_seconds = 0.5
+active_seconds = 0.08
+recovery_seconds = 0.22
+cooldown_seconds = 0.9
+windup_policy = SubResource("Windup")
+active_policy = SubResource("Active")
+recovery_policy = SubResource("Recovery")
+projectile_speed = 430.0
+projectile_lifetime = 2.0
+projectile_range = 900.0
+level_overrides = Array[ExtResource("3_level")]([SubResource("Level2")])
