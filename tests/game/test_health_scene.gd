@@ -174,6 +174,7 @@ func test_pause_menu_freezes_enemy_attack_and_optional_recovery_timer() -> void:
 	arena.enemy.attack_enabled = false
 	var health := player.get_combatant()
 	health.zero_health_behavior = Combatant.ZeroHealthBehavior.KNOCKDOWN
+	await wait_physics_frames(31)
 	assert_true(_receiver(player).receive_hit(_hit(arena.enemy, 200.0)))
 	assert_true(health.schedule_recovery(0.15, 30.0))
 	hud.open_menu()
@@ -212,6 +213,7 @@ func test_both_health_bars_follow_damage_state_reset_and_three_language_fonts() 
 	assert_eq(enemy_bar.get_fill_ratio(), 0.0)
 	assert_true(enemy_bar.get_display_text().contains(Localization.text("health.dead")))
 	arena.player.get_combatant().zero_health_behavior = Combatant.ZeroHealthBehavior.KNOCKDOWN
+	await wait_physics_frames(31)
 	assert_true(_receiver(arena.player).receive_hit(_hit(arena.enemy, 200.0)))
 	for locale in ["zh_CN", "en", "ja"]:
 		assert_true(Localization.set_language(locale, false))

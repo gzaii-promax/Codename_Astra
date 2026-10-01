@@ -34,11 +34,21 @@
 ## 结算与生命状态
 
 1. 拒绝空数据、无效配置、禁用 receiver 与不符合目标规则的攻击。
-2. 绑定 `Combatant` 时，拒绝无敌、击倒、死亡或无效生命配置；不进入伤害类型计算。
+2. 绑定 `Combatant` 时，拒绝无敌、击倒、死亡、受击保护期间或无效生命配置；不进入伤害类型计算。`hit_protection_seconds == 0` 时直接跳过受击保护判定。
 3. 根据 `damage_type` 查询 `resistances`，将类型抗性、`general_reduction` 与适用的自伤/同阵营减伤加算。总减伤限制为 `0..1`；最终伤害为 `damage × (1 − 总减伤)`。例如 100 火焰伤害、20% 火焰抗性、规则 2 的 50% 自伤减伤，最终为 30。抗性键使用技能的伤害类型标识；未配置抗性默认为 0。
 4. 通过 `Combatant.apply_damage(hit, amount) -> bool` 应用已结算伤害，再由角色和血条响应事件。
 
 生命默认 `max_health = 100`、当前生命初始化为最大生命；`invulnerable = false`、`general_reduction = 0`、`resistances = {}`、`zero_health_behavior = DEATH`。最大生命必须有限且大于零；各减伤和抗性为有限 `0..1`。`validate() -> Array[String]` 可读取配置错误，错误配置拒绝伤害与恢复。
+
+### 受击保护
+
+`hit_protection_seconds` 是每个生命组件可配置的保护时长，单位为秒，必须有限且非负。默认来自 `CombatConfig.DEFAULT_HIT_PROTECTION_SECONDS`（0）；主角初始化使用 `CombatConfig.PLAYER_HIT_PROTECTION_SECONDS`（0.5）。`get_hit_protection_remaining()` 读取当前剩余时间。保护和 `invulnerable` 是独立状态，不通过切换无敌标志实现。
+
+接受正伤害后，若单位仍正常，立即开始保护；信号发出前已设置剩余时间，同帧或同步信号回调中的第二次伤害也被拒绝。零伤害或完全减伤的命中保留既有接受/信号语义，但不启动保护；空/无效数据、阵营排除和无敌拒绝也不启动。保护期间 `can_receive_damage()`、`apply_damage()` 与 receiver 的公共入口均拒绝普通伤害；`receive_hit()` 返回 false、`last_damage=0`，不发 `damaged`/`hit_received`，不再次打断动作，不延长保护。
+
+保护按物理帧递减，暂停菜单冻结计时，到期后允许下一次伤害。零秒直接旁路、不启动物理倒计时；运行时将时长设为零也会清除剩余保护。训练重置、死亡、击倒与起身清除计时；起身不额外提供保护。恢复计时使用独立的处理入口，取消恢复不会关闭保护倒计时。剧情 `force_death()` 继续直接生效。
+
+技能接触规则保持原有语义：近战仅记录被接受的命中；保护到期时若原攻击窗口仍有效，可接受该窗口的首次伤害。火球接触受保护目标时仍消耗，但不扣生命。没有新增保护闪烁、击退或敌人 AI。
 
 `LifeState` 为 `ACTIVE`、`DOWNED`、`DEAD`，默认正常。生命从正数首次降到零时，`ZeroHealthBehavior.DEATH` 转死亡，`KNOCKDOWN` 转击倒；已击倒/死亡目标不会被补刀，也不会重复触发零血行为。死亡不由 UI 或 `current_health == 0` 推导。
 

@@ -19,6 +19,12 @@ enum ZeroHealthBehavior { DEATH, KNOCKDOWN }
 		faction_changed.emit(faction)
 @export_range(1.0, 100000.0, 1.0) var max_health: float = 100.0
 @export var invulnerable: bool = false
+@export_range(0.0, 60.0, 0.05, "or_greater")
+var hit_protection_seconds: float = CombatConfig.DEFAULT_HIT_PROTECTION_SECONDS:
+	set(value):
+		hit_protection_seconds = value
+		if value == 0.0:
+			_clear_hit_protection()
 @export var zero_health_behavior: ZeroHealthBehavior = ZeroHealthBehavior.DEATH
 @export_range(0.0, 1.0, 0.01) var general_reduction: float = 0.0
 @export var resistances: Dictionary = {}
@@ -28,6 +34,7 @@ var life_state: LifeState = LifeState.ACTIVE
 
 var _recovery_remaining: float = -1.0
 var _recovery_health: float = 0.0
+var _hit_protection_remaining: float = 0.0
 
 
 func _ready() -> void:
@@ -43,10 +50,18 @@ func _process(delta: float) -> void:
 		recover(_recovery_health)
 
 
+func _physics_process(delta: float) -> void:
+	_hit_protection_remaining = maxf(0.0, _hit_protection_remaining - delta)
+	if is_zero_approx(_hit_protection_remaining):
+		_clear_hit_protection()
+
+
 func validate() -> Array[String]:
 	var errors: Array[String] = []
 	if not is_finite(max_health) or max_health <= 0.0:
 		errors.append("max_health must be finite and positive")
+	if not is_finite(hit_protection_seconds) or hit_protection_seconds < 0.0:
+		errors.append("hit_protection_seconds must be finite and nonnegative")
 	if faction not in Faction.values():
 		errors.append("faction must be a declared Faction")
 	if zero_health_behavior not in ZeroHealthBehavior.values():
@@ -68,6 +83,7 @@ func validate() -> Array[String]:
 
 func reset_state() -> void:
 	cancel_recovery()
+	_clear_hit_protection()
 	if not validate().is_empty():
 		return
 	current_health = max_health
@@ -81,8 +97,13 @@ func can_receive_damage() -> bool:
 		life_state == LifeState.ACTIVE
 		and not invulnerable
 		and current_health > 0.0
+		and (hit_protection_seconds == 0.0 or _hit_protection_remaining == 0.0)
 		and validate().is_empty()
 	)
+
+
+func get_hit_protection_remaining() -> float:
+	return _hit_protection_remaining
 
 
 func get_type_reduction(damage_type: StringName) -> float:
@@ -99,6 +120,11 @@ func apply_damage(hit: HitData, amount: float) -> bool:
 			LifeState.DEAD if zero_health_behavior == ZeroHealthBehavior.DEATH else LifeState.DOWNED
 		)
 		cancel_recovery()
+		_clear_hit_protection()
+	elif amount > 0.0 and hit_protection_seconds > 0.0:
+		# Signals are synchronous: protect before a callback can apply another hit.
+		_hit_protection_remaining = hit_protection_seconds
+		set_physics_process(true)
 	health_changed.emit(current_health, max_health)
 	if previous_state != life_state:
 		state_changed.emit(life_state)
@@ -108,6 +134,7 @@ func apply_damage(hit: HitData, amount: float) -> bool:
 
 func force_death() -> void:
 	cancel_recovery()
+	_clear_hit_protection()
 	if life_state == LifeState.DEAD:
 		return
 	current_health = 0.0
@@ -125,6 +152,7 @@ func recover(positive_health: float) -> bool:
 	):
 		return false
 	cancel_recovery()
+	_clear_hit_protection()
 	current_health = minf(positive_health, max_health)
 	life_state = LifeState.ACTIVE
 	health_changed.emit(current_health, max_health)
@@ -165,6 +193,11 @@ func cancel_recovery() -> void:
 	_recovery_remaining = -1.0
 	_recovery_health = 0.0
 	set_process(false)
+
+
+func _clear_hit_protection() -> void:
+	_hit_protection_remaining = 0.0
+	set_physics_process(false)
 
 
 func _valid_reduction(value: float) -> bool:
