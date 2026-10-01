@@ -52,6 +52,7 @@
 - 引擎子进程显式提供 `ASTRA_SETTINGS_PATH=<本轮目录>/settings.cfg`，原始日志与 actual 保留该环境覆盖；不改 HOME，不写玩家配置。`localization-restart-write/read` 使用同一独立 language-restart.cfg，在两个实际引擎进程中保存日文并恢复，保留 PID、恢复前语言与译文。第二项必须读取第一项写出的文件，不能在读取进程重新设置语言充当恢复。
 - 三语 UI/字体/布局检查在真实场景 GUT 用例中执行。非 headless 画面另用 `tests/probes/localization_visual.gd` 保存三语 HUD、菜单和帮助共九张真实 viewport 图及 report.json；它是额外图形证据，不计作 GUT assertions 或 headless 成功。原始日志也必须检查。
 - 图形复跑 argv：`<toolchain godot path> --path <真实工程或对应快照> --script res://tests/probes/localization_visual.gd -- <绝对输出目录>`，并单独设置 `ASTRA_SETTINGS_PATH=<输出目录>/settings.cfg`。使用已导入的工程，设置有限进程超时，stdout/stderr/exit_code 保存在 capture.log；查看全部 PNG 后另记录审核结论，capture 的 pass 只证明截图保存完成。
+- 尺度图形证据可使用相同方式运行 `tests/probes/scale_movement_visual.gd`，保存静止、短跳顶点附近、长跳顶点附近三张 viewport，并记录逐帧峰高；它不替代 GUT 的碰撞/输入验收或用户手感审核。
 - JUnit 判读要求每个预期 case 都有断言，且 failures/errors/skipped 为 0；执行失败仍尝试读取现有 XML，保留实际失败上下文。缺文件、空测试、跳过或名称缺失不算通过。
 - 行为覆盖与独立限制见 [tests/README.md](../tests/README.md)。第一版技术数值是暂定验收基线，玩法调整时必须说明为什么改变预期，而不能仅按实现自动改测试。
 - `latest.json` 可能指向工具链或游戏范围。报告 `scope` 不等于 `game` 时，不可据此声明首版已通过；也不能将工具 fixture 结果计为游戏测试。

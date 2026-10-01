@@ -4,7 +4,7 @@
 
 1. 读取 `AGENTS.md`、`docs/testing.md`、`tests/manifest.json` 和 `docs/errors/README.md`，再检查最新报告的 scope 与代码 hash。
 2. 项目根目录执行 `node tools/check.mjs --scope game`；本机按 ENV-0004 使用获准的沙箱外环境。新建或修改测试流程后立即执行。
-3. 读取 stdout JSON 的 `report_path`，核对 `expected_check_ids` 全部执行、`tests/manifest.json` 的全部预期测试均出现，且 JUnit 没有失败/错误/跳过；核对源码 hash、原始日志、Git 状态和报告时间。当前名册保留既有 34 项战斗用例和 19 项多语言/界面用例，新增 26 项生命/阵营/敌人验收，共 79 项。
+3. 读取 stdout JSON 的 `report_path`，核对 `expected_check_ids` 全部执行、`tests/manifest.json` 的全部预期测试均出现，且 JUnit 没有失败/错误/跳过；核对源码 hash、原始日志、Git 状态和报告时间。当前名册保留既有 34 项战斗用例、19 项多语言/界面用例和 26 项生命/阵营/敌人验收，新增 14 项单位尺度与可变跳跃验收，共 93 项。
 4. 失败先查公共错误目录，分类依赖/环境/配置/代码/测试问题；记录假设与修复证据，再复跑。交接提供 `run_id`、状态、报告路径、原始日志与开放错误。
 
 ## 职责与接口
@@ -18,6 +18,7 @@
 | `game/test_localization_ui.gd` | 实际三语 HUD/菜单/说明、picker 保存、暂停/继续/重置/帮助/Esc、字体与布局测量 | 正式 `TrainingHUD` 与引擎 Control / Font |
 | `game/test_health_combat.gd` | 四种目标规则、三阵营与本人矩阵、减伤加算、归属转移、死亡/击倒/恢复、技能配置传递 | `Combatant`、`HitData`、`DamageReceiver`、`SkillDefinition`、`SkillExecutors` |
 | `game/test_health_scene.gd` | 真实敌人攻击、双方生命与血条、受击阶段中断、重置、暂停和三语显示 | `TrainingArena`、`PlayerCharacter`、`PeriodicEnemy`、`HealthBar` |
+| `game/test_unit_scale.gd` | 16 px 单位、主角/稻草人判定框、32U×16U 外框、24 px/s 位移、短/中/长跳、真实键盘按松、重按/连跳/重置/失活恢复回归 | 正式场景的 CollisionShape2D / StaticBody2D、实际 physics frames、InputEventKey |
 | `fixtures/localization/` | 手写独立验收数据：默认 en、三语局部译文、新增 fr、损坏目录与无效清单 | 独立 JSON 数据，不从业务实现自动复制预期 |
 | `manifest.json` | 审核后的完整预期 case 名称，拒绝空执行或漏执行 | runner 和 JUnit 对照 |
 
@@ -47,6 +48,18 @@
 - 暂停菜单冻结敌人动作和可选恢复计时。双方血条的填充、数值、死亡标记和重置由真实场景验证；三语文本参数、字形和视口边界使用实际字体测量。
 - 双方相距 50 像素的近战位置还测量血条条框、字体 ascent/height 和描边合并后的完整绘制范围；三语正常、死亡与击倒长标签不得彼此相交。固定场景通过错开血条高度避免贴近时重叠，不宣称支持任意密集单位自动排布。
 - `probes/health_combat_visual.gd` 在图形引擎延后加载正式场景，捕获三语受伤、敌人死亡、主角击倒共九张 viewport。截图报告只证明保存完成，需查看全部图片并单独记录视觉审核；不将截图数量计入 GUT 用例。
+
+## 单位尺度与跳跃验收
+
+- 用户采纳的独立基线为 `1U = 16 px`；主角身体碰撞框、主角和稻草人的受击框实际宽 `16 px`、高 `32 px`，底部对齐脚底。读取真实 `CollisionShape2D` 的全局矩形，不从业务常量派生期望。
+- gray box 外框宽 `512 px`、高 `256 px`，本版摆放为 `Rect2(224, 200, 512, 256)`；地面上边为 `y=440`。验证实际四边碰撞形状以及左墙阻挡；既有右墙阻挡与贴左右墙发射火球用例同步坐标后继续保留。
+- 移动初值为 `24 px/s`。先等待加速稳定，再检查正负方向速度、准确60个引擎physics frames的实际位移 `24 px` 与停止；逆向输入等待足够时间让速度从正24变为负24。既有基础移动用例将20帧的最低位移门槛从30px改为5px，原因是用户授权速度由210px/s改为24px/s；新增独立实测用例承担精确速度验收。
+- 跳高从起跳脚底到最高脚底测量；短按 `16 px`、长按 `40 px`，60Hz离散与采样误差最多 `0.8 px`。测试最短触发、9帧中持键及持续持键，要求中跳严格位于短长之间；原始日志保存实测高度。真实 `InputEventKey` 的 Space 按下1个physics frame再松开也须达到短跳基线，长按须达到长跳基线。
+- 上升首次松键之后重新持键不得恢复长跳；按住至落地只产生一次起跳，松开再按可再次起跳。上升期间训练重置清空旧跳跃和未处理请求；死亡/击倒保留既有竖直惯性并继续受重力落地，但失活期间请求不能在恢复时重放，恢复后的新短跳不能继承长跳状态。
+- 真实小平台验证原有 `0.1 s` 土狼时间的离地后起跳与过期失败；落地前已松开的缓冲请求仍只能产生 `16 px` 短跳；头顶实际 `StaticBody2D` 截断长跳并允许回地。上升3帧后，同一physics采样间连续松开/重按也必须截断到短跳，分别通过外部输入接口和真实 Space 事件验证，避免采样遗漏短暂释放。
+- 逐帧峰高和短暂墙体/撞顶接触使用 `SceneTree.physics_frame`，并以 `Engine.get_physics_frames()` 核对一秒位移与键盘持键帧数；物理键事件调用 `Input.flush_buffered_events()` 后再检查映射状态。首轮 `20261001T170614834Z-918347de` 暴露 GUT 的 `wait_physics_frames(n)` 实际多等一帧、6帧加速不足和即时未flush输入断言；原始失败报告保留，修正采样与等待条件后仍保持24px/s、16/40px和真实接触预期。
+- 原稻草人火球集成测试的发射位置从目标左140px改为左56px，避免新地图台阶覆盖原站位；敌人火球用例改为左90px，避免稻草人位于弹道中提前吸收攻击。仍验证一级前摇、真实35点伤害、单次命中和撞击删除。中断测试使用新的出生点，避免敌人被初始攻击窗口提前命中；没有降低伤害/窗口/冷却验收。
+- `probes/scale_movement_visual.gd` 另外在真实图形引擎逐帧测量短/长跳，保存 `rest`、`short_apex`、`long_apex` 三张viewport图和峰高报告；同时复跑 `localization_visual.gd` 的三语九图检查短/长按帮助文字。图形probe为额外证据，不计入93项GUT用例；截图保存成功不能代替逐张查看与视觉审核，也不能证明用户已验收手感。
 
 ## 扩展与维护
 

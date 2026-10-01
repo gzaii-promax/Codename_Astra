@@ -80,6 +80,20 @@
     "test_pause_menu_freezes_enemy_attack_and_optional_recovery_timer",
     "test_both_health_bars_follow_damage_state_reset_and_three_language_fonts",
     "test_real_active_melee_obeys_hit_interrupt_policy_and_preserves_cooldown",
-    "test_training_dummy_counts_resolved_damage_without_mutating_original_hit"
+    "test_training_dummy_counts_resolved_damage_without_mutating_original_hit",
+    "test_unit_scale_matches_approved_player_and_dummy_collision_dimensions",
+    "test_graybox_geometry_matches_approved_32_by_16_unit_envelope",
+    "test_walk_speed_is_24_pixels_per_second_with_real_displacement",
+    "test_short_medium_and_long_holds_produce_16_to_40_pixel_jumps",
+    "test_physical_key_press_release_drives_variable_height_jump",
+    "test_repress_during_ascent_does_not_restore_long_jump",
+    "test_holding_jump_through_landing_does_not_auto_jump_again",
+    "test_training_reset_clears_variable_jump_and_pending_input",
+    "test_death_and_knockdown_recovery_clear_variable_jump_state",
+    "test_coyote_jump_succeeds_just_after_walking_off_a_real_platform",
+    "test_coyote_jump_expires_after_the_documented_point_one_seconds",
+    "test_released_short_jump_buffer_fires_on_landing_at_one_unit_height",
+    "test_real_ceiling_collision_stops_a_held_jump_and_returns_to_ground",
+    "test_release_and_repress_between_physics_samples_still_cuts_the_current_jump"
   ]
 }

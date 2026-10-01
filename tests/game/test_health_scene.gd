@@ -53,7 +53,7 @@ func test_player_melee_and_fireball_damage_and_kill_real_enemy() -> void:
 	assert_true(player.request_attack())
 	await wait_physics_frames(30)
 	assert_eq(enemy.get_combatant().current_health, 80.0)
-	player.reset_state(enemy.global_position + Vector2(-140.0, 0.0))
+	player.reset_state(enemy.global_position + Vector2(-90.0, 0.0))
 	player.set_control_input(0.0)
 	for expected_health in [45.0, 10.0, 0.0]:
 		assert_true(player.request_fireball())
@@ -100,7 +100,7 @@ func test_real_active_melee_obeys_hit_interrupt_policy_and_preserves_cooldown() 
 	enemy.attack_enabled = false
 	for interruptible in [true, false]:
 		arena.reset_training()
-		player.reset_state(Vector2(700.0, 430.0))
+		player.reset_state(Vector2(272.0, 440.0))
 		player.set_control_input(0.0)
 		var actions := player.get_action_controller()
 		var definition := actions.get_definition(&"basic_attack").duplicate(true) as SkillDefinition
@@ -147,7 +147,7 @@ func test_training_reset_restores_both_units_and_restarts_enemy_attack_clock() -
 	assert_eq(arena.player.get_combatant().life_state, Combatant.LifeState.ACTIVE)
 	assert_eq(arena.enemy.get_combatant().life_state, Combatant.LifeState.ACTIVE)
 	assert_eq(arena.enemy.actions.phase, ActionController.Phase.IDLE)
-	assert_eq(arena.enemy.global_position, Vector2(875.0, 430.0))
+	assert_eq(arena.enemy.global_position, Vector2(656.0, 440.0))
 	arena.player.reset_state(arena.enemy.global_position + Vector2(-50.0, 0.0))
 	arena.player.set_control_input(0.0)
 	await wait_physics_frames(60)
