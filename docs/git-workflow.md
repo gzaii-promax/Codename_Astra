@@ -26,4 +26,8 @@
 7. 按持续合并授权核对最新 head 与验收证据、源码哈希、适用的 GitHub 检查及冲突状态。必要检查未通过或证据与最新代码不对应时，先修复/复验；没有 CI 的仓库要明确本地证据范围。草稿在条件齐备后转 ready，默认用 Merge commit 保留详细历史，合并命令用 --match-head-commit 锁定已核对的 SHA，不绕过仓库要求。
 8. 合并后读取实际 merged 状态/合并提交，核对远端 main，再 fetch 并用 fast-forward 同步本地 main。后续从最新 main 创建新分支。合并不等于用户手感验收，待反馈仍保留；不因合并自动删除分支。
 
-授权存在系统 keyring；本地 git credential helper 调用当前项目的 gh，凭据不会写入 tracked files。新机器或移动目录后需重新配置工具路径/登录。本轮不新建 CI，验证通过后只创建或更新 draft PR，不合并或发布。
+授权存在系统 keyring；本地 git credential helper 调用当前项目的 gh，凭据不会写入 tracked files。新机器或移动目录后需重新配置工具路径/登录。
+
+CI 接入本轮已获授权，工作流与验收见 [ci.md](ci.md)。接入后，合并前须读取当前 head 的 `macOS / repository-checks` 实际运行与 artifact，核对有效配置、完整验收及源码哈希；PR 合并引用不能混同 head。当前私有套餐不支持分支保护（API 403 已核实），仍由 agent 执行同一门槛。工作流限只读权限，不持有自动合并或发布令牌；合并由已有授权流程执行，本轮不发布安装包。
+
+多语言 PR #3 与生命 PR #4 的版本草稿例外继续有效：仅创建/更新 draft PR，不合并或发布。CI PR #5已独立按持续授权合入main；把CI基础设施同步进草稿不意味着合并功能版本。

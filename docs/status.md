@@ -14,11 +14,11 @@
 
 | 范围 | 最终 run_id | 实际结果 |
 | --- | --- | --- |
-| game（多语言最终） | `20261001T103447218Z-fb5fe550` | 14/14 检查；53 tests、649 assertions；0 failures/errors/skipped |
-| toolchain（当前协议） | `20261001T102523641Z-7c23a1c9` | 22/22 检查；预期失败与超时保留底层状态 |
+| game（多语言原交付） | `20261001T103447218Z-fb5fe550` | 14/14 检查；53 tests、649 assertions；0 failures/errors/skipped |
+| toolchain（CI接入前） | `20261001T102523641Z-7c23a1c9` | 22/22 检查；预期失败与超时保留底层状态 |
 | game（首版基线） | `20261001T085453031Z-480c12f9` | 12/12 检查；34 tests、153 assertions；0 failures/errors/skipped |
 
-多语言最终报告覆盖全部 34 个既有回归与 19 个新增用例；93 项文件 SHA-256 与当前工程一致，原始 JUnit、引擎日志及 manifest 已核对。新增两个实际引擎进程验证保存/重启恢复，PID 38715 与 38716，使用同一独立 language-restart.cfg，读取进程未重新设置语言即恢复 ja。所有引擎子进程的 ASTRA_SETTINGS_PATH 在日志与 actual 中记录，不碰玩家设置。
+多语言最终报告覆盖全部 34 个既有回归与 19 个新增用例；93 项文件 SHA-256 与当时交付工程一致，原始 JUnit、引擎日志及 manifest 已核对。新增两个实际引擎进程验证保存/重启恢复，PID 38715 与 38716，使用同一独立 language-restart.cfg，读取进程未重新设置语言即恢复 ja。所有引擎子进程的 ASTRA_SETTINGS_PATH 在日志与 actual 中记录，不碰玩家设置。
 
 真实图形证据在 `artifacts/localization-visual/20261001T102716473Z/`：capture.log exit_code=0、无引擎错误，report.json、source-hashes.json、九张 1440×810 viewport PNG 齐全。主 agent 已实际打开三语 HUD/菜单/帮助全部九图，并另写 review.json（visual_review=pass），保留原 capture 的 pending 标记作为当时状态。可见中日文无缺字，面板均在 960×540 逻辑画布内；长帮助使用滚动区域。完整文字字形与布局测量另由 GUT 验证，不能把截图保存成功等同于手感或正式译文审核。
 
@@ -42,7 +42,7 @@
 
 用户随后给予持续提交与合并授权。2026-10-01 核对 PR 最新 head `b6d9cdcbc8fb9ab4a5f2aac672c3cdd864930d4a`、既有验收报告及对应文件哈希后，将 PR #1 转为 ready 并使用 Merge commit 合并；GitHub 实际结果为 MERGED，合并提交 `09f35ec8b0ffaba38f6e77974ecc943721828083`。本地 main 已 fast-forward 同步，完整首版代码现已在 main；后续功能从最新 main 新建分支。
 
-提交与合并授权不扩大功能范围，手感仍等待用户试玩反馈。首版描述见 delivery-v1.md，持续 Git 流程见 git-workflow.md。CI 尚未接入，本轮使用本地验收证据，合并不代表 CI、发行或手感验证通过。
+提交与合并授权不扩大功能范围，手感仍等待用户试玩反馈。首版描述见 delivery-v1.md，持续 Git 流程见 git-workflow.md。首版合并时尚未接入 CI，使用本地验收证据；当前 CI 接入证据另列下节，发行和手感仍分别验证。
 
 ## 后续工作边界
 
@@ -51,4 +51,35 @@
 - 占位图为内置 imagegen 生成的单帧 PNG；没有正式角色动画，素材替换见 assets/README.md、player/README.md。
 - 主动取消/受击中断目前是分离的控制器 API 与测试能力，没有取消键或真实受伤链路。
 - 当前没有互动道具、完整技能树、敌人 AI、存档、音乐、正式地图、独立发行包或跨平台验证。
-- 新机器上的依赖自动安装与 CI 尚未实现；本机工具来源、固定版本和路径已记录。
+- 新机器上的依赖自动安装与 CI 已获接入授权；实际状态见下方持续集成记录。
+
+## 持续集成接入（2026-10-01）
+
+独立 CI 分支从 main 建立，范围见 [ci.md](ci.md)。多语言 PR #3 与生命 PR #4 保持未合并草稿；PR 详情面板加载问题按用户要求暂缓。
+
+全新依赖安装报告 `artifacts/bootstrap/20261001T155028596Z-58d98722/report.json` 为18/18通过。隔离缓存重装报告 `20261001T155256529Z-ce9ae058` 为16/16通过：缓存归档仍核对 SHA-256，故意损坏的 GUT 元数据恢复，venv 旧标记清除。本机原工具保留，CI 使用 `.tools/ci/toolchain.json`。
+
+GitHub 分支保护 API 返回403，要求升级套餐或公开仓库，暂无法对私有 main 设置必需检查；未修改可见性或付费设置。合并前仍由 agent 核对最新 head、实际检查、原始报告与源码哈希。
+
+独立本地验收：安装/配置 Node 单测9/9；CI 配置 toolchain `20261001T155653795Z-06765dcf` 为21/21通过；game `20261001T155734136Z-1d5d0e3c` 为12/12通过、34 tests / 153 assertions、0 failures/errors/skipped。主 agent 复读报告、JUnit 与日志路径，65份游戏/入口源码 SHA-256 全部匹配。非法配置回归 `20261001T155620615Z-7a58ec62` 正确 exit1/blocked，保留12项与配置路径，未回退本机配置。远端成功、故意失败与恢复验证尚待实际运行，不以本地通过代替 GitHub 结论。
+
+第一轮远端运行 [36888487517](https://github.com/gzaii-promax/Codename_Astra/actions/runs/36888487517) 在 setup-python 未找到固定3.12.14 ARM64包而失败；业务检查未执行，原始job log已保存，详见 errors/ERR-20261002-CI-PYTHON.md。修复保留同版本，改用固定Astral PBS归档。实际下载重装 `20261001T160323835Z-f71e0171` 为21/21通过，Python3.12.14/darwin-arm64/稳定base_path均记录，单测增至10项。旧本地验收仅对应旧源码，新源码验收与远端复跑另行记录。
+
+修复版独立本地验收：Node10/10；CI toolchain `20261001T160452470Z-75687419` 为21/21；game `20261001T160529698Z-fa10d4aa` 为12/12、34 tests/153 assertions、0 failures/errors/skipped。全部65份game源码哈希、配置哈希与原始证据路径一致。对应新PBS运行时配置，远端复跑待核实。
+
+普通PR远端证据（已下载至 `artifacts/ci-runs/<GitHub run_id>/`，另有主/测试agent独立核查）：
+
+| 情形 | GitHub run | 实际结果 |
+| --- | --- | --- |
+| 正常源码 | [36889507143](https://github.com/gzaii-promax/Codename_Astra/actions/runs/36889507143) | Python阻断修复；bootstrap23/23、Node10/10、toolchain21/21、game12/12；34tests153assertions无失败/跳过；65源码hash匹配head817c119 |
+| 临时失败探针 | [36889794629](https://github.com/gzaii-promax/Codename_Astra/actions/runs/36889794629) | headf4ebc65；普通game/job真实失败；唯一失败case为test_large_tick_carries_time_through_all_phases，XML/原log含CI_FAILURE_PROBE；失败artifact成功上传，其余准备/工具检查通过 |
+
+本次恢复提交明确撤销失败探针，测试源码与正常验收的原合同一致；最终差异不保留错误断言，也不放宽正常game失败规则。[CI PR #5](https://github.com/gzaii-promax/Codename_Astra/pull/5) 的最新head必须重新通过 `macOS / repository-checks`，核对源码/实际配置/合并引用后按持续授权使用Merge commit合入main，再核对main push检查。最终动态状态及原始artifact见PR检查；不能用上述历史绿灯批准新head。两个功能草稿继续保留，CI同步进入它们只更新基础设施和验收记录。
+
+### CI 同步到多语言草稿
+
+CI [PR #5](https://github.com/gzaii-promax/Codename_Astra/pull/5) 已按持续授权合并，main实际提交 `6a7dd66b64f10831b502a8614c2844f2a7ba0e2c`；最终恢复 head90d8bf7 的 [run36890205920](https://github.com/gzaii-promax/Codename_Astra/actions/runs/36890205920) 全通过。main push检查 [36890671925](https://github.com/gzaii-promax/Codename_Astra/actions/runs/36890671925) 另验实际合并提交。
+
+本草稿同步main的安装器、工作流与配置读取；保留localization快照、字体、独立settings路径和跨进程恢复验收。多语言业务代码、素材与53项测试契约保持原样，三个交接文档冲突按各自版本范围并置。后续最新head仍须本地和远端必要验收通过，PR #3保持draft。
+
+main实际合并提交的push run36890671925已全通过并取回原artifact，head/实际commit一致6a7dd66，bootstrap23/23、toolchain21/21、game12/12、34/153、65源码hash匹配。多语言同步后的独立本地game `20261001T161745574Z-f9af9883` 为14/14、53tests649assertions、0失败/错误/跳过，98源码hash和有效CI配置一致；两个独立进程验证ja保存/重启恢复。最新远端head验收见PR #3检查。
