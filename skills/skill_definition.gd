@@ -26,8 +26,9 @@ const POLICY_FLAGS: Array[String] = ["can_jump", "can_cancel_player", "can_inter
 @export var damage_type: StringName = &"physical"
 
 @export_group("Hit")
-@export_range(0.0, 10000.0, 0.5) var damage: float = 10.0
+@export_range(0.0, 10000.0, 0.5, "or_greater") var damage: float = 0.5
 @export_range(0.0, 2000.0, 1.0) var knockback: float = 0.0
+@export var target_policy: HitData.TargetPolicy = HitData.TargetPolicy.OTHER_FACTIONS
 
 @export_group("Timing (seconds)")
 @export_range(0.0, 10.0, 0.01) var windup_seconds: float = 0.1
@@ -87,9 +88,16 @@ func validate() -> Array[String]:
 	var errors: Array[String] = []
 	if id.is_empty():
 		errors.append("id must not be empty")
+	if damage_type.is_empty():
+		errors.append("damage_type must not be empty")
+	if target_policy not in HitData.TargetPolicy.values():
+		errors.append("target_policy must be a declared TargetPolicy")
 	for field in NUMERIC_FIELDS:
 		var value := float(get(field))
-		if not is_finite(value) or value < 0.0:
+		if field == "damage":
+			if not HitData.is_valid_damage(value):
+				errors.append("damage must be finite, nonnegative and a multiple of 0.5 hearts")
+		elif not is_finite(value) or value < 0.0:
 			errors.append("%s must be finite and nonnegative" % field)
 	for field in [
 		"melee_reach", "melee_height", "projectile_speed", "projectile_lifetime", "projectile_range"
@@ -113,6 +121,7 @@ func get_resolved_attributes() -> Dictionary:
 	for field in NUMERIC_FIELDS:
 		attributes[field] = get(field)
 	attributes["damage_type"] = damage_type
+	attributes["target_policy"] = target_policy
 	for policy_name in POLICY_NAMES:
 		var policy := get(policy_name) as PhasePolicy
 		attributes[policy_name] = policy.as_dictionary() if policy != null else {}
@@ -120,9 +129,20 @@ func get_resolved_attributes() -> Dictionary:
 
 
 func _apply_override(field: String, value: Variant) -> void:
+	if field == "target_policy":
+		if typeof(value) == TYPE_INT and value in HitData.TargetPolicy.values():
+			target_policy = value
+		else:
+			resolution_errors.append("target_policy override must be a declared TargetPolicy")
+		return
 	if field in NUMERIC_FIELDS:
 		if typeof(value) == TYPE_FLOAT or typeof(value) == TYPE_INT:
-			set(field, float(value))
+			if field == "damage" and not HitData.is_valid_damage(float(value)):
+				resolution_errors.append(
+					"damage override must be a nonnegative multiple of 0.5 hearts"
+				)
+			else:
+				set(field, float(value))
 		else:
 			resolution_errors.append("%s override must be numeric" % field)
 		return

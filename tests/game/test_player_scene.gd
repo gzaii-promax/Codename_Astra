@@ -34,7 +34,7 @@ func test_player_moves_changes_facing_and_stops_with_no_input() -> void:
 	var start := player.global_position.x
 	player.set_control_input(1.0)
 	await wait_physics_frames(20)
-	assert_gt(player.global_position.x, start + 30.0)
+	assert_gt(player.global_position.x, start + 5.0)
 	assert_eq(player.facing_direction, 1.0)
 	player.set_control_input(-1.0)
 	await wait_physics_frames(20)
@@ -52,14 +52,14 @@ func test_mapped_input_drives_player_without_control_override() -> void:
 	Input.action_press("move_right")
 	await wait_physics_frames(20)
 	Input.action_release("move_right")
-	assert_gt(player.global_position.x, start + 30.0)
+	assert_gt(player.global_position.x, start + 5.0)
 
 
 func test_jump_leaves_floor_and_returns_to_graybox_ground() -> void:
 	var player := _arena().player
 	await wait_physics_frames(6)
 	var ground_y := player.global_position.y
-	player.set_control_input(0.0, true)
+	player.set_control_input(0.0, true, true)
 	await wait_physics_frames(8)
 	assert_false(player.is_on_floor())
 	assert_lt(player.global_position.y, ground_y - 20.0)
@@ -71,21 +71,21 @@ func test_jump_leaves_floor_and_returns_to_graybox_ground() -> void:
 func test_second_jump_in_air_cannot_reset_vertical_velocity() -> void:
 	var player := _arena().player
 	await wait_physics_frames(6)
-	player.set_control_input(0.0, true)
+	player.set_control_input(0.0, true, true)
 	await wait_physics_frames(10)
 	var rising_velocity := player.velocity.y
 	assert_lt(rising_velocity, 0.0)
-	player.set_control_input(0.0, true)
+	player.set_control_input(0.0, true, true)
 	await wait_physics_frames(2)
 	assert_gt(player.velocity.y, rising_velocity, "Gravity continues; no second air jump")
 
 
 func test_graybox_wall_blocks_character_movement() -> void:
 	var player := _arena().player
-	player.reset_state(Vector2(900.0, 430.0))
+	player.reset_state(Vector2(708.0, 440.0))
 	player.set_control_input(1.0)
 	await wait_physics_frames(30)
-	assert_lte(player.global_position.x, 929.1, "Body cannot cross wall beginning at x = 940")
+	assert_lte(player.global_position.x, 712.1, "16 px body cannot cross wall at x = 720")
 	assert_true(player.is_on_wall())
 
 
@@ -98,14 +98,14 @@ func test_player_melee_hits_actual_training_dummy_once() -> void:
 	assert_true(player.request_attack())
 	await wait_physics_frames(35)
 	assert_eq(arena.dummy.hit_count, 1)
-	assert_eq(arena.dummy.total_damage, 20.0)
+	assert_eq(arena.dummy.total_damage, 0.5)
 	assert_eq(arena.dummy.last_hit.skill_id, &"basic_attack")
 
 
 func test_player_fireball_waits_for_windup_then_hits_actual_dummy() -> void:
 	var arena := _arena()
 	var player := arena.player
-	player.reset_state(arena.dummy.global_position + Vector2(-140.0, 0.0))
+	player.reset_state(arena.dummy.global_position + Vector2(-56.0, 0.0))
 	player.set_control_input(0.0)
 	await wait_physics_frames(6)
 	assert_true(player.request_fireball())
@@ -114,7 +114,7 @@ func test_player_fireball_waits_for_windup_then_hits_actual_dummy() -> void:
 	assert_eq(_projectile_count(arena), 0, "No early projectile spawn")
 	await wait_physics_frames(45)
 	assert_eq(arena.dummy.hit_count, 1)
-	assert_eq(arena.dummy.total_damage, 35.0)
+	assert_eq(arena.dummy.total_damage, 1.0)
 	assert_eq(arena.dummy.last_hit.skill_id, &"fireball")
 	assert_eq(_projectile_count(arena), 0, "Projectile removed on impact")
 
@@ -124,7 +124,7 @@ func test_player_upgrade_rebinds_shorter_windup_with_same_damage() -> void:
 	player.set_fireball_level(2)
 	var definition := player.get_action_controller().get_definition(&"fireball")
 	assert_almost_eq(definition.windup_seconds, 0.2, 0.0001)
-	assert_eq(definition.damage, 35.0)
+	assert_eq(definition.damage, 1.0)
 	assert_eq(definition.resolved_level, 2)
 	player.set_fireball_level(1)
 	assert_almost_eq(
@@ -142,7 +142,7 @@ func test_training_reset_clears_projectiles_damage_action_and_cooldown() -> void
 	assert_eq(_projectile_count(arena), 1)
 	var hit := HitData.new()
 	hit.source = player
-	hit.damage = 15.0
+	hit.damage = 0.5
 	assert_true(arena.dummy.get_receiver().receive_hit(hit))
 	arena.reset_training()
 	await wait_physics_frames(3)
@@ -151,7 +151,7 @@ func test_training_reset_clears_projectiles_damage_action_and_cooldown() -> void
 	assert_eq(arena.dummy.total_damage, 0.0)
 	assert_eq(player.get_action_controller().phase, ActionController.Phase.IDLE)
 	assert_eq(player.get_action_controller().get_cooldown_remaining(&"fireball"), 0.0)
-	assert_almost_eq(player.global_position.x, 150.0, 0.1)
+	assert_almost_eq(player.global_position.x, 272.0, 0.1)
 
 
 func test_reverse_input_during_melee_keeps_facing_and_attack_origin_consistent() -> void:
@@ -205,8 +205,8 @@ func test_reset_disables_old_effects_before_next_physics_hit() -> void:
 func test_fireball_cannot_spawn_beyond_right_wall() -> void:
 	var arena := _arena()
 	var player := arena.player
-	_outside_receiver(arena, Vector2(985.0, 402.0))
-	player.reset_state(Vector2(929.0, 430.0))
+	_outside_receiver(arena, Vector2(760.0, 424.0))
+	player.reset_state(Vector2(712.0, 440.0))
 	player.set_control_input(1.0)
 	await wait_physics_frames(4)
 	player.set_control_input(0.0)
@@ -220,8 +220,8 @@ func test_fireball_cannot_spawn_beyond_right_wall() -> void:
 func test_fireball_cannot_spawn_beyond_left_wall() -> void:
 	var arena := _arena()
 	var player := arena.player
-	_outside_receiver(arena, Vector2(-25.0, 402.0))
-	player.reset_state(Vector2(31.0, 430.0))
+	_outside_receiver(arena, Vector2(200.0, 424.0))
+	player.reset_state(Vector2(248.0, 440.0))
 	player.set_control_input(-1.0)
 	await wait_physics_frames(4)
 	player.set_control_input(0.0)

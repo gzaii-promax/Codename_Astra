@@ -1,5 +1,58 @@
 # 当前交付状态
 
+## 主分支整合（2026-10-02）
+
+用户授权将生命与多语言分支合入 main，并补齐原反馈中的心形与跳跃。整合同时保留受击保护，当前范围、验收和 PR 交接见 [integration-main.md](integration-main.md)。本轮完整 game `20261001T185434427Z-1a47966d` 已通过 112 tests、2172 assertions、126 项源码哈希核对；原目录启动和三语 12 图已核实，远端合并以本轮整合 PR 当前状态为准。以下各节保留原交付时点证据与当时 PR 状态，不能据其旧 draft 描述推断当前远端状态。
+
+## 受击保护技术交付（2026-10-02）
+
+新增公共 `shared/combat_config.gd`：主角保护 0.5 秒，其他生命角色默认 0 秒。正伤害后由公共 `Combatant` 先启动保护再发送事件；保护内不扣血、不更新血条、不重复受击中断，拒绝不续期。零秒显式跳过保护判定，零伤害不启动计时。暂停冻结计时，训练重置、死亡、击倒与起身清零；剧情死亡继续生效。完整约定见 [hit-protection.md](hit-protection.md)。
+
+独立最终 game 报告 `20261001T180028010Z-3cfc27f7` 为 14/14 检查、103 tests、1361 assertions，0 failures/errors/skipped；保留全部 93 项既有用例，新增 10 项保护验收。先行报告 `20261001T175713993Z-d067c708` 亦通过，在其基础上加强第 30 帧到期与跨截止近战窗口验证后才运行最终报告，没有用旧结果替代新源码。
+
+独立测试 agent 与主 agent 分别读取报告、原始 XML/名册、21 份日志和 122 项源码/协议 SHA-256，全部与当前工作区一致、无引擎错误。实际 60 Hz 下第 12 帧剩约 0.3 秒、第 29 帧仍拒绝、第 30 帧剩 0 并可再次受伤；长近战窗口跨截止后生命 90→80，窗口结束仍 80、只一次事件，后续真实火球降至 73。零秒敌人/稻草人连续命中、暂停/重置、受击事件重入与生命周期均覆盖。
+
+实际工作区另外用固定 Godot 执行 `--editor --import` 和主场景 `--quit-after 120`，均 exit0、无引擎错误、stderr 为空；独立 settings 路径不触碰玩家配置。原始 argv/日志和报告保存在最终运行目录 `workspace-checks/`，确认实际类缓存注册 `CombatConfig`，导入后 122 项源码哈希及两个新 UID 仍与通过快照一致。
+
+已核实远端 PR #3 合入 main、尺度 PR #6 合入生命分支；生命 PR #4 当前仍为 OPEN draft。本轮从生命 head `06718c78a27e4ffd822d8d8ec9e61ca48897fa79` 接续到 `codex/hit-protection`，独立草稿、不合并或发布。下方旧版本描述保留各轮原交付时点；当前版本未进入 main，用户手感仍待试玩反馈。
+
+实现提交 `98ab99e` 已推送，并创建、读回核实[受击保护草稿 PR #8](https://github.com/gzaii-promax/Codename_Astra/pull/8)：OPEN、isDraft=true、base=codex/health-combat-v3、head=codex/hit-protection，已附加到当前 Codex 任务。最终 head 与远端 CI 结果按当前 PR 实际检查核对；草稿继续保留。
+## 心之容器技术交付（2026-10-02）
+
+按用户本轮规则改为心之容器：主角3心上限、普攻0.5心、火球1心；稻草人10心，归零立即回满并持续累计命中/伤害；定时敌人采用用户确认的3心上限、每击0.5心，原周期与前摇不变。生命内部以整数半心储存，公共字段、事件、恢复及统计以心为单位；拒绝不合法容器和非0.5倍数伤害。取消旧一般减伤、类型抗性、自伤/友伤减伤；允许的伤害直接按配置心数扣除。完整心、半心和空容器由公共组件绘制，稻草人10个容器为两行。详细采纳需求与接口见 [heart-health-v5.md](heart-health-v5.md) 及各模块说明。
+
+独立 game 验收 `20261001T174929088Z-c237683c`：14/14 检查，101 tests、1996 assertions，0 failures/errors/skipped。保留尺度版93项并新增8项；强化攻击、全额自伤/友伤、半心恢复、稻草人20次普攻/10次火球循环、真实碰撞、生命周期、三语和尺度/跳跃回归均执行。主 agent 复读原始JUnit、manifest和21份日志，所有测试有断言、无引擎错误，122份源码/协议SHA-256与工程一致。两个实际引擎进程PID78075/78076验证ja保存和重启恢复，不碰玩家设置。
+
+真实图形证据 `artifacts/heart-visual/20261001T175314663Z/` 从同一通过快照捕获：exit0、stderr为空，三语受伤/稻草人回满/敌人死亡/主角击倒共12张1440×810PNG、原日志及122源码哈希齐全。主 agent 与独立审查 agent分别逐图打开全部12张，primary-review.json、review.json均为pass；半颗和空心清楚，0.5不取整，回满保留统计，第三角色心读数与长状态文字分开，浮字分行可读。
+
+首轮测试设施失败及实际截图发现的三角色遮挡均保留并已修复复验，见 [测试记录](errors/ERR-20261002-HEART-TEST-FIXTURE.md)、[读数遮挡](errors/ERR-20261002-HEART-READOUT-OVERLAP.md)。自动通过不能替代图形检查，截图也不代表用户手感或平衡验收。
+
+本轮分支 `codex/heart-health-v5` 接续 `codex/scale-movement-v4`，已创建并核实[草稿 PR #7](https://github.com/gzaii-promax/Codename_Astra/pull/7)：OPEN、isDraft=true、base=codex/scale-movement-v4，已附加到本Codex任务。实现提交 `46f3f8c6ebbfe2c13514385feae12a2ede4c2382` 已推送，提交树122项哈希与最终本地报告一致；交接文档提交不改变该验证范围。依赖 #3/#4/#6 及本PR继续草稿，不合并或发布。远端普通PR CI已经启动，最终head与运行结果以当前PR检查和原始artifact为准，见 [git-workflow.md](git-workflow.md)。当前主角仍为占位素材，未新增心拾取、护盾心或正式死亡/击倒动画；用户试玩待反馈。
+
+## 统一尺度与可变跳跃技术交付（2026-10-02）
+
+按用户采纳需求落实 1 U=16 个逻辑像素，公共常数提炼到 shared/game_units.gd，所属模块文档记录单位、职责与变更要求。主角身体/受击框、稻草人受击框均 16×32 px；稻草人允许穿过，技能攻击框保持独立。地图外框 512×256 px（含墙、顶、地板）置于原 960×540 逻辑视口，出生点和平台按 U 配置；基础移动 24 px/s，无遮挡短至长跳上升 16–40 px。具体范围与工程初值见 [scale-movement-v4.md](scale-movement-v4.md)。
+
+首次松键截断本次上升，同一物理帧间松键重按也保留 release；持续持键落地不连跳，保留缓冲与土狼时间。三语帮助同步短按/长按说明。独立完整 game 验收 `20261001T171024428Z-05e42084`：14/14 检查、93 tests、1222 assertions，0 failures/errors/skipped。实测短/9帧中/长跳为 16.0886/22.4122/40.0871 px；真实 Space 持 1 个物理帧的短跳同为 16.0886 px；真实 60 帧移动 24 px。主 agent 独立读取 XML、原日志与报告，114 项运行前源码/协议哈希一致；四份同一通过快照导入生成的 UID 元数据另有原件/哈希核对。
+
+真实图形证据在 `artifacts/scale-visual/20261001T171024428Z-05e42084/`：scale 三图与 localization 三语 HUD/菜单/帮助九图均为 1440×810、capture exit0、无错误。主 agent 实际打开全部十二图，primary-review.json 为 pass；独立审查 agent 另打开尺度三图并记录 independent-review.json 为 pass。地图、角色和稻草人显示完整，短/长跳画面位置不同，更新帮助可在面板内换行滚动；截图不代表用户手感或正式美术验收。
+
+首轮四项测试调度失败报告保留并关闭，见 [采样与等待修复](errors/ERR-20261002-SCALE-TEST-SAMPLING.md)。额外工作区直接启动检查发现旧类缓存，刷新导入后实际主场景 120 帧无错误，见 [工作区类缓存](errors/ERR-20261002-WORKSPACE-CLASS-CACHE.md)。原始失败不会当作通过记录。
+
+本轮实现提交 `05efebb1ab74fd2764ddae8a4b111672c8ead4e8` 已推送，已创建并核实[草稿 PR #6](https://github.com/gzaii-promax/Codename_Astra/pull/6)：OPEN、isDraft=true、base=codex/health-combat-v3、head=codex/scale-movement-v4，已附加到本 Codex 任务。依赖 PR #3/#4 继续保持草稿，本轮不合并或发布。用户试玩手感仍待反馈；交接时远端普通 PR CI 已启动，最终 head 和结果以该 PR 当前检查与原始 artifact 为准，不使用旧版本绿灯代替。
+
+## 通用生命与定时敌人技术交付
+
+2026-10-01 接续未合并的多语言版本，新增通用 Combatant、四种伤害目标规则及加算减伤；默认规则 1、规则 2/3 减伤 50%、零血死亡。支持阵营改变、当前伤害归属重绑定、无敌状态、击倒且不可补刀、剧情直接死亡、同阵营协助起身和显式可选恢复计时。反弹只有来源接口，协助只有公共接口，未新增反弹技能或交互 NPC；默认不安排自动恢复。
+
+训练场右侧新增固定向左的敌人，默认每 1.5 秒尝试近战、前摇 0.3 秒、伤害 10，无追踪、巡逻或决策 AI。主角与敌人各 100 HP，复用同一血条组件；真实攻击扣血，零血停止控制/攻击，菜单暂停计时，R/菜单重置恢复双方并清理效果。允许受击中断时撤销近战窗口但保留冷却；稻草人统计采用最终伤害。原技能时序与数值保持首版基线。
+
+CI接入前的生命版本 game 报告 `20261001T152213740Z-0f6367a4`：14/14 检查通过，79 tests、1121 assertions，0 failures/errors/skipped；保留原 53 项与新增 26 项验收，106 项源码/协议 SHA-256 与交付前工程匹配。主 agent 已独立读取原始 JUnit、引擎日志并核对源码；完整快照在 `artifacts/test-runs/<run_id>/`。两轮测试设施失败未删除，修复和复验见 `errors/ERR-20261001-HEALTH-TEST-FIXTURE.md`；断言通过但引擎报错的首轮仍记为 fail。
+
+从同一通过快照捕获的真实图形证据位于 `artifacts/health-visual/20261001T152325729Z/`，capture.log exit_code=0、stderr 为空，九张 1440×810 viewport PNG 与 106 项源码哈希齐全。测试 agent 与主 agent 分别打开三语受伤、敌人死亡、主角击倒全部九图，review.json 与 primary-review.json 均为 pass。固定场景 50 px 近战距离下条框、数值与长状态文本分开；敌人死亡文字和倒地身体同步。初轮视觉重叠与 24 px 高度差仍不足的失败均保留，见 `errors/ERR-20261001-HEALTH-BAR-OVERLAP.md`。该证据只覆盖当前场景；主角仍为占位素材，没有专用死亡/击倒姿势，任意密集单位自动排布未验证。
+
+分支 `codex/health-combat-v3` 依赖 `feat/localization-v2`，已创建并核实[草稿 PR #4](https://github.com/gzaii-promax/Codename_Astra/pull/4)：OPEN、isDraft=true、base=feat/localization-v2、head=codex/health-combat-v3，已附加到本 Codex 任务。实现提交 `85473836829e5b876178ff0e1cc265e6f7f725de` 已推送，提交树的 106 项哈希与最终报告一致；后续交接文档提交不改变该验证范围，最终 head 以 GitHub 当前读取为准。依赖 PR #3 仍为草稿；本轮不合并或发布。具体范围与用户采纳规则见 `health-combat-v3.md`。生命版本原交付时尚无 CI，使用当时本地验收；当前 CI 同步另列下节；用户试玩手感仍待反馈。
+
 ## 首版技术交付
 
 2026-10-01 已完成本地可运行工程：主角移动/跳跃、普通攻击、火球术、gray box 地图、训练稻草人、可替换静态占位角色及训练信息。使用项目固定 Godot 4.7.2，运行方式见根 README.md。手感与玩法数值仍等待用户试玩反馈。
@@ -14,11 +67,13 @@
 
 | 范围 | 最终 run_id | 实际结果 |
 | --- | --- | --- |
+| game（心系统） | `20261001T174929088Z-c237683c` | 14/14 检查；101 tests、1996 assertions；0 failures/errors/skipped |
+| game（生命原交付） | `20261001T152213740Z-0f6367a4` | 14/14 检查；79 tests、1121 assertions；0 failures/errors/skipped |
 | game（多语言原交付） | `20261001T103447218Z-fb5fe550` | 14/14 检查；53 tests、649 assertions；0 failures/errors/skipped |
 | toolchain（CI接入前） | `20261001T102523641Z-7c23a1c9` | 22/22 检查；预期失败与超时保留底层状态 |
 | game（首版基线） | `20261001T085453031Z-480c12f9` | 12/12 检查；34 tests、153 assertions；0 failures/errors/skipped |
 
-多语言最终报告覆盖全部 34 个既有回归与 19 个新增用例；93 项文件 SHA-256 与当时交付工程一致，原始 JUnit、引擎日志及 manifest 已核对。新增两个实际引擎进程验证保存/重启恢复，PID 38715 与 38716，使用同一独立 language-restart.cfg，读取进程未重新设置语言即恢复 ja。所有引擎子进程的 ASTRA_SETTINGS_PATH 在日志与 actual 中记录，不碰玩家设置。
+多语言最终报告覆盖全部 34 个既有回归与 19 个新增用例；93 项文件 SHA-256 对应多语言交付当时工程，原始 JUnit、引擎日志及 manifest 已核对。本轮生命功能采用上文新的 106 项验证。新增两个实际引擎进程验证保存/重启恢复，PID 38715 与 38716，使用同一独立 language-restart.cfg，读取进程未重新设置语言即恢复 ja。所有引擎子进程的 ASTRA_SETTINGS_PATH 在日志与 actual 中记录，不碰玩家设置。
 
 真实图形证据在 `artifacts/localization-visual/20261001T102716473Z/`：capture.log exit_code=0、无引擎错误，report.json、source-hashes.json、九张 1440×810 viewport PNG 齐全。主 agent 已实际打开三语 HUD/菜单/帮助全部九图，并另写 review.json（visual_review=pass），保留原 capture 的 pending 标记作为当时状态。可见中日文无缺字，面板均在 960×540 逻辑画布内；长帮助使用滚动区域。完整文字字形与布局测量另由 GUT 验证，不能把截图保存成功等同于手感或正式译文审核。
 
@@ -49,9 +104,9 @@
 - 用户可主动反馈速度、跳跃高度、加减速、普攻移动比例、前后摇、火球速度/冷却、键位和角色观感；新反馈统一记录 channel=user_feedback，保留原意。
 - 所有现有数值均为原型初值，不因自动测试通过视为平衡结论。
 - 占位图为内置 imagegen 生成的单帧 PNG；没有正式角色动画，素材替换见 assets/README.md、player/README.md。
-- 主动取消/受击中断目前是分离的控制器 API 与测试能力，没有取消键或真实受伤链路。
-- 当前没有互动道具、完整技能树、敌人 AI、存档、音乐、正式地图、独立发行包或跨平台验证。
-- 新机器上的依赖自动安装与 CI 已获接入授权；实际状态见下方持续集成记录。
+- 主动取消仍未绑定按键；受击中断已接入主角和定时敌人，遵循阶段策略。击倒协助与计时恢复目前仅提供公共接口，未新增完整交互玩法。
+- 当前没有互动道具、完整技能树、敌人决策 AI、存档、音乐、正式地图、独立发行包或跨平台验证。
+- 新机器上的依赖自动安装与 CI 已完成main接入；各版本实际验收见下方记录。
 
 ## 持续集成接入（2026-10-01）
 
@@ -83,3 +138,11 @@ CI [PR #5](https://github.com/gzaii-promax/Codename_Astra/pull/5) 已按持续�
 本草稿同步main的安装器、工作流与配置读取；保留localization快照、字体、独立settings路径和跨进程恢复验收。多语言业务代码、素材与53项测试契约保持原样，三个交接文档冲突按各自版本范围并置。后续最新head仍须本地和远端必要验收通过，PR #3保持draft。
 
 main实际合并提交的push run36890671925已全通过并取回原artifact，head/实际commit一致6a7dd66，bootstrap23/23、toolchain21/21、game12/12、34/153、65源码hash匹配。多语言同步后的独立本地game `20261001T161745574Z-f9af9883` 为14/14、53tests649assertions、0失败/错误/跳过，98源码hash和有效CI配置一致；两个独立进程验证ja保存/重启恢复。最新远端head验收见PR #3检查。
+
+### CI 同步到生命草稿
+
+接续更新的多语言base66a143e，保留通用生命/伤害规则/定时敌人/血条的完整业务代码、素材及79项测试契约。两处交接文档冲突并置CI与生命版本事实；原53项多语言回归、设置隔离和跨进程恢复仍保留。PR #4继续draft，base仍为feat/localization-v2。最新head必须运行相同普通PR CI并核对原始证据。
+
+多语言草稿最新head66a143e的 [run36891160942](https://github.com/gzaii-promax/Codename_Astra/actions/runs/36891160942) 远端已通过：bootstrap23/23、Node10/10、toolchain21/21、game14/14、53/649，98源码hash与实际merge引用和配置吻合，原artifact/XML已取回。
+
+生命同步后的独立本地game `20261001T162117348Z-b8cf2746` 为14/14、79tests1121assertions、0失败/错误/跳过；111源码hash与快照/有效CI配置一致，21份原始日志无引擎错误，两个进程验证ja保存与重启恢复。业务文件与原9544618交付diff为空；推送最新head后按PR #4远端检查与原artifact核验，继续保留draft。

@@ -52,6 +52,7 @@
 - 引擎子进程显式提供 `ASTRA_SETTINGS_PATH=<本轮目录>/settings.cfg`，原始日志与 actual 保留该环境覆盖；不改 HOME，不写玩家配置。`localization-restart-write/read` 使用同一独立 language-restart.cfg，在两个实际引擎进程中保存日文并恢复，保留 PID、恢复前语言与译文。第二项必须读取第一项写出的文件，不能在读取进程重新设置语言充当恢复。
 - 三语 UI/字体/布局检查在真实场景 GUT 用例中执行。非 headless 画面另用 `tests/probes/localization_visual.gd` 保存三语 HUD、菜单和帮助共九张真实 viewport 图及 report.json；它是额外图形证据，不计作 GUT assertions 或 headless 成功。原始日志也必须检查。
 - 图形复跑 argv：`<toolchain godot path> --path <真实工程或对应快照> --script res://tests/probes/localization_visual.gd -- <绝对输出目录>`，并单独设置 `ASTRA_SETTINGS_PATH=<输出目录>/settings.cfg`。使用已导入的工程，设置有限进程超时，stdout/stderr/exit_code 保存在 capture.log；查看全部 PNG 后另记录审核结论，capture 的 pass 只证明截图保存完成。
+- 尺度图形证据可使用相同方式运行 `tests/probes/scale_movement_visual.gd`，保存静止、短跳顶点附近、长跳顶点附近三张 viewport，并记录逐帧峰高；它不替代 GUT 的碰撞/输入验收或用户手感审核。
 - JUnit 判读要求每个预期 case 都有断言，且 failures/errors/skipped 为 0；执行失败仍尝试读取现有 XML，保留实际失败上下文。缺文件、空测试、跳过或名称缺失不算通过。
 - 行为覆盖与独立限制见 [tests/README.md](../tests/README.md)。第一版技术数值是暂定验收基线，玩法调整时必须说明为什么改变预期，而不能仅按实现自动改测试。
 - `latest.json` 可能指向工具链或游戏范围。报告 `scope` 不等于 `game` 时，不可据此声明首版已通过；也不能将工具 fixture 结果计为游戏测试。
@@ -64,3 +65,9 @@
 - 修复后先复跑原失败项，再跑受影响回归，最后完成本轮必需检查；报错文本变化不能单独证明修复成功。
 - 自动测试记录 `channel: automated_test`；用户主动反馈记录 `channel: user_feedback`，保留原意、场景与复现条件。不要求用户等 agent 提问才反馈。
 - 用户手感反馈由用户判断；自动测试仅报告已执行的技术验证。无法自动复现的用户问题仍须保留，不能因测试通过自动关闭。
+
+## 心容器版本补充验收
+
+心系统采用 `docs/heart-health-v5.md` 中用户已采纳的验收：半心步进、3/10/3 容器、普攻0.5/火球1/敌击0.5、自伤友伤完整心伤害、严格数值校验、稻草人反复回满与统计保留；旧减伤断言由对应新规则替换，其余生命/技能/语言/尺度回归保留。
+
+`tests/probes/heart_health_visual.gd` 是本版本额外图形入口，使用上面的同一 argv/独立 settings/有限超时协议，从最终通过的已导入快照捕获三语完整/半颗/空心、敌人死亡、主角击倒、稻草人受伤与回满。保存原始日志、源码哈希和 report.json，打开全部 PNG 后另写审核结论；截图保存成功不等于视觉审核或用户试玩通过。旧 `health_combat_visual.gd` 也已迁移到心单位，不使用旧25/40等生命版数值作为本轮验收。

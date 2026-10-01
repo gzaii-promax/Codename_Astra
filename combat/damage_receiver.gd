@@ -1,10 +1,13 @@
 class_name DamageReceiver
 extends Area2D
-## Attach a CollisionShape2D; its owning actor handles the accepted hit signal.
+## Eligibility comes first; accepted hits spend the same heart amount for every faction.
 
 signal hit_received(hit: HitData)
 
 @export var enabled: bool = true
+@export var combatant_path: NodePath = ^"../Combatant"
+
+var last_damage: float = 0.0
 
 
 func _init() -> void:
@@ -15,9 +18,27 @@ func _init() -> void:
 
 
 func receive_hit(hit: HitData) -> bool:
+	last_damage = 0.0
 	if not enabled or hit == null or not hit.is_valid():
 		return false
-	if is_instance_valid(hit.source) and (hit.source == self or hit.source.is_ancestor_of(self)):
+	var combatant := get_combatant()
+	var target_faction := Combatant.Faction.NEUTRAL
+	if combatant != null:
+		target_faction = combatant.faction
+	if not hit.permits_target(self, target_faction):
 		return false
+	if combatant != null and not combatant.can_receive_damage():
+		return false
+	var resolved_damage := hit.damage
+	last_damage = resolved_damage
+	if combatant != null and not combatant.apply_damage(hit, resolved_damage):
+		last_damage = 0.0
+		return false
+	# A rejected hit in a synchronous health callback must not erase this result.
+	last_damage = resolved_damage
 	hit_received.emit(hit)
 	return true
+
+
+func get_combatant() -> Combatant:
+	return get_node_or_null(combatant_path) as Combatant

@@ -1,6 +1,13 @@
 # GitHub 与分支交接
 
-## 已授权的远端
+## 当前整合授权（2026-10-02）
+
+用户明确要求把 `codex/health-combat-v3` 和 `feat/localization-v2` 合入主分支。本轮保留两个分支历史，同时整合 `codex/scale-movement-v4` 中已经合入的心形 PR #7；处理公共生命代码与测试冲突，保留主角 0.5 秒保护、严格半心伤害、稻草人归零回满和可变跳跃。通过本轮必要验收后创建整合 PR，base 必须为 `main`，按持续授权合并并同步本地 main。
+
+本轮开始时远端：main=`a3015e2`，多语言=`c9293b7`，生命=`d211fa9`，尺度/心形=`fa1324e`。PR #4/#6/#7/#8 均为 MERGED，但分别进入原依赖分支，后续提交未自动进入 main。旧草稿限制已由用户本轮明确合并授权取代；不发布安装包。最新证据见 [integration-main.md](integration-main.md)。
+
+
+## 历史交付记录（当前状态以上方核实为准）
 
 - 仓库：`https://github.com/gzaii-promax/Codename_Astra`，私有；本机 CLI 已核实 private=true、push=true。
 - origin：`https://github.com/gzaii-promax/Codename_Astra.git`。
@@ -8,6 +15,16 @@
 - 首版[PR #1](https://github.com/gzaii-promax/Codename_Astra/pull/1)已附加到 Codex 任务，并于 2026-10-01 合并；合并提交为 `09f35ec8b0ffaba38f6e77974ecc943721828083`。后续实际分支状态与提交以 GitHub 读取结果为准。
 - 用户已授权持续提交与合并：在本项目已授权开发范围内，通过必要验收并提交 PR 后，可自行合并，无需再次确认提交或合并。功能范围和重要架构决策仍按用户已有分工处理。
 - 当前多语言下一版有更具体的新限制：只创建或更新 draft PR，不自动合并或发布，见 docs/localization-v2.md。此轮限制优先于持续合并授权；后续按最新用户范围执行。
+- 生命与定时敌人接续未合并的 `feat/localization-v2`，分支 `codex/health-combat-v3` 已创建并核实独立[草稿 PR #4](https://github.com/gzaii-promax/Codename_Astra/pull/4)，以 `feat/localization-v2` 为 base，差异只包含本轮功能。实现提交为 `85473836829e5b876178ff0e1cc265e6f7f725de`；最终 head 以当前 GitHub 读取为准。依赖 PR #3 保持草稿；本轮不合并或发布。范围与验收见 docs/health-combat-v3.md、docs/status.md。
+- 统一尺度与可变跳跃接续生命分支，分支 `codex/scale-movement-v4` 已核实独立[草稿 PR #6](https://github.com/gzaii-promax/Codename_Astra/pull/6)，base=codex/health-combat-v3；实现提交 `05efebb1ab74fd2764ddae8a4b111672c8ead4e8`。本地 game 93 项验收与真实图形已完成，范围/证据见 docs/scale-movement-v4.md、docs/status.md。依赖 #3/#4 及本 PR 均保持草稿，不合并或发布；最终 head 与远端 CI 读取当前 PR。
+
+### 受击保护本轮基线（2026-10-02）
+
+上述版本描述保留原交付时点。当前 GitHub 已核实：PR #3 已合入 main（`origin/main=a3015e2`），PR #6 已合入生命分支，生命 PR #4 仍为 OPEN draft、head=`06718c78a27e4ffd822d8d8ec9e61ca48897fa79`。尺度内容存在于生命草稿分支，尚未进入 main。
+
+受击保护使用 `codex/hit-protection`，从该生命 head 建立，以 `codex/health-combat-v3` 为 base 交付独立 draft PR；不合并或发布。公共默认值与验收见 `hit-protection.md`。本地已有其他 worktree/未应用 stash 不属于本轮改动；不应用、删除或迁移它们。
+
+实现提交 `98ab99e` 已推送，独立[草稿 PR #8](https://github.com/gzaii-promax/Codename_Astra/pull/8) 已创建并核实 OPEN、isDraft=true、base=codex/health-combat-v3、head=codex/hit-protection；已附加到当前任务。完整本地验收与实际工作区启动证据见 `status.md`。只更新交接文档不会改变已验收业务源码；最新 head/远端检查仍须读当前 PR。
 
 ## 首次发布的历史
 
@@ -30,4 +47,4 @@
 
 CI 接入本轮已获授权，工作流与验收见 [ci.md](ci.md)。接入后，合并前须读取当前 head 的 `macOS / repository-checks` 实际运行与 artifact，核对有效配置、完整验收及源码哈希；PR 合并引用不能混同 head。当前私有套餐不支持分支保护（API 403 已核实），仍由 agent 执行同一门槛。工作流限只读权限，不持有自动合并或发布令牌；合并由已有授权流程执行，本轮不发布安装包。
 
-多语言 PR #3 与生命 PR #4 的版本草稿例外继续有效：仅创建/更新 draft PR，不合并或发布。CI PR #5已独立按持续授权合入main；把CI基础设施同步进草稿不意味着合并功能版本。
+原轮次多语言 PR #3 与生命 PR #4 有草稿例外；本轮明确合并授权已取代该限制。CI PR #5已独立按持续授权合入main；把CI基础设施同步进草稿不意味着合并功能版本。
