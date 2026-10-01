@@ -53,16 +53,16 @@ func _on_hit_received(hit: HitData) -> void:
 
 func _draw() -> void:
 	var straw := Color("ead6a2") if _flash_remaining > 0.0 else Color("a9a28b")
-	draw_rect(Rect2(-3, -57, 6, 57), Color("665f53"))
-	draw_rect(Rect2(-23, -43, 46, 6), Color("827563"))
-	draw_rect(Rect2(-12, -46, 24, 30), straw)
-	draw_rect(Rect2(-11, -65, 22, 18), straw)
-	draw_rect(Rect2(-15, -68, 30, 5), Color("827563"))
-	draw_rect(Rect2(-6, -59, 3, 3), Color("393b40"))
-	draw_rect(Rect2(4, -59, 3, 3), Color("393b40"))
-	draw_line(Vector2(-8, -24), Vector2(8, -24), Color("6d665b"), 2.0)
-	draw_circle(Vector2(0, -33), 7.0, Color("574f48"), false, 2.0)
-	draw_rect(Rect2(-14, -3, 28, 3), Color("827563"))
+	draw_rect(Rect2(-2, -27, 4, 27), Color("665f53"))
+	draw_rect(Rect2(-12, -21, 24, 3), Color("827563"))
+	draw_rect(Rect2(-7, -23, 14, 15), straw)
+	draw_rect(Rect2(-6, -31, 12, 8), straw)
+	draw_rect(Rect2(-8, -32, 16, 3), Color("827563"))
+	draw_rect(Rect2(-4, -28, 2, 2), Color("393b40"))
+	draw_rect(Rect2(2, -28, 2, 2), Color("393b40"))
+	draw_line(Vector2(-4, -12), Vector2(4, -12), Color("6d665b"), 1.0)
+	draw_circle(Vector2(0, -16), 4.0, Color("574f48"), false, 1.0)
+	draw_rect(Rect2(-8, -2, 16, 2), Color("827563"))
 	var font := ThemeDB.fallback_font
 	for index in _damage_labels.size():
 		var label := _damage_labels[index]
@@ -71,7 +71,7 @@ func _draw() -> void:
 		color.a = minf(1.0, float(label["time"]) * 4.0)
 		draw_string(
 			font,
-			Vector2(-10.0 + index * 8, -76.0 - elapsed * 35.0),
+			Vector2(-8.0 + index * 8, -40.0 - elapsed * 24.0),
 			"%.0f" % label["damage"],
 			HORIZONTAL_ALIGNMENT_LEFT,
 			-1,

@@ -17,7 +17,7 @@ node tools/play.mjs
 | 操作 | 按键 |
 | --- | --- |
 | 左右移动 | A / D 或 ← / → |
-| 跳跃 | 空格、W 或 ↑ |
+| 跳跃 | 空格、W 或 ↑；短按低跳，长按高跳 |
 | 普通攻击 | J |
 | 火球术 | K |
 | 重置双方生命、位置、目标与冷却 | R |
@@ -33,6 +33,8 @@ node tools/play.mjs
 ## 工程入口
 
 开发规则/模块索引见 AGENTS.md；第一版基线见 docs/first-version.md；多语言范围见 docs/localization-v2.md；生命与定时敌人范围见 docs/health-combat-v3.md；实际验证和遗留见 docs/status.md。测试与错误协议见 docs/testing.md、docs/errors/README.md。
+
+统一尺度初值见 [docs/scale-movement-v4.md](docs/scale-movement-v4.md)：1 U=16 px，主角与稻草人受击框 16×32 px，地图外框 512×256 px，基础移动 24 px/s，无遮挡短至长跳上升 16–40 px。公共单位职责在 [shared/README.md](shared/README.md)。
 
 ```sh
 node tools/check.mjs --scope game

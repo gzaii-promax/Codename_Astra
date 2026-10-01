@@ -51,7 +51,7 @@ func _prepare_units(arena: Node) -> bool:
 	var enemy = arena.enemy
 	enemy.attack_enabled = false
 	player.get_combatant().zero_health_behavior = 0
-	player.reset_state(Vector2(825.0, 430.0))
+	player.reset_state(enemy.global_position + Vector2(-50.0, 0.0))
 	player.set_control_input(0.0)
 	return _deal_damage(enemy, player, 25.0) and _deal_damage(player, enemy, 40.0)
 

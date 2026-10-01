@@ -4,11 +4,13 @@
 
 `training_arena.tscn` 是主场景，包含 Player、TrainingDummy、PeriodicEnemy、HUD。`training_arena.gd` 创建 gray box 几何、输入配置、R 重置与 F2 等级调试；`training_dummy.gd/.tscn` 提供无限生命受击目标；`periodic_enemy.gd/.tscn` 提供固定周期近战敌人。公共矩形地形创建在 shared/graybox_solid.gd。
 
-逻辑画布 960 × 540，地板上沿 y=430，主角脚底初始 (150,430)，目标脚底 (645,430)。两个平台分别是 Rect2(275,366,145,18)、Rect2(760,350,120,18)，左右墙宽 20 px。平台当前是普通实心碰撞，没有单向平台或下落穿透机制。灰色几何与网格用于测试，尚无正式地图美术。
+当前采用 shared/GameUnits 的 1 U=16 px。gray box 世界外框 32 × 16 U（512 × 256 px），包含厚 1 U 的墙、顶和地板，位于 Rect2(224,200,512,256)。逻辑画布仍为 960 × 540，它与地图大小分别维护。地板上沿 y=440，主角/稻草人/敌人脚底初始分别为 (272,440)/(544,440)/(656,440)。`TrainingArena` 暴露 ARENA_ORIGIN、ARENA_WIDTH/HEIGHT、FLOOR_Y 与三个 SPAWN 常数，场景资源保存同样的初始位置，运行与重置复用这些位置。
+
+低台阶 Rect2(352,424,64,8) 比地面高 1 U，高平台 Rect2(432,408,48,8) 高 2 U；都是普通实心碰撞，没有单向平台或下落穿透机制。网格间隔 1 U。公共地形几何与显示仍使用同一矩形，灰盒背景先于地形和角色绘制，确保墙/地板可见。灰色几何与网格用于测试，尚无正式地图美术。用户采纳的尺寸与边界见 ../docs/scale-movement-v4.md。
 
 ## 稻草人与接口
 
-稻草人受击区 28 × 60 px，中心在脚底上 32 px；没有实体阻挡玩家，无 AI、生命条或死亡。无 Combatant 的 receiver 默认为中立，仍遵循攻击携带的四种目标规则。稻草人在 accepted signal 中使用 receiver.last_damage 累计最终伤害和显示浮动数字；last_hit.damage 保留攻击基数。`total_damage`、`hit_count`、`last_hit` 可读取，`get_receiver()` 给测试使用，`reset_stats()` 清零并发 `stats_changed`。屏幕提供短暂闪色。
+稻草人受击区宽 1 U、高 2 U（16 × 32 px），中心在脚底上 1 U（16 px）；占位外观高 32 px，横杆允许超出身体受击区。没有实体阻挡玩家，无 AI、生命条或死亡。无 Combatant 的 receiver 默认为中立，仍遵循攻击携带的四种目标规则。稻草人在 accepted signal 中使用 receiver.last_damage 累计最终伤害和显示浮动数字；last_hit.damage 保留攻击基数。`total_damage`、`hit_count`、`last_hit` 可读取，`get_receiver()` 给测试使用，`reset_stats()` 清零并发 `stats_changed`。屏幕提供短暂闪色。
 
 当前累计伤害不是 DPS：统计时间窗、有效战斗时长、多目标与分技能统计需在后续定义，不能用首版显示值当作每秒伤害。
 

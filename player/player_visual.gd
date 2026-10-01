@@ -4,7 +4,7 @@ extends Node2D
 
 @export var texture: Texture2D = preload("res://assets/hero_placeholder.png")
 @export var texture_region: Rect2 = Rect2(348, 46, 578, 1173)
-@export var display_height: float = 58.0
+@export var display_height: float = 2.0 * GameUnits.PIXELS_PER_UNIT
 
 var _clock: float = 0.0
 var _charging: bool = false
@@ -42,5 +42,8 @@ func update_state(actor: PlayerCharacter, delta: float) -> void:
 func _draw() -> void:
 	if _charging:
 		var pulse := 5.0 + sin(_clock * 24.0) * 1.5
-		draw_circle(Vector2(_facing * 19.0, -30.0), pulse, Color("ee863d"))
-		draw_circle(Vector2(_facing * 19.0, -30.0), 3.0, Color("ffe09e"))
+		var charge_origin := Vector2(
+			_facing * 0.5 * GameUnits.PIXELS_PER_UNIT, -GameUnits.PIXELS_PER_UNIT
+		)
+		draw_circle(charge_origin, pulse, Color("ee863d"))
+		draw_circle(charge_origin, 3.0, Color("ffe09e"))

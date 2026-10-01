@@ -10,13 +10,13 @@
 script = ExtResource("1_arena")
 
 [node name="Player" parent="." instance=ExtResource("2_player")]
-position = Vector2(150, 430)
+position = Vector2(272, 440)
 
 [node name="TrainingDummy" parent="." instance=ExtResource("3_dummy")]
-position = Vector2(645, 430)
+position = Vector2(544, 440)
 
 [node name="HUD" type="CanvasLayer" parent="."]
 script = ExtResource("4_hud")
 
 [node name="PeriodicEnemy" parent="." instance=ExtResource("5_enemy")]
-position = Vector2(875, 430)
+position = Vector2(656, 440)

@@ -44,6 +44,7 @@ Constraints: one single static sprite only; no sprite sheet; no extra poses; no 
 
 - 通过主角视觉节点的纹理引用替换；朝向用该节点翻转，不修改角色碰撞。
 - 角色原点建议放在脚底，视觉缩放与偏移独立于物理节点。当前可见主体高度 1165 像素；按目标游戏身高设置视觉缩放，不直接采用画布宽高计算碰撞。
+- 统一尺度初版把 `PlayerVisual.display_height` 设为 2 U=32 个逻辑像素；原始 PNG 与 region 保留，运行时视觉缩放不改变公共 U 或 16×32 px 的物理/受击形状。
 - 纹理过滤使用 nearest 以避免运行时额外平滑；这不能把生成图转换为严格低分辨率像素画。
 - 后续若采用 `AnimatedSprite2D` 或 `SpriteFrames`，保留控制逻辑与动作状态接口，将静态纹理替换为动画资源；对应更新此说明、角色模块文档与实际运行验证。
 
