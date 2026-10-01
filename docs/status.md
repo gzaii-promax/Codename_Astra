@@ -25,7 +25,9 @@
 
 本机原先没有提交作者配置，当前仓库使用明确的 agent 作者 `Codex <codex@local.invalid>`，仅本地配置。用户现已授权将首版提交到私有 `gzaii-promax/Codename_Astra`，本机 gh 2.102.0 已安装并由用户完成网页授权。
 
-远端初始为空；本地建立空 `main` 基线 `8f585ab`，在 `feat/combat-v1` 保留原首版提交 `172c38e` 并通过合并 `e07e4d5` 建立共同历史，游戏内容树保持一致。正在执行推送前最终验证并准备首版 PR；实际 URL 和结果将在完成后追加。可审查的描述见 delivery-v1.md，持续 Git 流程见 git-workflow.md。CI 尚未接入。
+远端初始为空；建立空 `main` 基线 `8f585ab`，在 `feat/combat-v1` 保留原首版提交 `172c38e` 并通过合并 `e07e4d5` 建立共同历史，游戏内容树保持一致。推送前最终验证通过，main 与功能分支已原子推送到私有远端，并创建[首版草稿 PR #1](https://github.com/gzaii-promax/Codename_Astra/pull/1)，已附加到本 Codex 任务。
+
+PR 以 main 为 base、feat/combat-v1 为 head，等待用户试玩与审核，尚未合并；当前完整代码在功能分支。实际 PR 描述见 delivery-v1.md，持续 Git 流程见 git-workflow.md。CI 尚未接入，GitHub 上传本身不等于 CI 或发行验证。
 
 ## 后续工作边界
 

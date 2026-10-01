@@ -1,6 +1,6 @@
-# 首版提交与 PR 描述草案
+# 首版提交与 PR 描述
 
-用户已指定私有远端 `gzaii-promax/Codename_Astra`；首版从 `feat/combat-v1` 向 `main` 提交 PR。本文维护具体描述，实际创建和验证结果在 docs/status.md 记录。
+用户已指定私有远端 `gzaii-promax/Codename_Astra`；首版从 `feat/combat-v1` 向 `main` 提交[草稿 PR #1](https://github.com/gzaii-promax/Codename_Astra/pull/1)。本文维护具体描述，实际创建和验证结果在 docs/status.md 记录。
 
 ## 建议 PR 标题
 

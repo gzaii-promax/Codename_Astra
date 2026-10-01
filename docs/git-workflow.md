@@ -5,6 +5,7 @@
 - 仓库：`https://github.com/gzaii-promax/Codename_Astra`，私有；本机 CLI 已核实 private=true、push=true。
 - origin：`https://github.com/gzaii-promax/Codename_Astra.git`。
 - 默认分支：main；首版功能分支：feat/combat-v1。
+- 首版[草稿 PR #1](https://github.com/gzaii-promax/Codename_Astra/pull/1)已创建并附加到 Codex 任务，等待审核；未合并。
 - 用户已授权上传首版并创建 PR，尚未授权合并 PR。
 
 ## 首次发布的历史
