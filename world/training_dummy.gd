@@ -1,6 +1,6 @@
 class_name TrainingDummy
 extends Node2D
-## Immortal target: collect accepted damage without adding enemy AI or health rules.
+## A refillable heart target; statistics persist across automatic refills.
 
 signal stats_changed
 
@@ -12,6 +12,7 @@ var _flash_remaining: float = 0.0
 var _damage_labels: Array[Dictionary] = []
 
 @onready var receiver: DamageReceiver = $DamageReceiver
+@onready var combatant: Combatant = $Combatant
 
 
 func _ready() -> void:
@@ -29,6 +30,7 @@ func _process(delta: float) -> void:
 
 
 func reset_stats() -> void:
+	combatant.reset_state()
 	total_damage = 0.0
 	hit_count = 0
 	last_hit = null
@@ -39,6 +41,17 @@ func reset_stats() -> void:
 
 func get_receiver() -> DamageReceiver:
 	return receiver
+
+
+func get_combatant() -> Combatant:
+	return combatant
+
+
+func get_damage_label_texts() -> Array[String]:
+	var texts: Array[String] = []
+	for label in _damage_labels:
+		texts.append(_heart_number(float(label["damage"])))
+	return texts
 
 
 func _on_hit_received(hit: HitData) -> void:
@@ -63,18 +76,31 @@ func _draw() -> void:
 	draw_line(Vector2(-4, -12), Vector2(4, -12), Color("6d665b"), 1.0)
 	draw_circle(Vector2(0, -16), 4.0, Color("574f48"), false, 1.0)
 	draw_rect(Rect2(-8, -2, 16, 2), Color("827563"))
-	var font := ThemeDB.fallback_font
+	var font := Localization.get_font()
+	if font == null:
+		font = ThemeDB.fallback_font
+	var damage_texts := get_damage_label_texts()
+	var latest_elapsed := 0.0
+	if not _damage_labels.is_empty():
+		latest_elapsed = 0.65 - float(_damage_labels.back()["time"])
 	for index in _damage_labels.size():
 		var label := _damage_labels[index]
-		var elapsed := 0.65 - float(label["time"])
+		var row := _damage_labels.size() - 1 - index
+		var text_width := (
+			font.get_string_size(damage_texts[index], HORIZONTAL_ALIGNMENT_LEFT, -1, 16).x
+		)
 		var color := Color("ffd38d")
 		color.a = minf(1.0, float(label["time"]) * 4.0)
 		draw_string(
 			font,
-			Vector2(-8.0 + index * 8, -40.0 - elapsed * 24.0),
-			"%.0f" % label["damage"],
+			Vector2(-text_width * 0.5, -142.0 - row * 24.0 - latest_elapsed * 35.0),
+			damage_texts[index],
 			HORIZONTAL_ALIGNMENT_LEFT,
 			-1,
 			16,
 			color
 		)
+
+
+func _heart_number(value: float) -> String:
+	return "%.0f" % value if value == floorf(value) else "%.1f" % value

@@ -58,7 +58,23 @@ func test_actual_ui_switches_menu_hud_skill_and_manual_text_in_three_languages()
 			assert_eq(button.text, Localization.text(BUTTON_KEYS[name]))
 		var skill_stats := hud.get_ui_control("SkillStats") as Label
 		assert_true(skill_stats.text.contains(Localization.text("skill.fireball.name")))
-		assert_true(skill_stats.text.contains("35"))
+		assert_eq(
+			skill_stats.text,
+			(
+				Localization
+				. text(
+					"hud.skill_stats",
+					{
+						"skill": Localization.text("skill.fireball.name"),
+						"level": 1,
+						"windup": "0.50",
+						"recovery": "0.22",
+						"cooldown": "0.90",
+						"damage": "1",
+					}
+				)
+			)
+		)
 		assert_false(skill_stats.text.contains("{"), "HUD named arguments are resolved")
 		assert_eq(
 			(hud.get_ui_control("TargetStats") as Label).text,
@@ -158,7 +174,7 @@ func test_reset_button_resets_training_and_closes_pause_menu() -> void:
 	await wait_physics_frames(6)
 	var hit := HitData.new()
 	hit.source = arena.player
-	hit.damage = 15.0
+	hit.damage = 0.5
 	assert_true(arena.dummy.get_receiver().receive_hit(hit))
 	assert_true(arena.player.request_fireball())
 	hud.open_menu()

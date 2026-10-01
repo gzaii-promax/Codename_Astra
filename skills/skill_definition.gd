@@ -5,8 +5,6 @@ extends Resource
 const NUMERIC_FIELDS: Array[String] = [
 	"damage",
 	"knockback",
-	"self_reduction",
-	"same_faction_reduction",
 	"windup_seconds",
 	"active_seconds",
 	"recovery_seconds",
@@ -28,11 +26,9 @@ const POLICY_FLAGS: Array[String] = ["can_jump", "can_cancel_player", "can_inter
 @export var damage_type: StringName = &"physical"
 
 @export_group("Hit")
-@export_range(0.0, 10000.0, 0.5) var damage: float = 10.0
+@export_range(0.0, 10000.0, 0.5, "or_greater") var damage: float = 0.5
 @export_range(0.0, 2000.0, 1.0) var knockback: float = 0.0
 @export var target_policy: HitData.TargetPolicy = HitData.TargetPolicy.OTHER_FACTIONS
-@export_range(0.0, 1.0, 0.01) var self_reduction: float = 0.5
-@export_range(0.0, 1.0, 0.01) var same_faction_reduction: float = 0.5
 
 @export_group("Timing (seconds)")
 @export_range(0.0, 10.0, 0.01) var windup_seconds: float = 0.1
@@ -96,12 +92,12 @@ func validate() -> Array[String]:
 		errors.append("damage_type must not be empty")
 	if target_policy not in HitData.TargetPolicy.values():
 		errors.append("target_policy must be a declared TargetPolicy")
-	for field in ["self_reduction", "same_faction_reduction"]:
-		if float(get(field)) > 1.0:
-			errors.append("%s must be within 0..1" % field)
 	for field in NUMERIC_FIELDS:
 		var value := float(get(field))
-		if not is_finite(value) or value < 0.0:
+		if field == "damage":
+			if not HitData.is_valid_damage(value):
+				errors.append("damage must be finite, nonnegative and a multiple of 0.5 hearts")
+		elif not is_finite(value) or value < 0.0:
 			errors.append("%s must be finite and nonnegative" % field)
 	for field in [
 		"melee_reach", "melee_height", "projectile_speed", "projectile_lifetime", "projectile_range"
@@ -141,7 +137,12 @@ func _apply_override(field: String, value: Variant) -> void:
 		return
 	if field in NUMERIC_FIELDS:
 		if typeof(value) == TYPE_FLOAT or typeof(value) == TYPE_INT:
-			set(field, float(value))
+			if field == "damage" and not HitData.is_valid_damage(float(value)):
+				resolution_errors.append(
+					"damage override must be a nonnegative multiple of 0.5 hearts"
+				)
+			else:
+				set(field, float(value))
 		else:
 			resolution_errors.append("%s override must be numeric" % field)
 		return

@@ -98,7 +98,7 @@ func test_player_melee_hits_actual_training_dummy_once() -> void:
 	assert_true(player.request_attack())
 	await wait_physics_frames(35)
 	assert_eq(arena.dummy.hit_count, 1)
-	assert_eq(arena.dummy.total_damage, 20.0)
+	assert_eq(arena.dummy.total_damage, 0.5)
 	assert_eq(arena.dummy.last_hit.skill_id, &"basic_attack")
 
 
@@ -114,7 +114,7 @@ func test_player_fireball_waits_for_windup_then_hits_actual_dummy() -> void:
 	assert_eq(_projectile_count(arena), 0, "No early projectile spawn")
 	await wait_physics_frames(45)
 	assert_eq(arena.dummy.hit_count, 1)
-	assert_eq(arena.dummy.total_damage, 35.0)
+	assert_eq(arena.dummy.total_damage, 1.0)
 	assert_eq(arena.dummy.last_hit.skill_id, &"fireball")
 	assert_eq(_projectile_count(arena), 0, "Projectile removed on impact")
 
@@ -124,7 +124,7 @@ func test_player_upgrade_rebinds_shorter_windup_with_same_damage() -> void:
 	player.set_fireball_level(2)
 	var definition := player.get_action_controller().get_definition(&"fireball")
 	assert_almost_eq(definition.windup_seconds, 0.2, 0.0001)
-	assert_eq(definition.damage, 35.0)
+	assert_eq(definition.damage, 1.0)
 	assert_eq(definition.resolved_level, 2)
 	player.set_fireball_level(1)
 	assert_almost_eq(
@@ -142,7 +142,7 @@ func test_training_reset_clears_projectiles_damage_action_and_cooldown() -> void
 	assert_eq(_projectile_count(arena), 1)
 	var hit := HitData.new()
 	hit.source = player
-	hit.damage = 15.0
+	hit.damage = 0.5
 	assert_true(arena.dummy.get_receiver().receive_hit(hit))
 	arena.reset_training()
 	await wait_physics_frames(3)

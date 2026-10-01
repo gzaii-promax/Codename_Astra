@@ -1,13 +1,22 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene load_steps=6 format=3]
 
 [ext_resource type="Script" path="res://world/training_dummy.gd" id="1_dummy"]
 [ext_resource type="Script" path="res://combat/damage_receiver.gd" id="2_receiver"]
+
+[ext_resource type="Script" path="res://combat/combatant.gd" id="3_combatant"]
+[ext_resource type="Script" path="res://ui/health_bar.gd" id="4_health_bar"]
 
 [sub_resource type="RectangleShape2D" id="Target"]
 size = Vector2(16, 32)
 
 [node name="TrainingDummy" type="Node2D"]
 script = ExtResource("1_dummy")
+
+[node name="Combatant" type="Node" parent="."]
+script = ExtResource("3_combatant")
+faction = 2
+max_health = 10.0
+zero_health_behavior = 2
 
 [node name="DamageReceiver" type="Area2D" parent="."]
 position = Vector2(0, -16)
@@ -17,3 +26,7 @@ script = ExtResource("2_receiver")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="DamageReceiver"]
 shape = SubResource("Target")
+
+[node name="HealthBar" type="Node2D" parent="."]
+position = Vector2(0, -50)
+script = ExtResource("4_health_bar")
