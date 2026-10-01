@@ -4,7 +4,7 @@
 
 `training_hud.gd` 提供 `TrainingHUD extends CanvasLayer`。训练读数读取 Player 的有效火球定义、动作阶段、剩余冷却及 TrainingDummy 的累计伤害/命中次数；不修改技能数值。菜单负责暂停/恢复场景树、调用现有训练场重置接口，以及显示语言选择和帮助；不创建新场景、不保存成长。
 
-依赖 autoload `Localization`、主角动作控制器、稻草人与训练场。文本全部通过 `Localization.text(key, args)`，字体通过 `Localization.get_font()` 写入共享 Theme；语言选项动态读取 `available_languages()` 的 locale/name，不在 UI 写死语言数量或 locale。收到 `language_changed` 后立即刷新 HUD、菜单、手册和字体。技能名称/描述取 `get_definition(action_id)` 返回的 `name_key/description_key`。
+依赖 autoload `Localization`、主角动作控制器、稻草人与训练场。文本全部通过 `Localization.text(key, args)`，字体通过 `Localization.get_font()` 写入共享 Theme；语言选项动态读取 `available_languages()` 的 locale/name，不在 UI 写死语言数量或 locale。收到 `language_changed` 后立即刷新 HUD、菜单、手册和字体。技能名称/描述取 `get_definition(action_id)` 返回的 `name_key/description_key`。公共头顶血条 `health_bar.gd` 另读取同角色的 Combatant，不依赖角色控制方式。
 
 ## 玩家操作
 
@@ -25,6 +25,16 @@ HUD 在填入文本前设置视口宽度，并在 `minimum_size_changed` 后延�
 HUD 文本键：`app.title`、`hud.controls/debug_controls/skill_stats/target/phase`、`phase.idle/windup/active/recovery`。菜单键：`menu.open/title/resume/reset/help/close/language/hint/save_error`。手册键：`manual.title/movement/combat/training/languages` 加两种技能的名称与描述。
 
 参数仍显示原实际数据：damage 为整数文本，windup/recovery/cooldown 保留两位小数，剩余 cooldown 一位小数；翻译仅改变标签，不更改战斗或等级值。HUD 读取绑定后的火球定义，因此 F2 切级显示下次施法属性，当前已开始动作仍使用其原定义。
+
+## 通用头顶血条
+
+`HealthBar extends Node2D` 是纯显示组件，默认从 `../Combatant` 读取当前/最大生命、生命周期状态和阵营；可通过 `combatant_path` 绑定其他节点。它不扣血，不决定目标是否可受伤，也不以血条为空判断死亡。主角在脚底上 82 px、PeriodicEnemy 在脚底上 114 px 放置 `HealthBar`，错开高度避免当前地面近战距离下的条框及长状态文本重叠；其他单位可通过场景节点偏移调整。
+
+默认条宽 54 px、高 6 px、字体 12 px，可在 Inspector 调整。填充比例由真实生命值计算并限于 0..1；当前/最大生命显示在上方，整数无小数、非整数显示一位小数。友方为绿色、敌方红色、中立金色；击倒边框黄色、死亡边框灰色，空条仍保留以区分击倒和死亡。状态词取 `health.downed`、`health.dead`，数值格式取 `health.values` 的 `{current}`/`{max}`，正常状态只显示生命读数。
+
+组件订阅 `health_changed(current, max)`、`state_changed(state)`、`faction_changed(faction)` 和 `Localization.language_changed(locale)` 触发重绘；字体同样来自 `Localization.get_font()`。血条文字使用自由绘制，不受条宽裁切。未来正式 HUD 或 Boss 血条可使用同一信号和生命状态，不需要重复战斗结算。
+
+自动验收可读取 actor 下 `HealthBar` 节点的 `get_fill_ratio() -> float` 与 `get_display_text() -> String`，核对伤害、重置、阵营变化和语言切换后显示是否同步。空生命值附加的击倒/死亡标识来自生命周期状态；未绑定有效 Combatant 时返回比例 0、空文本并停止绘制。
 
 ## 稳定接口与节点
 

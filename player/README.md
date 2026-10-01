@@ -10,15 +10,16 @@ Inspector 的 move_speed=210 px/s，acceleration=1600 px/s²，deceleration=2000
 
 Actions 按物理帧 tick。每阶段的 inertia_scale 只在进入阶段时缩放水平惯性，control_scale 缩放玩家目标移动速度，skill_velocity 的 x 按面朝方向转换；can_jump 决定该阶段能否起跳。角色不根据具体技能名称硬编码动作运动。前摇期间可以转向；进入执行阶段后直到后摇结束，朝向锁定，但仍可按策略向左右移动，保证近战视觉、释放点与实际命中方向一致。
 
-主动取消与受击中断已作为 ActionController 的独立策略/API 保留，并有自动行为测试；当前没有绑定主动取消按键，主角也没有受伤链路。允许跳跃只是允许在动作中起跳，不自动取消动作。加入取消输入或真实敌人时需接入这些接口并补玩家可观察的回归。
+主动取消与受击中断为 ActionController 的独立策略/API。当前未绑定主动取消按键；主角现接入 DamageReceiver 和 Combatant，正伤害调用受击中断，仍遵循各阶段 can_interrupt_hit；成功中断撤销本角色近战窗口，保留冷却。允许跳跃只是允许在动作中起跳，不自动取消动作。死亡/击倒无条件结束动作并撤销本角色已打开的近战窗口，停止输入和新攻击，重力继续使角色落地；独立已发射投射物继续存在。
 
 ## 公共接口与扩展
 
 - `request_attack()` / `request_fireball()` 返回动作是否被接受；忙碌或冷却拒绝，不缓存攻击连招。
 - `get_action_controller()` 供界面/测试读取；`get_attack_origin()` 提供脚底上 28 px、面朝方向前 15 px 的释放点。
+- `get_combatant()` 提供公共生命、阵营、无敌、零血行为和生命周期配置。场景默认 FRIENDLY、100 HP、无敌关闭、零血死亡。DamageReceiver 使用独立 22 × 54 px 受击区；HealthBar 位于脚底上 82 px，订阅同一 Combatant。公共规则与默认值见 ../combat/README.md 和 ../docs/health-combat-v3.md。
 - `set_fireball_level(1|2)` 只重绑下一次施法定义，正在执行的动作保持开始时的定义。
 - `set_control_input(horizontal, jump_requested)` 启用外部输入意图；跳跃单次消费。`clear_control_override()` 恢复真实键盘输入。测试、后续回放可以通过同一控制路径驱动真实物理。
-- `reset_state(position)` 无条件重置动作/冷却、位置与运动状态；外部控制模式保留以方便测试重置，真实训练场原本使用键盘模式。
+- `reset_state(position)` 无条件重置生命/生命周期、动作/冷却、位置与运动状态；外部控制模式保留以方便测试重置，真实训练场使用键盘模式。训练场整体重置同时删除场上效果并恢复敌人。
 
 新增技能先完成 skills 定义/执行器，然后在角色的绑定和输入映射处注册。已有控制器无需理解新行为。若加入墙跳、滑铲、锁定朝向等新移动机制，必须明确与阶段策略的组合并更新行为测试。
 

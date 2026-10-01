@@ -2,10 +2,12 @@ class_name TrainingArena
 extends Node2D
 
 const PLAYER_SPAWN := Vector2(150.0, 430.0)
+const ENEMY_SPAWN := Vector2(875.0, 430.0)
 const ARENA_WIDTH: float = 960.0
 
 @onready var player: PlayerCharacter = $Player
 @onready var dummy: TrainingDummy = $TrainingDummy
+@onready var enemy: PeriodicEnemy = $PeriodicEnemy
 
 
 func _enter_tree() -> void:
@@ -47,6 +49,7 @@ func reset_training() -> void:
 			child.set_physics_process(false)
 			child.queue_free()
 	player.reset_state(PLAYER_SPAWN)
+	enemy.reset_state(ENEMY_SPAWN)
 	dummy.reset_stats()
 
 
@@ -69,4 +72,13 @@ func _draw() -> void:
 		160,
 		12,
 		Color("c6af85")
+	)
+	draw_string(
+		font,
+		Vector2(770, 488),
+		Localization.text("arena.enemy"),
+		HORIZONTAL_ALIGNMENT_CENTER,
+		160,
+		12,
+		Color("d78d91")
 	)

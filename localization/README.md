@@ -7,7 +7,7 @@
 查找使用本实例拥有的 `Translation.get_message()`，再查询默认语言，避免其他测试实例或全局翻译资源改变本实例结果。切语言同步 `TranslationServer.set_locale()`；模块只注册和销毁自己创建的资源，从不 `TranslationServer.clear()`。未加入树的独立实例销毁时也解除自己的资源。
 
 - `languages.json`：默认语言、语言顺序、名称、目录和字体。
-- `catalogs/*.json`：扁平文本字典；三语各 30 个相同 key。
+- `catalogs/*.json`：扁平文本字典；三语当前各 36 个相同 key，包含生命数值、击倒/死亡、定时敌人标签与技能说明。
 - `localization_service.gd`：目录载入、查找与回退、语言切换、字体缓存、设置恢复。
 - `settings_store.gd`：ConfigFile 原生解析及损坏用户数据的诊断。
 

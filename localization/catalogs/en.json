@@ -27,6 +27,12 @@
   "manual.title": "Controls & Help",
   "manual.movement": "Movement & Jumping\nPress A / D or ← / → to move. Press Space, W, or ↑ to jump. You cannot jump again while airborne.",
   "manual.combat": "Combat\nPress J for a melee attack and K for Fireball. Attacks follow the direction your character faces. Windup, recovery, and movement limits depend on the action.",
-  "manual.training": "Training Tools\nPress F2 to switch between level 1 and level 2 Fireball and compare windup times. Press R to reset the player's position, cooldowns, attack effects, and dummy statistics. Your selected language is preserved.",
-  "manual.languages": "Menu & Language\nPress Esc to open the pause menu. Select 简体中文, English, or 日本語 in the language list. A successfully saved choice is restored on the next launch. Close the menu to resume. This prototype training room has no story content."
+  "manual.training": "Training Tools\nPress F2 to switch Fireball levels. The red enemy on the right attacks left at fixed intervals. Approach it to fight and watch both health bars. After death, press R or use Reset Training to restore both units, positions, cooldowns, effects, and dummy statistics. Your language is preserved.",
+  "manual.languages": "Menu & Language\nPress Esc to open the pause menu. Select 简体中文, English, or 日本語 in the language list. A successfully saved choice is restored on the next launch. Close the menu to resume. This prototype training room has no story content.",
+  "health.values": "{current}/{max}",
+  "health.downed": "Downed",
+  "health.dead": "Dead",
+  "skill.enemy_attack.name": "Enemy Strike",
+  "skill.enemy_attack.description": "The enemy attempts a left-facing strike every 1.5 seconds, with a 0.3-second windup and 10 damage. It does not track or move.",
+  "arena.enemy": "Periodic Attacker"
 }

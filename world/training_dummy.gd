@@ -42,11 +42,12 @@ func get_receiver() -> DamageReceiver:
 
 
 func _on_hit_received(hit: HitData) -> void:
-	total_damage += hit.damage
+	var final_damage := receiver.last_damage
+	total_damage += final_damage
 	hit_count += 1
 	last_hit = hit
 	_flash_remaining = 0.15
-	_damage_labels.append({"damage": hit.damage, "time": 0.65})
+	_damage_labels.append({"damage": final_damage, "time": 0.65})
 	stats_changed.emit()
 
 

@@ -1,10 +1,16 @@
-[gd_scene load_steps=5 format=3]
+[gd_scene load_steps=9 format=3]
 
 [ext_resource type="Script" path="res://player/player_character.gd" id="1_player"]
 [ext_resource type="Script" path="res://skills/action_controller.gd" id="2_actions"]
 [ext_resource type="Script" path="res://player/player_visual.gd" id="3_visual"]
+[ext_resource type="Script" path="res://combat/combatant.gd" id="4_combatant"]
+[ext_resource type="Script" path="res://combat/damage_receiver.gd" id="5_receiver"]
+[ext_resource type="Script" path="res://ui/health_bar.gd" id="6_health_bar"]
 
 [sub_resource type="RectangleShape2D" id="Body"]
+size = Vector2(22, 54)
+
+[sub_resource type="RectangleShape2D" id="Hurtbox"]
 size = Vector2(22, 54)
 
 [node name="Player" type="CharacterBody2D"]
@@ -22,3 +28,20 @@ script = ExtResource("2_actions")
 
 [node name="Visual" type="Node2D" parent="."]
 script = ExtResource("3_visual")
+
+[node name="Combatant" type="Node" parent="."]
+script = ExtResource("4_combatant")
+faction = 0
+
+[node name="DamageReceiver" type="Area2D" parent="."]
+position = Vector2(0, -27)
+collision_layer = 4
+collision_mask = 0
+script = ExtResource("5_receiver")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="DamageReceiver"]
+shape = SubResource("Hurtbox")
+
+[node name="HealthBar" type="Node2D" parent="."]
+position = Vector2(0, -82)
+script = ExtResource("6_health_bar")

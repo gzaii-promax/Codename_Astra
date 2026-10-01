@@ -26,6 +26,7 @@ var _external_jump: bool = false
 
 @onready var actions: ActionController = $Actions
 @onready var visual: PlayerVisual = $Visual
+@onready var combatant: Combatant = $Combatant
 
 
 func _ready() -> void:
@@ -33,9 +34,21 @@ func _ready() -> void:
 	actions.bind_action(&"basic_attack", BASIC_ATTACK, SkillExecutors.melee)
 	set_fireball_level(1)
 	actions.phase_changed.connect(_on_phase_changed)
+	combatant.state_changed.connect(_on_life_state_changed)
+	combatant.damaged.connect(_on_damaged)
 
 
 func _physics_process(delta: float) -> void:
+	if combatant.life_state != Combatant.LifeState.ACTIVE:
+		_external_jump = false
+		_motion_velocity.x = 0.0
+		_motion_velocity.y = minf(_motion_velocity.y + gravity * delta, max_fall_speed)
+		velocity = _motion_velocity
+		move_and_slide()
+		if is_on_floor():
+			_motion_velocity.y = 0.0
+		visual.update_state(self, delta)
+		return
 	var axis := _external_axis if _external_control else Input.get_axis("move_left", "move_right")
 	var wants_jump := _external_jump if _external_control else Input.is_action_just_pressed("jump")
 	_external_jump = false
@@ -79,11 +92,21 @@ func _physics_process(delta: float) -> void:
 
 
 func request_attack() -> bool:
-	return actions.request_action(&"basic_attack", self)
+	return (
+		combatant.life_state == Combatant.LifeState.ACTIVE
+		and actions.request_action(&"basic_attack", self)
+	)
 
 
 func request_fireball() -> bool:
-	return actions.request_action(&"fireball", self)
+	return (
+		combatant.life_state == Combatant.LifeState.ACTIVE
+		and actions.request_action(&"fireball", self)
+	)
+
+
+func get_combatant() -> Combatant:
+	return combatant
 
 
 func set_fireball_level(level: int) -> void:
@@ -112,6 +135,7 @@ func clear_control_override() -> void:
 
 
 func reset_state(spawn_position: Vector2) -> void:
+	combatant.reset_state()
 	actions.reset_state()
 	global_position = spawn_position
 	velocity = Vector2.ZERO
@@ -120,6 +144,32 @@ func reset_state(spawn_position: Vector2) -> void:
 	_jump_buffer_remaining = 0.0
 	_external_jump = false
 	facing_direction = 1.0
+
+
+func _on_damaged(_hit: HitData, amount: float) -> void:
+	if amount > 0.0 and actions.cancel(&"hit"):
+		_clear_melee_windows()
+
+
+func _on_life_state_changed(state: int) -> void:
+	visual.modulate = Color.WHITE if state == Combatant.LifeState.ACTIVE else Color("85858f")
+	if state == Combatant.LifeState.ACTIVE:
+		return
+	actions.reset_state()
+	_jump_buffer_remaining = 0.0
+	_coyote_remaining = 0.0
+	_clear_melee_windows()
+
+
+func _clear_melee_windows() -> void:
+	# An already opened melee window must not keep hitting after death/knockdown.
+	var spawn_parent := get_tree().current_scene
+	if spawn_parent == null:
+		spawn_parent = get_parent()
+	for effect in spawn_parent.get_children():
+		if effect is MeleeStrike and effect.hit != null and effect.hit.source == self:
+			effect.set_physics_process(false)
+			effect.queue_free()
 
 
 func _on_phase_changed(_phase: int) -> void:
