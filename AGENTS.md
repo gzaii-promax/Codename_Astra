@@ -6,6 +6,7 @@
 - 当前已授权下一版多语言入口，范围与验收见 [docs/localization-v2.md](docs/localization-v2.md)。本轮只创建或更新 draft PR，不合并或发布；此限制优先于下文持续合并授权。剧情脚本由用户以后编写。
 - 当前已追加授权通用生命、伤害目标规则、定时攻击敌人和双方血条，采纳规则、默认值与验收见 [docs/health-combat-v3.md](docs/health-combat-v3.md)。不实现敌人决策 AI；接续未合并多语言分支，独立 draft PR，不合并或发布。
 - 首版基线见 [docs/first-version.md](docs/first-version.md)，实际进度与遗留见 [docs/status.md](docs/status.md)。暂不实现互动道具、完整技能树、敌人决策 AI 或正式背景。
+- CI 基础设施已由 [PR #5](https://github.com/gzaii-promax/Codename_Astra/pull/5) 合并到 main，范围与证据见 [docs/ci.md](docs/ci.md)。同步 CI 到功能草稿不扩大多语言或生命版本的合并授权；两个功能 PR 继续保持草稿。
 - 已采纳的项目要求见本文件；测试协议见 [docs/testing.md](docs/testing.md)；错误处理见 [docs/errors/README.md](docs/errors/README.md)。
 - 工具模块的执行、结果判读与文件职责见 [tools/README.md](tools/README.md)。
 - 私有 GitHub 远端、分支与 PR 交接见 [docs/git-workflow.md](docs/git-workflow.md)。首版 PR 合并前从 `feat/combat-v1` 迭代；合并后从最新 `main` 创建后续功能分支。
@@ -51,7 +52,7 @@
 - 手感参考方向：Dead Cells、Blasphemous；总体玩法参考 Bloodstained。具体动作、数值、技能、互动与成长规则仍待用户确定。
 - 暂定背景：蒸汽朋克风的大英帝国；当前不实现正式视觉与剧情。
 - 首版按已准备的 GDScript 工具链实现，使用 GUT 与 gdtoolkit；具体数值均为待试玩调整的初值。正式素材规格与发布平台尚未确定。
-- `gh` 已按用户授权安装并完成网页登录；CI 后续按实际需求讨论。成熟插件按适配性、维护、许可证、依赖与修改成本权衡，避免重复工具。
+- `gh` 已按用户授权安装并完成网页登录；CI 已获接入授权，实际运行状态见 docs/status.md。成熟插件按适配性、维护、许可证、依赖与修改成本权衡，避免重复工具。
 
 ## 每次工作的固定流程
 

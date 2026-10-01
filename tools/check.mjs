@@ -4,6 +4,7 @@ import { createHash, randomUUID } from 'node:crypto';
 import { cp, mkdir, readFile, rename, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { loadToolchain, toolPath, versionMatches } from './toolchain-config.mjs';
 
 const runnerPath = fileURLToPath(import.meta.url);
 const root = path.resolve(path.dirname(runnerPath), '..');
@@ -205,36 +206,31 @@ async function finish() {
 try {
   let manifest;
   await addInternal('manifest', 'Read and validate fixed toolchain configuration.', { schema_version: 1, required_tools: ['godot', 'gut', 'python', 'gdlint', 'gdformat', 'node', 'git'] }, async () => {
-    const source = await readFile(path.join(root, 'tools', 'toolchain.json'), 'utf8');
-    manifest = JSON.parse(source);
+    const configuration = await loadToolchain(root);
+    manifest = configuration.manifest;
     if (manifest.schema_version !== 1 || !manifest.tools) throw new Error('Unsupported or missing toolchain schema.');
     for (const name of ['godot', 'gut', 'python', 'gdlint', 'gdformat', 'node', 'git']) {
       const item = manifest.tools[name];
-      if (!item?.version || !(name === 'gut' ? item.addons_path : item.path)) throw new Error(`Missing tool configuration: ${name}`);
+      if (!(item?.version || item?.min_version) || !(name === 'gut' ? item.addons_path : item.path)) throw new Error(`Missing tool configuration: ${name}`);
     }
-    report.code_state.files_sha256['tools/toolchain.json'] = createHash('sha256').update(source).digest('hex');
-    return { observed_status: 'pass', manifest_path: 'tools/toolchain.json', schema_version: 1 };
+    report.toolchain_config = { path: relative(configuration.config_path), sha256: configuration.config_hash, manifest };
+    return { observed_status: 'pass', manifest_path: relative(configuration.config_path), schema_version: 1 };
   });
-  for (const sourcePath of ['tools/check.mjs', 'tools/read-junit.py', 'docs/testing.md']) {
+  for (const sourcePath of ['tools/check.mjs', 'tools/check-game.mjs', 'tools/toolchain-config.mjs', 'tools/bootstrap.mjs', 'tools/test-toolchain.mjs', 'tools/toolchain.json', 'tools/requirements-gdtoolkit.lock', '.github/workflows/check.yml', 'tools/read-junit.py', 'docs/testing.md']) {
     report.code_state.files_sha256[sourcePath] = createHash('sha256').update(await readFile(path.join(root, sourcePath))).digest('hex');
   }
-  const defaults = {
-    godot: '.tools/godot-4.7.2/Godot.app/Contents/MacOS/Godot',
-    gut: '.tools/gut-9.7.1/addons/gut', python: '.tools/gdtoolkit-venv/bin/python',
-    gdlint: '.tools/gdtoolkit-venv/bin/gdlint', gdformat: '.tools/gdtoolkit-venv/bin/gdformat',
-    node: process.execPath, git: '/usr/bin/git',
-  };
-  const tool = (name) => path.resolve(root, manifest?.tools?.[name]?.path ?? manifest?.tools?.[name]?.addons_path ?? defaults[name]);
+  const tool = (name) => toolPath(root, manifest, name);
   const versionTools = ['node', 'git', 'python', 'godot', 'gdlint', 'gdformat'];
   if (manifest?.tools?.gh) versionTools.push('gh');
   for (const name of versionTools) {
-    const expectedVersion = manifest?.tools?.[name]?.version ?? null;
-    const check = await addProcess(`version-${name}`, `Verify executable and pinned ${name} version.`, [tool(name), '--version'], { exit_code: 0, version: expectedVersion }, (actual) => {
+    const expectedVersion = manifest?.tools?.[name]?.version ?? manifest?.tools?.[name]?.min_version ?? null;
+    const policy = manifest?.tools?.[name]?.version_policy ?? 'exact';
+    const check = await addProcess(`version-${name}`, `Verify executable and configured ${name} version policy.`, [tool(name), '--version'], { exit_code: 0, version: expectedVersion, version_policy: policy }, (actual) => {
       const output = (actual.stdout + actual.stderr).trim();
       const version = name === 'godot' ? output.split(/\s/)[0] : output.match(/\d+\.\d+\.\d+/)?.[0];
       actual.version = version ?? null;
-      report.tool_versions[name] = { path: tool(name), expected_version: expectedVersion, actual_version: version ?? null };
-      return cleanExit(actual) && version === expectedVersion;
+      report.tool_versions[name] = { path: tool(name), expected_version: expectedVersion, version_policy: policy, actual_version: version ?? null };
+      return cleanExit(actual) && versionMatches(manifest.tools[name], version);
     }, ['manifest']);
     if (!report.tool_versions[name]) report.tool_versions[name] = { path: tool(name), expected_version: expectedVersion, actual_version: null, status: check.status };
   }

@@ -1,0 +1,67 @@
+name: Repository checks
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review, edited]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: checks-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  checks:
+    name: macOS / repository-checks
+    runs-on: macos-15
+    timeout-minutes: 15
+    env:
+      ASTRA_TOOLCHAIN_CONFIG: .tools/ci/toolchain.json
+      ASTRA_PR_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+      ASTRA_PR_BASE_SHA: ${{ github.event.pull_request.base.sha || '' }}
+    steps:
+      - name: Check out tested revision
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Record CI revision
+        run: |
+          node --input-type=module <<'NODE'
+          import { mkdir, writeFile } from 'node:fs/promises';
+          const keys = ['GITHUB_SHA', 'GITHUB_REF', 'GITHUB_HEAD_REF', 'GITHUB_BASE_REF', 'GITHUB_EVENT_NAME', 'GITHUB_RUN_ID', 'GITHUB_RUN_ATTEMPT', 'ASTRA_PR_HEAD_SHA', 'ASTRA_PR_BASE_SHA', 'RUNNER_OS', 'RUNNER_ARCH'];
+          await mkdir('artifacts', { recursive: true });
+          await writeFile('artifacts/ci-context.json', JSON.stringify(Object.fromEntries(keys.map(key => [key, process.env[key] ?? null])), null, 2) + '\n');
+          NODE
+      - name: Prepare Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '24.17.0'
+      - name: Install pinned dependencies
+        id: bootstrap
+        run: node tools/bootstrap.mjs
+      - name: Check dependency preparation
+        run: node --test tools/test-toolchain.mjs
+      - name: Verify test tools
+        id: toolchain
+        run: node tools/check.mjs --scope toolchain
+      - name: Verify actual game
+        if: ${{ !cancelled() && steps.bootstrap.outcome == 'success' }}
+        run: node tools/check.mjs --scope game
+      - name: Preserve reports and raw logs
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: checks-${{ github.run_id }}-${{ github.run_attempt }}
+          retention-days: 7
+          if-no-files-found: error
+          include-hidden-files: true
+          path: |
+            artifacts/ci-context.json
+            artifacts/bootstrap/
+            artifacts/test-runs/
+            .tools/ci/toolchain.json
