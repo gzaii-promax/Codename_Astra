@@ -1,5 +1,7 @@
 # 多语言下一版交付与草稿 PR 描述
 
+实际[草稿 PR #3](https://github.com/gzaii-promax/Codename_Astra/pull/3)已创建并附加到当前 Codex 任务，核实为 OPEN、isDraft=true；功能实现提交 `23c64a28b1237df2cd8c3f7dee46fabf623d7bec`。后续仅在同一 PR 更新文档，不合并或发布。
+
 ## 实现
 
 现有训练场增加简体中文、英文和日文的语言入口，覆盖暂停菜单、HUD、技能名称/说明、操作帮助与地图标签。Esc 或菜单按钮暂停战斗，菜单可继续、重置、选择语言、打开帮助；长说明可滚动。语言选择保存，下次启动恢复。

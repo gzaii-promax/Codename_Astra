@@ -8,7 +8,7 @@
 
 2026-10-01 在既有工程增加可配置语言模块、暂停菜单、语言选择与帮助。首批 en、ja、zh_CN，每种 30 个文本键，覆盖菜单、HUD、技能名称/说明、帮助和地图标签。语言保存到 ConfigFile，启动恢复；缺失/空译文回退默认简体中文，命名参数由文本入口替换，未知键保持字面值。语言清单与 JSON 可新增或自定义，UI 从清单生成选项；技能只声明文本键，战斗规则与数值保持原基线。
 
-本轮分支 `feat/localization-v2`，仅提交 draft PR，不合并或发布。剧情脚本以后由用户提供；本轮没有生成故事。范围见 localization-v2.md，新增语言与自定义译文方法见 ../localization/README.md。
+本轮分支 `feat/localization-v2`，已创建并核实[草稿 PR #3](https://github.com/gzaii-promax/Codename_Astra/pull/3)：OPEN、isDraft=true，base=main。实现提交 `23c64a28b1237df2cd8c3f7dee46fabf623d7bec` 已推送；当前 head 以后续 GitHub 读取为准，本轮不合并或发布。剧情脚本以后由用户提供；本轮没有生成故事。范围见 localization-v2.md，新增语言与自定义译文方法见 ../localization/README.md。
 
 ## 已执行证据
 
