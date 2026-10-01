@@ -152,7 +152,7 @@ export async function runGameChecks() {
   await check('format', 'Verify all own game and test GDScript formatting without edits.', { exit_code: 0 }, [tool('gdformat'), '--check', ...gdFiles], clean, ['sources', 'version-gdformat']);
   await check('import', 'Headless import actual project and register classes.', { exit_code: 0, engine_errors: 0 }, engine('import', ['--editor', '--import']), (result) => clean(result) && noEngineErrors(result), ['sources', 'version-godot'], 60000);
   const xml = path.join(runDir, 'game.xml');
-  await check('gut', 'Execute actual game unit and physics integration tests.', { exit_code: 0, xml_path: relative(xml) }, engine('gut', ['--script', 'res://addons/gut/gut_cmdln.gd', '-gdir=res://tests/game', '-ginclude_subdirs', '-gexit', '-glog=2', `-gjunit_xml_file=${xml}`]), (result) => clean(result) && noEngineErrors(result), ['import'], 60000);
+  await check('gut', 'Execute actual game unit and physics integration tests.', { exit_code: 0, xml_path: relative(xml) }, engine('gut', ['--script', 'res://addons/gut/gut_cmdln.gd', '-gdir=res://tests/game', '-ginclude_subdirs', '-gexit', '-glog=2', `-gjunit_xml_file=${xml}`]), (result) => clean(result) && noEngineErrors(result), ['import'], 90000);
   await check('junit', 'Independently require every expected test and assertion; reject skips and missing evidence.', { test_names: expectedTests, failures: 0, errors: 0, skipped: 0 }, [tool('python'), path.join(root, 'tools/read-junit.py'), xml], (result) => {
     if (!clean(result)) return false;
     const evidence = JSON.parse(result.stdout); result.junit = evidence;

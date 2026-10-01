@@ -4,8 +4,10 @@
 
 - 第一版已合并：主角基础移动与跳跃、普通攻击、火球术、gray box 训练场和可被攻击的稻草人；角色使用可替换占位素材。
 - 当前已授权下一版多语言入口，范围与验收见 [docs/localization-v2.md](docs/localization-v2.md)。本轮只创建或更新 draft PR，不合并或发布；此限制优先于下文持续合并授权。剧情脚本由用户以后编写。
-- 首版基线见 [docs/first-version.md](docs/first-version.md)，实际进度与遗留见 [docs/status.md](docs/status.md)。暂不实现互动道具、完整技能树、敌人 AI 或正式背景。
-- CI 基础设施已由 [PR #5](https://github.com/gzaii-promax/Codename_Astra/pull/5) 合并到 main，范围与证据见 [docs/ci.md](docs/ci.md)。当前同步 CI 到功能草稿不扩大多语言或生命版本的合并授权；功能仍保留草稿限制。
+- 当前已追加授权通用生命、伤害目标规则、定时攻击敌人和双方血条，采纳规则、默认值与验收见 [docs/health-combat-v3.md](docs/health-combat-v3.md)。不实现敌人决策 AI；接续未合并多语言分支，独立 draft PR，不合并或发布。
+- 当前追加授权第一版统一尺度：1 U=16 px，主角/稻草人受击框 1×2 U、主角身体框同尺寸，地图外框 32×16 U、持键跳高 1–2.5 U、移动 1.5 U/s。范围与验收见 [docs/scale-movement-v4.md](docs/scale-movement-v4.md)，公共常数职责见 shared 模块。接续生命草稿，独立 draft PR，不合并或发布。
+- 首版基线见 [docs/first-version.md](docs/first-version.md)，实际进度与遗留见 [docs/status.md](docs/status.md)。暂不实现互动道具、完整技能树、敌人决策 AI 或正式背景。
+- CI 基础设施已由 [PR #5](https://github.com/gzaii-promax/Codename_Astra/pull/5) 合并到 main，范围与证据见 [docs/ci.md](docs/ci.md)。同步 CI 到功能草稿不扩大多语言或生命版本的合并授权；两个功能 PR 继续保持草稿。
 - 已采纳的项目要求见本文件；测试协议见 [docs/testing.md](docs/testing.md)；错误处理见 [docs/errors/README.md](docs/errors/README.md)。
 - 工具模块的执行、结果判读与文件职责见 [tools/README.md](tools/README.md)。
 - 私有 GitHub 远端、分支与 PR 交接见 [docs/git-workflow.md](docs/git-workflow.md)。首版 PR 合并前从 `feat/combat-v1` 迭代；合并后从最新 `main` 创建后续功能分支。

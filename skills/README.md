@@ -26,6 +26,8 @@
 | `id` / `damage_type` | `skill` / `physical` | 稳定标识、伤害类别；不随语言变化 |
 | `name_key` / `description_key` | 空字符串 / 空字符串 | 显示名与说明的翻译键；正式资源映射到语言目录中的文本 |
 | `damage` / `knockback` | `10` / `0` | 单次伤害；击退速度，像素/秒，目前接收但尚不施加 |
+| `target_policy` | `HitData.TargetPolicy.OTHER_FACTIONS` | 仅允许不同阵营命中，独立于伤害类别；四规则详见 `../combat/README.md` |
+| `self_reduction` / `same_faction_reduction` | `0.5` / `0.5` | 规则 2 的自伤减伤、规则 3 的同阵营减伤；与抗性/一般减伤加算，比例 `0..1` |
 | `windup_seconds` / `active_seconds` / `recovery_seconds` | `0.1` / `0.1` / `0.1` | 前摇、执行、后摇秒数；`0` 明确表示没有该阶段 |
 | `cooldown_seconds` | `0.3` | 从启动时计算的冷却秒数；取消不退还冷却 |
 | `melee_reach` / `melee_height` | `48` / `42` | 从攻击点向面朝方向延伸的矩形尺寸，像素 |
@@ -35,6 +37,8 @@
 `windup_policy`、`active_policy`、`recovery_policy` 各自是一份 `PhasePolicy` 资源。默认 `control_scale = 1`、`inertia_scale = 1`、`skill_velocity = (0, 0)`；`can_jump`、`can_cancel_player`、`can_interrupt_hit` 均为 `true`。比例在 `0..1`；技能位移单位为像素/秒，其 X 方向由主角按面朝方向转换。角色负责执行移动规则，控制器只提供策略。
 
 `control_scale` 控制玩家输入产生的目标水平速度比例；`inertia_scale` 表示开始动作时水平惯性保留比例。具体加速和惯性衰减由主角模块记录，避免把相同比例误解成相同手感。主动取消与受击中断独立配置。
+
+统一尺度初版使用 `GameUnits.PIXELS_PER_UNIT=16`。主角的 `get_attack_origin()` 位于脚底上 1 U、面朝方向前 0.5 U，由主角模块按身体尺寸维护；技能仍自行配置攻击框、投射物大小与速度，未要求按 U 的整数倍取值。已有攻击尺寸、伤害和阶段时序保持原配置。
 
 数值不能为 `null`、负数或非有限值；尺寸、投射物速度、寿命与距离必须大于零。资源的 `null` policy、未知覆盖字段、错误类型、重复等级、低于 1 的等级均产生可读取的解析错误，控制器拒绝启动。没有后摇使用 `recovery_seconds = 0`；等级覆盖未填字段表示继承；未配置/类型错误属于配置错误，不能混成“没有阶段”。
 
@@ -68,7 +72,7 @@
 
 可读取 `phase`（`Phase.IDLE/WINDUP/ACTIVE/RECOVERY`）、`phase_remaining`、`active_definition`、`active_action_id`；通过 `get_definition(action_id)`、`get_cooldown_remaining(action_id)` 查看绑定后的最终属性和冷却。这些运行对象视为只读，不用于写回基础资源。
 
-事件为 `phase_changed(phase)`、`activated(action_id, definition, caster)`、`completed(action_id, cancelled)`。执行器只在进入 `ACTIVE` 时调用一次。动作取消结束角色动作，已经发射的火球继续存在；已经生成的近战窗口按自身 `active_seconds` 清理。后者未来如需要“取消立即撤销命中窗口”须补行为契约与回归测试。
+事件为 `phase_changed(phase)`、`activated(action_id, definition, caster)`、`completed(action_id, cancelled)`。执行器只在进入 `ACTIVE` 时调用一次。控制器 `cancel` 自身只结束角色动作，不负责清理世界效果；已接入受击的 Player 和 PeriodicEnemy 在成功执行 `cancel(&"hit")` 时撤销本人已生成近战窗口，死亡/击倒时也撤销窗口。受击中断保留已有冷却，独立的已发射火球继续存在；其他尚未取消的窗口按自身 `active_seconds` 清理。
 
 `SkillExecutors.melee/fireball` 只要求发动者为已进入场景树的 `Node2D`、提供 `facing_direction`（负值向左）与 `get_attack_origin() -> Vector2`。实体加入 `current_scene`，测试没有当前场景时加入发动者父节点。火球期望出生点为攻击点向前偏移 18 像素，但生成前会从角色中心 X、攻击点 Y 组成的内部锚点向该位置扫掠场景实体。若有墙阻挡，就从内部锚点发射，由火球后续的物理扫掠撞墙销毁，不能越过薄墙出生。近战位置随攻击点移动，方向在启动时固定。
 
@@ -78,7 +82,7 @@
 
 `resolve_level(level) -> SkillDefinition` 深拷贝基础资源，按等级累积覆盖，返回独立最终值；基础资源和其他角色等级不受修改。`resolution_errors` 保留配置诊断，`get_resolved_attributes()` 提供 ID、等级、时序、移动规则与最终数值，后续调试面板可直接读取。
 
-等级 `values` 支持本模块数值字段，以及如 `windup_policy.control_scale`、`active_policy.can_cancel_player`、`recovery_policy.skill_velocity` 的路径。未声明的机制不通过任意拼写悄悄接受：新增属性须定义含义/单位/默认值，扩展白名单与校验，同步文档和测试。
+等级 `values` 支持本模块数值字段、整型 `target_policy` 枚举，以及如 `windup_policy.control_scale`、`active_policy.can_cancel_player`、`recovery_policy.skill_velocity` 的路径。两种额外减伤率必须为 `0..1`，目标规则必须为声明的四种枚举；最终属性字典同时包含它们。执行器将这些值传入 `HitData`，使用 `set_source(caster)` 设置唯一当前归属。普通攻击和火球默认禁止同阵营伤害，伤害类型与现有时序保持原值。未声明的机制不通过任意拼写悄悄接受：新增属性须定义含义/单位/默认值，扩展白名单与校验，同步文档和测试。
 
 新增已有机制技能时，新增 `.tres`、独立执行器（可放在新文件）并在主角装备映射调用 `bind_action`。无需修改控制器和 receiver。首版以近战扫描与独立火球验证不同执行行为共用同一阶段/冷却/命中框架；全新机制需要公共改动时说明影响并做回归，不能只凭架构声明认为扩展验证已通过。
 

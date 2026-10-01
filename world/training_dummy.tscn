@@ -4,13 +4,13 @@
 [ext_resource type="Script" path="res://combat/damage_receiver.gd" id="2_receiver"]
 
 [sub_resource type="RectangleShape2D" id="Target"]
-size = Vector2(28, 60)
+size = Vector2(16, 32)
 
 [node name="TrainingDummy" type="Node2D"]
 script = ExtResource("1_dummy")
 
 [node name="DamageReceiver" type="Area2D" parent="."]
-position = Vector2(0, -32)
+position = Vector2(0, -16)
 collision_layer = 4
 collision_mask = 0
 script = ExtResource("2_receiver")

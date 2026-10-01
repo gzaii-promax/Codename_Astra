@@ -1,0 +1,33 @@
+[gd_scene load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://world/periodic_enemy.gd" id="1_enemy"]
+[ext_resource type="Script" path="res://skills/action_controller.gd" id="2_actions"]
+[ext_resource type="Script" path="res://combat/combatant.gd" id="3_combatant"]
+[ext_resource type="Script" path="res://combat/damage_receiver.gd" id="4_receiver"]
+[ext_resource type="Script" path="res://ui/health_bar.gd" id="5_health_bar"]
+
+[sub_resource type="RectangleShape2D" id="EnemyHurtbox"]
+size = Vector2(28, 60)
+
+[node name="PeriodicEnemy" type="Node2D"]
+script = ExtResource("1_enemy")
+
+[node name="Actions" type="Node" parent="."]
+script = ExtResource("2_actions")
+
+[node name="Combatant" type="Node" parent="."]
+script = ExtResource("3_combatant")
+faction = 1
+
+[node name="DamageReceiver" type="Area2D" parent="."]
+position = Vector2(0, -32)
+collision_layer = 4
+collision_mask = 0
+script = ExtResource("4_receiver")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="DamageReceiver"]
+shape = SubResource("EnemyHurtbox")
+
+[node name="HealthBar" type="Node2D" parent="."]
+position = Vector2(0, -114)
+script = ExtResource("5_health_bar")
