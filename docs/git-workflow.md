@@ -17,6 +17,8 @@
 
 受击保护使用 `codex/hit-protection`，从该生命 head 建立，以 `codex/health-combat-v3` 为 base 交付独立 draft PR；不合并或发布。公共默认值与验收见 `hit-protection.md`。本地已有其他 worktree/未应用 stash 不属于本轮改动；不应用、删除或迁移它们。
 
+实现提交 `98ab99e` 已推送，独立[草稿 PR #8](https://github.com/gzaii-promax/Codename_Astra/pull/8) 已创建并核实 OPEN、isDraft=true、base=codex/health-combat-v3、head=codex/hit-protection；已附加到当前任务。完整本地验收与实际工作区启动证据见 `status.md`。只更新交接文档不会改变已验收业务源码；最新 head/远端检查仍须读当前 PR。
+
 ## 首次发布的历史
 
 远端初始为空。为使首版全部代码可以在同一个 PR 审查，创建空 main 初始化提交 `8f585ab`，并在功能分支把该基线合入原本地首版提交 `172c38e`；连接提交为 `e07e4d5`。原首版提交及游戏内容树均保留，不强推或覆盖其他历史。

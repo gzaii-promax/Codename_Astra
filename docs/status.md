@@ -12,6 +12,8 @@
 
 已核实远端 PR #3 合入 main、尺度 PR #6 合入生命分支；生命 PR #4 当前仍为 OPEN draft。本轮从生命 head `06718c78a27e4ffd822d8d8ec9e61ca48897fa79` 接续到 `codex/hit-protection`，独立草稿、不合并或发布。下方旧版本描述保留各轮原交付时点；当前版本未进入 main，用户手感仍待试玩反馈。
 
+实现提交 `98ab99e` 已推送，并创建、读回核实[受击保护草稿 PR #8](https://github.com/gzaii-promax/Codename_Astra/pull/8)：OPEN、isDraft=true、base=codex/health-combat-v3、head=codex/hit-protection，已附加到当前 Codex 任务。最终 head 与远端 CI 结果按当前 PR 实际检查核对；草稿继续保留。
+
 ## 统一尺度与可变跳跃技术交付（2026-10-02）
 
 按用户采纳需求落实 1 U=16 个逻辑像素，公共常数提炼到 shared/game_units.gd，所属模块文档记录单位、职责与变更要求。主角身体/受击框、稻草人受击框均 16×32 px；稻草人允许穿过，技能攻击框保持独立。地图外框 512×256 px（含墙、顶、地板）置于原 960×540 逻辑视口，出生点和平台按 U 配置；基础移动 24 px/s，无遮挡短至长跳上升 16–40 px。具体范围与工程初值见 [scale-movement-v4.md](scale-movement-v4.md)。
