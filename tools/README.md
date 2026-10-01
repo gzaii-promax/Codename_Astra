@@ -11,6 +11,10 @@
 ## 文件与边界
 
 - `toolchain.json`：固定工具版本、路径及来源，由主 agent 维护。
+- `bootstrap.mjs`：全新 macOS ARM64 环境的固定依赖准备，独立安装至 `.tools/ci/`，校验归档与包锁哈希，保存成功/失败日志与报告。
+- `toolchain-config.mjs`：本机和 CI 共用配置选择、路径解析与版本规则。`ASTRA_TOOLCHAIN_CONFIG` 指向实际配置；报告保留源配置与派生配置各自证据。
+- `test-toolchain.mjs`：安装与配置机制的 Node 自动用例，覆盖正常/错误配置、版本拒绝、归档校验和受控超时。不是游戏验收替代品。
+- `../.github/workflows/check.yml`：在 GitHub 上准备环境、执行同一验收入口并保存原始证据，规则见 [docs/ci.md](../docs/ci.md)。
 - `check.mjs`：唯一公共测试入口，支持 `--scope toolchain|game`，拒绝未知范围或参数。
 - `check-game.mjs`：game 范围实现，复制真实工程和固定 GUT 到独立快照，校验 tests/manifest.json，执行格式/lint/导入/真实测试/JUnit 读取/启动。测试名必须完整且唯一，不能用空执行得到通过。
 - `play.mjs` 与根目录 `Play.command`：用固定引擎打开真实游戏，不安装工具、不代替验收。macOS launcher 使用本机 Node `/usr/local/bin/node`。
@@ -29,7 +33,7 @@
 - 不具备运行条件时产生 `blocked` 报告并保留未完成检查；不能把仅创建测试文件视为完成验证。
 - 工具 fixture 结果仅证明检测能力，不能视为游戏功能测试；game 正常验收不接受任何非预期失败/超时。游戏操作手感由用户主动反馈。
 
-## GitHub 工具与未来 CI
+## GitHub 工具与 CI
 
 固定引擎、GUT、gdtoolkit 与运行时来源在 toolchain.json；Python 工具使用独立虚拟环境及 requirements-gdtoolkit.lock。GUT 是测试依赖，没有引入替代游戏框架；首版游戏使用原生 CharacterBody2D、Resource 和物理查询，避免尚无实际需求的控制器/技能插件。
 
@@ -37,4 +41,4 @@ GitHub CLI 2.102.0 已从官方 macOS arm64 发布包安装到 `.tools/gh-2.102.
 
 仓库为私有 `gzaii-promax/Codename_Astra`，Git/PR 流程见 [docs/git-workflow.md](../docs/git-workflow.md)。GitHub connector 和本机 CLI 各自有权限；连接能返回 profile 不代表能访问当前私有仓库。不要因 connector 404 就判断仓库不存在。
 
-CI 仍待讨论。工具路径尚有本机 Python 基础运行时路径，不声称工程已能在全新机器自动安装；CI 接入需先补可复现依赖准备并复用当前单一验收入口。
+CI 已获实现授权，先在 macos-15 ARM64 runner 上实际验证全新安装。Node/Python 由固定官方 setup action 准备，bootstrap 精确校验后创建 venv；Godot/GUT 归档和 pip 包使用 SHA-256。CI 的 Git 使用最低版本策略并记录实际值；不安装 gh、不获取个人凭据。是否已跑通及实际 run 见 docs/status.md，不将工作流文件存在等同于成功。

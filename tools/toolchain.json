@@ -6,11 +6,13 @@
     "godot": {
       "path": ".tools/godot-4.7.2/Godot.app/Contents/MacOS/Godot",
       "version": "4.7.2.stable.official.ed1daf0bf",
+      "archive_url": "https://github.com/godotengine/godot-builds/releases/download/4.7.2-stable/Godot_v4.7.2-stable_macos.universal.zip",
       "source_url": "https://godotengine.org/download/archive/4.7.2-stable/"
     },
     "gut": {
       "addons_path": ".tools/gut-9.7.1/addons/gut",
       "version": "9.7.1",
+      "archive_url": "https://github.com/bitwes/Gut/archive/refs/tags/v9.7.1.zip",
       "source_url": "https://github.com/bitwes/Gut/releases/tag/v9.7.1"
     },
     "python": {
@@ -52,7 +54,10 @@
     "execution_context": "outside filesystem sandbox",
     "result": "valid on disk; satisfies its Designated Requirement"
   },
-  "deferred": {
-    "ci": "Remote selected; CI awaits reproducible dependency bootstrap and a separate workflow decision."
+  "ci": {
+    "platform": "darwin-arm64",
+    "git_min_version": "2.39.0",
+    "effective_config": ".tools/ci/toolchain.json",
+    "tools_directory": ".tools/ci"
   }
 }

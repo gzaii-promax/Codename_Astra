@@ -4,6 +4,7 @@ import { createHash, randomUUID } from 'node:crypto';
 import { cp, mkdir, readdir, readFile, rename, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { loadToolchain, toolPath, versionMatches } from './toolchain-config.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const sourceDirs = ['shared', 'combat', 'skills', 'player', 'world', 'assets', 'ui', 'tests'];
@@ -97,20 +98,22 @@ export async function runGameChecks() {
   }
   let manifest, expectedTests = [], sourceFiles = [];
   await check('manifest', 'Read pinned tools and explicit nonempty game test contract.', { nonempty_test_manifest: true }, null, async () => {
-    manifest = JSON.parse(await readFile(path.join(root, 'tools/toolchain.json'), 'utf8'));
+    const configuration = await loadToolchain(root);
+    manifest = configuration.manifest;
+    report.toolchain_config = { path: relative(configuration.config_path), sha256: configuration.config_hash, manifest };
     const contract = JSON.parse(await readFile(path.join(root, 'tests/manifest.json'), 'utf8'));
     expectedTests = contract.test_names;
     if (!Array.isArray(expectedTests) || !expectedTests.length || new Set(expectedTests).size !== expectedTests.length) throw Error('Game test names must be nonempty and unique.');
-    for (const name of ['godot', 'gut', 'python', 'gdlint', 'gdformat', 'git']) if (!manifest.tools?.[name]?.version) throw Error(`Missing pinned tool: ${name}`);
+    for (const name of ['godot', 'gut', 'python', 'gdlint', 'gdformat', 'git']) if (!(manifest.tools?.[name]?.version || manifest.tools?.[name]?.min_version)) throw Error(`Missing configured tool: ${name}`);
     return { observed_status: 'pass', expected_tests: expectedTests };
   });
-  const tool = (name) => path.resolve(root, manifest?.tools?.[name]?.path ?? manifest?.tools?.[name]?.addons_path ?? '__missing_tool__');
+  const tool = (name) => toolPath(root, manifest, name);
   for (const name of ['godot', 'python', 'gdlint', 'gdformat']) {
     await check(`version-${name}`, `Verify pinned ${name}.`, { version: manifest?.tools?.[name]?.version }, [tool(name), '--version'], (result) => {
       const output = (result.stdout + result.stderr).trim();
       const version = name === 'godot' ? output.split(/\s/)[0] : output.match(/\d+\.\d+\.\d+/)?.[0];
       report.tool_versions[name] = { path: tool(name), expected_version: manifest.tools[name].version, actual_version: version };
-      return clean(result) && version === manifest.tools[name].version;
+      return clean(result) && versionMatches(manifest.tools[name], version);
     }, ['manifest']);
   }
   await check('sources', 'Snapshot actual project, test contract and pinned GUT; retain hashes and Git state.', { project: 'project.godot', fixture: false }, null, async () => {
@@ -134,7 +137,7 @@ export async function runGameChecks() {
     await cp(tool('gut'), path.join(snapshot, 'addons/gut'), { recursive: true });
     // Hash the tested snapshot rather than a live file another agent might edit during this run.
     for (const file of sourceFiles) report.code_state.files_sha256[relative(file)] = hash(await readFile(path.join(snapshot, relative(file))));
-    for (const file of ['tools/check.mjs', 'tools/check-game.mjs', 'tools/read-junit.py', 'tools/toolchain.json', 'docs/testing.md']) report.code_state.files_sha256[file] = hash(await readFile(path.join(root, file)));
+    for (const file of ['tools/check.mjs', 'tools/check-game.mjs', 'tools/toolchain-config.mjs', 'tools/bootstrap.mjs', 'tools/test-toolchain.mjs', 'tools/requirements-gdtoolkit.lock', '.github/workflows/check.yml', 'tools/read-junit.py', 'tools/toolchain.json', 'docs/testing.md']) report.code_state.files_sha256[file] = hash(await readFile(path.join(root, file)));
     const git = await execute([tool('git'), 'rev-parse', 'HEAD'], path.join(logs, 'git-state.log'));
     report.code_state.git = clean(git) ? 'repository' : 'no_commit_available';
     report.code_state.commit = clean(git) ? git.stdout.trim() : null;
