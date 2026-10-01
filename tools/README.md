@@ -29,8 +29,12 @@
 - 不具备运行条件时产生 `blocked` 报告并保留未完成检查；不能把仅创建测试文件视为完成验证。
 - 工具 fixture 结果仅证明检测能力，不能视为游戏功能测试；game 正常验收不接受任何非预期失败/超时。游戏操作手感由用户主动反馈。
 
-## 依赖与未来 CI
+## GitHub 工具与未来 CI
 
 固定引擎、GUT、gdtoolkit 与运行时来源在 toolchain.json；Python 工具使用独立虚拟环境及 requirements-gdtoolkit.lock。GUT 是测试依赖，没有引入替代游戏框架；首版游戏使用原生 CharacterBody2D、Resource 和物理查询，避免尚无实际需求的控制器/技能插件。
 
-本机没有远端仓库，gh 与 CI 继续待实际工作流需要再讨论。工具路径尚有本机 Python 基础运行时路径，不声称工程已能在全新机器自动安装；CI 接入需先补可复现依赖准备并复用当前单一验收入口。
+GitHub CLI 2.102.0 已从官方 macOS arm64 发布包安装到 `.tools/gh-2.102.0/`，归档 SHA-256 与官方 checksums 匹配；路径/来源记录在 toolchain.json。工具自检在配置存在 gh 时追加 `version-gh`，其他成功、故意失败、超时、报告读取检查保持有效。账号授权由用户通过网页完成，凭据保存在系统 keyring，禁止把 token 写入仓库或日志。
+
+仓库为私有 `gzaii-promax/Codename_Astra`，Git/PR 流程见 [docs/git-workflow.md](../docs/git-workflow.md)。GitHub connector 和本机 CLI 各自有权限；连接能返回 profile 不代表能访问当前私有仓库。不要因 connector 404 就判断仓库不存在。
+
+CI 仍待讨论。工具路径尚有本机 Python 基础运行时路径，不声称工程已能在全新机器自动安装；CI 接入需先补可复现依赖准备并复用当前单一验收入口。

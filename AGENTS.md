@@ -6,6 +6,7 @@
 - 本轮验收条件见 [docs/first-version.md](docs/first-version.md)，实际进度与遗留见 [docs/status.md](docs/status.md)。首版暂不实现互动道具、完整技能树、敌人 AI 或正式背景。
 - 已采纳的项目要求见本文件；测试协议见 [docs/testing.md](docs/testing.md)；错误处理见 [docs/errors/README.md](docs/errors/README.md)。
 - 工具模块的执行、结果判读与文件职责见 [tools/README.md](tools/README.md)。
+- 私有 GitHub 远端、分支与 PR 交接见 [docs/git-workflow.md](docs/git-workflow.md)。首版 PR 合并前继续从 `feat/combat-v1` 迭代，当前 `main` 只有初始化基线。
 - 工具路径、固定版本与来源记录在 `tools/toolchain.json`；工具本体放在 `.tools/`，不提交。
 - 具体安装与测试状态见最新报告：`artifacts/test-runs/latest.json` 指向 `artifacts/test-runs/<run_id>/report.json`。指针或报告不存在时，状态为未验证。
 - 报告只证明其中实际执行的检查，当前工具链测试不能证明游戏功能、玩法或手感已完成。
@@ -45,7 +46,7 @@
 - 手感参考方向：Dead Cells、Blasphemous；总体玩法参考 Bloodstained。具体动作、数值、技能、互动与成长规则仍待用户确定。
 - 暂定背景：蒸汽朋克风的大英帝国；当前不实现正式视觉与剧情。
 - 首版按已准备的 GDScript 工具链实现，使用 GUT 与 gdtoolkit；具体数值均为待试玩调整的初值。正式素材规格与发布平台尚未确定。
-- `gh` 与 CI 按实际仓库流程讨论搭建；成熟插件按适配性、维护、许可证、依赖与修改成本权衡，避免重复工具。
+- `gh` 已按用户授权安装并完成网页登录；CI 后续按实际需求讨论。成熟插件按适配性、维护、许可证、依赖与修改成本权衡，避免重复工具。
 
 ## 每次工作的固定流程
 

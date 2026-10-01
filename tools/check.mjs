@@ -225,7 +225,9 @@ try {
     node: process.execPath, git: '/usr/bin/git',
   };
   const tool = (name) => path.resolve(root, manifest?.tools?.[name]?.path ?? manifest?.tools?.[name]?.addons_path ?? defaults[name]);
-  for (const name of ['node', 'git', 'python', 'godot', 'gdlint', 'gdformat']) {
+  const versionTools = ['node', 'git', 'python', 'godot', 'gdlint', 'gdformat'];
+  if (manifest?.tools?.gh) versionTools.push('gh');
+  for (const name of versionTools) {
     const expectedVersion = manifest?.tools?.[name]?.version ?? null;
     const check = await addProcess(`version-${name}`, `Verify executable and pinned ${name} version.`, [tool(name), '--version'], { exit_code: 0, version: expectedVersion }, (actual) => {
       const output = (actual.stdout + actual.stderr).trim();

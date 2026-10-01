@@ -8,10 +8,10 @@
 
 | 范围 | 最终 run_id | 实际结果 |
 | --- | --- | --- |
-| game | `20261001T082716048Z-759ee433` | 12/12 检查；34 tests、153 assertions；0 failures/errors/skipped |
-| toolchain | `20261001T082546140Z-cc3cc0a9` | 21/21 检查；预期失败与超时保留底层状态 |
+| game（推送前） | `20261001T085453031Z-480c12f9` | 12/12 检查；34 tests、153 assertions；0 failures/errors/skipped |
+| toolchain（含 gh） | `20261001T085409035Z-768c274e` | 22/22 检查；预期失败与超时保留底层状态 |
 
-报告分别在 `artifacts/test-runs/<run_id>/report.json`，game 同目录有 `game.xml`、`logs/gut.log`、`logs/startup.log` 和真实工程快照。主 agent 已读取报告/原始 JUnit/启动日志，核对检查完整、日志存在与当前源码 SHA-256 完全一致；第三 agent 已完成独立交接复核，确认 game 的 60 项文件哈希与当前文件一致、55 项工程文件与快照一致，所有预期用例均有断言且原始日志对应，没有阻塞。原报告不随交付文档更新而改写。
+报告分别在 `artifacts/test-runs/<run_id>/report.json`，game 同目录有 `game.xml`、`logs/gut.log`、`logs/startup.log` 和真实工程快照。测试 agent 已核原始 JUnit/引擎日志，主 agent 核对检查完整、日志存在与当前源码 SHA-256 完全一致：60 项文件哈希均匹配，没有阻塞。首次本地交付的原始报告 `20261001T082716048Z-759ee433` 另有第三 agent 的独立交接复核；本轮仅新增固定 gh 配置/工具版本检查及 Git 交接文档，游戏行为代码保持不变。原报告不随交付文档更新而改写。
 
 实际非 headless 图形运行使用 Godot 4.7.2 Compatibility / Apple M4 Pro，已查看 `artifacts/first-version.png`（1440 × 810）与 `artifacts/render-capture.log`：占位主角、火球、目标、中文 HUD 与地图标签可见。截图由真实 viewport 获取；它不证明手感或硬件键盘人工试玩通过。
 
@@ -23,7 +23,9 @@
 
 开始本轮时目录没有 Git 仓库或提交历史；本轮已初始化 `main`，游戏最终验收在首次提交前执行，因此报告 commit=null 并保留真实工作树状态与源码哈希。首版完成后建立详细本地提交；用 `git log -5 --format=fuller` 阅读最终提交及验证说明。
 
-本机原先没有提交作者配置，当前仓库使用明确的 agent 作者 `Codex <codex@local.invalid>`，仅本地配置。没有创建/推送远端或真实 PR；可审查的 PR 描述草案见 delivery-v1.md。gh 与 CI 待选定远端工作流时讨论，不影响本机试玩。
+本机原先没有提交作者配置，当前仓库使用明确的 agent 作者 `Codex <codex@local.invalid>`，仅本地配置。用户现已授权将首版提交到私有 `gzaii-promax/Codename_Astra`，本机 gh 2.102.0 已安装并由用户完成网页授权。
+
+远端初始为空；本地建立空 `main` 基线 `8f585ab`，在 `feat/combat-v1` 保留原首版提交 `172c38e` 并通过合并 `e07e4d5` 建立共同历史，游戏内容树保持一致。正在执行推送前最终验证并准备首版 PR；实际 URL 和结果将在完成后追加。可审查的描述见 delivery-v1.md，持续 Git 流程见 git-workflow.md。CI 尚未接入。
 
 ## 后续工作边界
 
