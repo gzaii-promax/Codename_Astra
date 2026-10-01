@@ -10,7 +10,7 @@
 
 首轮测试设施失败及实际截图发现的三角色遮挡均保留并已修复复验，见 [测试记录](errors/ERR-20261002-HEART-TEST-FIXTURE.md)、[读数遮挡](errors/ERR-20261002-HEART-READOUT-OVERLAP.md)。自动通过不能替代图形检查，截图也不代表用户手感或平衡验收。
 
-本轮分支 `codex/heart-health-v5` 接续 `codex/scale-movement-v4`，创建独立草稿PR，不合并或发布。最终远端head、CI与交接记录见下方追加事实及 [git-workflow.md](git-workflow.md)。当前主角仍为占位素材，未新增心拾取、护盾心或正式死亡/击倒动画；用户试玩待反馈。
+本轮分支 `codex/heart-health-v5` 接续 `codex/scale-movement-v4`，已创建并核实[草稿 PR #7](https://github.com/gzaii-promax/Codename_Astra/pull/7)：OPEN、isDraft=true、base=codex/scale-movement-v4，已附加到本Codex任务。实现提交 `46f3f8c6ebbfe2c13514385feae12a2ede4c2382` 已推送，提交树122项哈希与最终本地报告一致；交接文档提交不改变该验证范围。依赖 #3/#4/#6 及本PR继续草稿，不合并或发布。远端普通PR CI已经启动，最终head与运行结果以当前PR检查和原始artifact为准，见 [git-workflow.md](git-workflow.md)。当前主角仍为占位素材，未新增心拾取、护盾心或正式死亡/击倒动画；用户试玩待反馈。
 
 ## 统一尺度与可变跳跃技术交付（2026-10-02）
 

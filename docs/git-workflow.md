@@ -11,6 +11,8 @@
 - 生命与定时敌人接续未合并的 `feat/localization-v2`，分支 `codex/health-combat-v3` 已创建并核实独立[草稿 PR #4](https://github.com/gzaii-promax/Codename_Astra/pull/4)，以 `feat/localization-v2` 为 base，差异只包含本轮功能。实现提交为 `85473836829e5b876178ff0e1cc265e6f7f725de`；最终 head 以当前 GitHub 读取为准。依赖 PR #3 保持草稿；本轮不合并或发布。范围与验收见 docs/health-combat-v3.md、docs/status.md。
 - 统一尺度与可变跳跃接续生命分支，分支 `codex/scale-movement-v4` 已核实独立[草稿 PR #6](https://github.com/gzaii-promax/Codename_Astra/pull/6)，base=codex/health-combat-v3；实现提交 `05efebb1ab74fd2764ddae8a4b111672c8ead4e8`。本地 game 93 项验收与真实图形已完成，范围/证据见 docs/scale-movement-v4.md、docs/status.md。依赖 #3/#4 及本 PR 均保持草稿，不合并或发布；最终 head 与远端 CI 读取当前 PR。
 
+- 心系统分支 `codex/heart-health-v5` 已创建并核实独立[草稿 PR #7](https://github.com/gzaii-promax/Codename_Astra/pull/7)，base=codex/scale-movement-v4；实现提交 `46f3f8c6ebbfe2c13514385feae12a2ede4c2382`。本地 game 101 tests/1996 assertions 与三语12张图均通过，122源码/协议哈希与提交树一致。范围和证据见 docs/heart-health-v5.md、docs/status.md。依赖 #3/#4/#6 及本PR保持草稿，不合并或发布；最新head与远端检查读取PR当前结果。
+
 ## 首次发布的历史
 
 远端初始为空。为使首版全部代码可以在同一个 PR 审查，创建空 main 初始化提交 `8f585ab`，并在功能分支把该基线合入原本地首版提交 `172c38e`；连接提交为 `e07e4d5`。原首版提交及游戏内容树均保留，不强推或覆盖其他历史。
