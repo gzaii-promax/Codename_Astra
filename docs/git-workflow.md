@@ -8,7 +8,7 @@
 - 首版[PR #1](https://github.com/gzaii-promax/Codename_Astra/pull/1)已附加到 Codex 任务，并于 2026-10-01 合并；合并提交为 `09f35ec8b0ffaba38f6e77974ecc943721828083`。后续实际分支状态与提交以 GitHub 读取结果为准。
 - 用户已授权持续提交与合并：在本项目已授权开发范围内，通过必要验收并提交 PR 后，可自行合并，无需再次确认提交或合并。功能范围和重要架构决策仍按用户已有分工处理。
 - 当前多语言下一版有更具体的新限制：只创建或更新 draft PR，不自动合并或发布，见 docs/localization-v2.md。此轮限制优先于持续合并授权；后续按最新用户范围执行。
-- 生命与定时敌人接续未合并的 `feat/localization-v2`，分支 `codex/health-combat-v3` 的独立 draft PR 以 `feat/localization-v2` 为 base，差异只包含本轮功能。依赖 PR #3 保持草稿；本轮不合并或发布。范围与验收见 docs/health-combat-v3.md。
+- 生命与定时敌人接续未合并的 `feat/localization-v2`，分支 `codex/health-combat-v3` 已创建并核实独立[草稿 PR #4](https://github.com/gzaii-promax/Codename_Astra/pull/4)，以 `feat/localization-v2` 为 base，差异只包含本轮功能。实现提交为 `85473836829e5b876178ff0e1cc265e6f7f725de`；最终 head 以当前 GitHub 读取为准。依赖 PR #3 保持草稿；本轮不合并或发布。范围与验收见 docs/health-combat-v3.md、docs/status.md。
 
 ## 首次发布的历史
 

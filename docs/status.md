@@ -10,7 +10,7 @@
 
 从同一通过快照捕获的真实图形证据位于 `artifacts/health-visual/20261001T152325729Z/`，capture.log exit_code=0、stderr 为空，九张 1440×810 viewport PNG 与 106 项源码哈希齐全。测试 agent 与主 agent 分别打开三语受伤、敌人死亡、主角击倒全部九图，review.json 与 primary-review.json 均为 pass。固定场景 50 px 近战距离下条框、数值与长状态文本分开；敌人死亡文字和倒地身体同步。初轮视觉重叠与 24 px 高度差仍不足的失败均保留，见 `errors/ERR-20261001-HEALTH-BAR-OVERLAP.md`。该证据只覆盖当前场景；主角仍为占位素材，没有专用死亡/击倒姿势，任意密集单位自动排布未验证。
 
-分支 `codex/health-combat-v3` 依赖 `feat/localization-v2`，以该分支为 base 创建独立 draft PR；本轮不合并或发布。具体范围与用户采纳规则见 `health-combat-v3.md`。实际 PR 身份在创建核对后追加；用户试玩手感仍待反馈。
+分支 `codex/health-combat-v3` 依赖 `feat/localization-v2`，已创建并核实[草稿 PR #4](https://github.com/gzaii-promax/Codename_Astra/pull/4)：OPEN、isDraft=true、base=feat/localization-v2、head=codex/health-combat-v3，已附加到本 Codex 任务。实现提交 `85473836829e5b876178ff0e1cc265e6f7f725de` 已推送，提交树的 106 项哈希与最终报告一致；后续交接文档提交不改变该验证范围，最终 head 以 GitHub 当前读取为准。依赖 PR #3 仍为草稿；本轮不合并或发布。具体范围与用户采纳规则见 `health-combat-v3.md`。GitHub 当前没有 CI 检查，本轮证据为本地验收；用户试玩手感仍待反馈。
 
 ## 首版技术交付
 
