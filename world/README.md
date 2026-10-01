@@ -26,6 +26,8 @@
 
 场景下 `Combatant` 默认敌方阵营、最大生命 100、非无敌、零血量行为为死亡；`DamageReceiver` 是 28 × 60 px 的公共受击区；`HealthBar` 读取同一生命组件。角色没有实体碰撞，不阻挡主角或改变现有地形测试。红色像素角色通过 `_draw()` 绘制占位外观，受伤短暂闪色；击倒显示黄色倒地姿态，死亡显示暗色尸体，空血条和状态仍可见。
 
+敌人沿用公共 `CombatConfig.DEFAULT_HIT_PROTECTION_SECONDS=0`，不进行受击保护判定，可连续接受有效伤害；其他新角色默认同样为零。稻草人没有 `Combatant`，继续接受每个有效命中并统计，不增加保护计时。主角的 0.5 秒保护不改变敌人攻击周期或技能接触规则。
+
 敌人受到正数伤害时调用动作控制器的 `cancel("hit")`，由当前阶段的 `can_interrupt_hit` 决定是否中断；成功中断同时撤销本人近战窗口，保留技能冷却和攻击周期。击倒或死亡立即取消动作与本人已生成的近战窗口；已发射的独立投射物不由该逻辑撤销。恢复至正常状态后重新等待完整攻击间隔。`reset_state(spawn_position)` 恢复位置、配置的初始朝向、生命、动作和攻击时钟，保留 `attack_enabled`。公开 `get_combatant()`、`get_receiver()`、`get_action_controller()` 和 `get_attack_origin()`，供技能与自动验收使用。
 
 ## 扩展与验证

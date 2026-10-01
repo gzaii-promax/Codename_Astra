@@ -32,10 +32,13 @@ func receive_hit(hit: HitData) -> bool:
 	var reduction := hit.get_target_reduction(self, target_faction)
 	if combatant != null:
 		reduction += combatant.general_reduction + combatant.get_type_reduction(hit.damage_type)
-	last_damage = hit.damage * (1.0 - clampf(reduction, 0.0, 1.0))
-	if combatant != null and not combatant.apply_damage(hit, last_damage):
+	var resolved_damage := hit.damage * (1.0 - clampf(reduction, 0.0, 1.0))
+	last_damage = resolved_damage
+	if combatant != null and not combatant.apply_damage(hit, resolved_damage):
 		last_damage = 0.0
 		return false
+	# A rejected hit in a synchronous health callback must not erase this result.
+	last_damage = resolved_damage
 	hit_received.emit(hit)
 	return true
 

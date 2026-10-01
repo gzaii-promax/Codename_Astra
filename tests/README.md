@@ -4,7 +4,7 @@
 
 1. 读取 `AGENTS.md`、`docs/testing.md`、`tests/manifest.json` 和 `docs/errors/README.md`，再检查最新报告的 scope 与代码 hash。
 2. 项目根目录执行 `node tools/check.mjs --scope game`；本机按 ENV-0004 使用获准的沙箱外环境。新建或修改测试流程后立即执行。
-3. 读取 stdout JSON 的 `report_path`，核对 `expected_check_ids` 全部执行、`tests/manifest.json` 的全部预期测试均出现，且 JUnit 没有失败/错误/跳过；核对源码 hash、原始日志、Git 状态和报告时间。当前名册保留既有 34 项战斗用例、19 项多语言/界面用例和 26 项生命/阵营/敌人验收，新增 14 项单位尺度与可变跳跃验收，共 93 项。
+3. 读取 stdout JSON 的 `report_path`，核对 `expected_check_ids` 全部执行、`tests/manifest.json` 的全部预期测试均出现，且 JUnit 没有失败/错误/跳过；核对源码 hash、原始日志、Git 状态和报告时间。当前名册保留既有 34 项战斗用例、19 项多语言/界面用例、26 项生命/阵营/敌人验收和 14 项单位尺度与可变跳跃验收，新增 10 项受击保护验收，共 103 项。
 4. 失败先查公共错误目录，分类依赖/环境/配置/代码/测试问题；记录假设与修复证据，再复跑。交接提供 `run_id`、状态、报告路径、原始日志与开放错误。
 
 ## 职责与接口
@@ -18,6 +18,7 @@
 | `game/test_localization_ui.gd` | 实际三语 HUD/菜单/说明、picker 保存、暂停/继续/重置/帮助/Esc、字体与布局测量 | 正式 `TrainingHUD` 与引擎 Control / Font |
 | `game/test_health_combat.gd` | 四种目标规则、三阵营与本人矩阵、减伤加算、归属转移、死亡/击倒/恢复、技能配置传递 | `Combatant`、`HitData`、`DamageReceiver`、`SkillDefinition`、`SkillExecutors` |
 | `game/test_health_scene.gd` | 真实敌人攻击、双方生命与血条、受击阶段中断、重置、暂停和三语显示 | `TrainingArena`、`PlayerCharacter`、`PeriodicEnemy`、`HealthBar` |
+| `game/test_hit_protection.gd` | 公共保护默认值、零秒旁路、配置校验、结算伤害条件、拒绝副作用、实际计时/暂停/重置、信号重入、死亡/击倒/恢复和真实攻击路径 | `CombatConfig`、`Combatant`、`DamageReceiver`、实际主场景与引擎 physics frames |
 | `game/test_unit_scale.gd` | 16 px 单位、主角/稻草人判定框、32U×16U 外框、24 px/s 位移、短/中/长跳、真实键盘按松、重按/连跳/重置/失活恢复回归 | 正式场景的 CollisionShape2D / StaticBody2D、实际 physics frames、InputEventKey |
 | `fixtures/localization/` | 手写独立验收数据：默认 en、三语局部译文、新增 fr、损坏目录与无效清单 | 独立 JSON 数据，不从业务实现自动复制预期 |
 | `manifest.json` | 审核后的完整预期 case 名称，拒绝空执行或漏执行 | runner 和 JUnit 对照 |
@@ -60,6 +61,15 @@
 - 逐帧峰高和短暂墙体/撞顶接触使用 `SceneTree.physics_frame`，并以 `Engine.get_physics_frames()` 核对一秒位移与键盘持键帧数；物理键事件调用 `Input.flush_buffered_events()` 后再检查映射状态。首轮 `20261001T170614834Z-918347de` 暴露 GUT 的 `wait_physics_frames(n)` 实际多等一帧、6帧加速不足和即时未flush输入断言；原始失败报告保留，修正采样与等待条件后仍保持24px/s、16/40px和真实接触预期。
 - 原稻草人火球集成测试的发射位置从目标左140px改为左56px，避免新地图台阶覆盖原站位；敌人火球用例改为左90px，避免稻草人位于弹道中提前吸收攻击。仍验证一级前摇、真实35点伤害、单次命中和撞击删除。中断测试使用新的出生点，避免敌人被初始攻击窗口提前命中；没有降低伤害/窗口/冷却验收。
 - `probes/scale_movement_visual.gd` 另外在真实图形引擎逐帧测量短/长跳，保存 `rest`、`short_apex`、`long_apex` 三张viewport图和峰高报告；同时复跑 `localization_visual.gd` 的三语九图检查短/长按帮助文字。图形probe为额外证据，不计入93项GUT用例；截图保存成功不能代替逐张查看与视觉审核，也不能证明用户已验收手感。
+
+## 受击保护验收
+
+- 采用用户给出的独立数值基线：主角 `0.5 s`，其他角色 `0 s`；读取公共 `CombatConfig`、正式场景主角/敌人配置和稻草人真实接收器。敌人与稻草人连续同帧三次命中都应接受；已有保护计时后把配置设为零也必须直接旁路。
+- 保护只由成功的正结算伤害启动。无效配置/伤害、接收器禁用、目标规则拒绝、手动无敌、零原始伤害和全额减伤分别验证；零结算伤害保留原接受与事件语义，但不启动保护。手动 `invulnerable` 独立于计时。
+- 保护内直接 `apply_damage` 与接收器均拒绝，生命、真实血条、伤害/受击事件和允许受击中断的 ACTIVE 动作保持不变。`health_changed` 与 `damaged` 回调中的同帧重入也必须拒绝，防止信号回调再次扣血。
+- 使用逐次 `SceneTree.physics_frame` 和 `Engine.get_physics_frames()` 核对倒计时：12 帧剩 `0.3 s`，29 帧仍保护，第 30 帧完成后结束并可再次接受伤害；容许浮点误差 `0.00001 s`。拒绝命中不得延长时间，暂停菜单不得消耗时间，训练重置必须清空旧保护。
+- 强制死亡、致死命中、击倒、直接起身与定时起身清空保护；同一测试确认原定时恢复在暂停/继续后仍正常。两个既有真实主角用例在紧随非致命命中的致死操作前明确等过保护期，保留原死亡/击倒/血条断言。
+- 在正式训练场，通过真实 `SkillExecutors.melee` 与 `SkillExecutors.fireball` 的物理攻击使敌人命中主角：第一刀开启保护，后续短近战/火球不重复扣血，接触保护目标的火球仍消耗；持续 `0.8 s` 的近战窗口在保护到期后首次命中，整个窗口只成功一次，之后新火球实际扣血。此证据不替代用户对 `0.5 s` 手感的判断。
 
 ## 扩展与维护
 

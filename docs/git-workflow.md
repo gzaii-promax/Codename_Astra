@@ -11,6 +11,14 @@
 - 生命与定时敌人接续未合并的 `feat/localization-v2`，分支 `codex/health-combat-v3` 已创建并核实独立[草稿 PR #4](https://github.com/gzaii-promax/Codename_Astra/pull/4)，以 `feat/localization-v2` 为 base，差异只包含本轮功能。实现提交为 `85473836829e5b876178ff0e1cc265e6f7f725de`；最终 head 以当前 GitHub 读取为准。依赖 PR #3 保持草稿；本轮不合并或发布。范围与验收见 docs/health-combat-v3.md、docs/status.md。
 - 统一尺度与可变跳跃接续生命分支，分支 `codex/scale-movement-v4` 已核实独立[草稿 PR #6](https://github.com/gzaii-promax/Codename_Astra/pull/6)，base=codex/health-combat-v3；实现提交 `05efebb1ab74fd2764ddae8a4b111672c8ead4e8`。本地 game 93 项验收与真实图形已完成，范围/证据见 docs/scale-movement-v4.md、docs/status.md。依赖 #3/#4 及本 PR 均保持草稿，不合并或发布；最终 head 与远端 CI 读取当前 PR。
 
+### 受击保护本轮基线（2026-10-02）
+
+上述版本描述保留原交付时点。当前 GitHub 已核实：PR #3 已合入 main（`origin/main=a3015e2`），PR #6 已合入生命分支，生命 PR #4 仍为 OPEN draft、head=`06718c78a27e4ffd822d8d8ec9e61ca48897fa79`。尺度内容存在于生命草稿分支，尚未进入 main。
+
+受击保护使用 `codex/hit-protection`，从该生命 head 建立，以 `codex/health-combat-v3` 为 base 交付独立 draft PR；不合并或发布。公共默认值与验收见 `hit-protection.md`。本地已有其他 worktree/未应用 stash 不属于本轮改动；不应用、删除或迁移它们。
+
+实现提交 `98ab99e` 已推送，独立[草稿 PR #8](https://github.com/gzaii-promax/Codename_Astra/pull/8) 已创建并核实 OPEN、isDraft=true、base=codex/health-combat-v3、head=codex/hit-protection；已附加到当前任务。完整本地验收与实际工作区启动证据见 `status.md`。只更新交接文档不会改变已验收业务源码；最新 head/远端检查仍须读当前 PR。
+
 ## 首次发布的历史
 
 远端初始为空。为使首版全部代码可以在同一个 PR 审查，创建空 main 初始化提交 `8f585ab`，并在功能分支把该基线合入原本地首版提交 `172c38e`；连接提交为 `e07e4d5`。原首版提交及游戏内容树均保留，不强推或覆盖其他历史。
