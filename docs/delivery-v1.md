@@ -1,8 +1,8 @@
 # 首版提交与 PR 描述
 
-用户已指定私有远端 `gzaii-promax/Codename_Astra`；首版从 `feat/combat-v1` 向 `main` 提交[草稿 PR #1](https://github.com/gzaii-promax/Codename_Astra/pull/1)。本文维护具体描述，实际创建和验证结果在 docs/status.md 记录。
+用户已指定私有远端 `gzaii-promax/Codename_Astra`；首版从 `feat/combat-v1` 向 `main` 提交[PR #1](https://github.com/gzaii-promax/Codename_Astra/pull/1)，于 2026-10-01 在本地验收通过、对应文件哈希核对一致及用户持续授权下合并。合并提交为 `09f35ec8b0ffaba38f6e77974ecc943721828083`，完整工程已在 main。本文维护首版描述，实际验证与待反馈事项在 docs/status.md 记录。
 
-## 建议 PR 标题
+## PR 标题
 
 feat: 交付主角移动、普攻与火球术的首版训练场
 
