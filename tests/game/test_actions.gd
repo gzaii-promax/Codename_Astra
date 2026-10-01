@@ -69,7 +69,7 @@ func test_large_tick_carries_time_through_all_phases() -> void:
 	var controller := _controller(_definition())
 	assert_true(controller.request_action(&"test", _caster()))
 	controller.tick(0.61)
-	assert_eq(_executions.size(), 1)
+	assert_eq(_executions.size(), 2, "CI_FAILURE_PROBE")
 	assert_eq(controller.phase, ActionController.Phase.IDLE)
 	assert_almost_eq(controller.get_cooldown_remaining(&"test"), 0.19, 0.0001)
 
