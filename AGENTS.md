@@ -6,7 +6,7 @@
 - 本轮验收条件见 [docs/first-version.md](docs/first-version.md)，实际进度与遗留见 [docs/status.md](docs/status.md)。首版暂不实现互动道具、完整技能树、敌人 AI 或正式背景。
 - 已采纳的项目要求见本文件；测试协议见 [docs/testing.md](docs/testing.md)；错误处理见 [docs/errors/README.md](docs/errors/README.md)。
 - 工具模块的执行、结果判读与文件职责见 [tools/README.md](tools/README.md)。
-- 私有 GitHub 远端、分支与 PR 交接见 [docs/git-workflow.md](docs/git-workflow.md)。首版 PR 合并前继续从 `feat/combat-v1` 迭代，当前 `main` 只有初始化基线。
+- 私有 GitHub 远端、分支与 PR 交接见 [docs/git-workflow.md](docs/git-workflow.md)。首版 PR 合并前从 `feat/combat-v1` 迭代；合并后从最新 `main` 创建后续功能分支。
 - 工具路径、固定版本与来源记录在 `tools/toolchain.json`；工具本体放在 `.tools/`，不提交。
 - 具体安装与测试状态见最新报告：`artifacts/test-runs/latest.json` 指向 `artifacts/test-runs/<run_id>/report.json`。指针或报告不存在时，状态为未验证。
 - 报告只证明其中实际执行的检查，当前工具链测试不能证明游戏功能、玩法或手感已完成。
@@ -31,7 +31,7 @@
 - Agent 负责工程方案、代码、测试、静态检查、必要的 CI、工程记录，以及原型需要的占位素材。重要架构选择先提交可审查方案，由用户决定。
 - 自动测试和用户主动反馈是两个独立反馈渠道。用户可直接提出手感问题，无须等待 agent 主动索取；测试通过不能替代用户试玩结论。
 - 用户已给予持续提交授权：以后在已授权的开发范围内，每次通过 agent 的必要验证后，可直接 commit、push 到功能分支并创建或更新 PR，无须再次请求提交许可。同一目标已有未合并 PR 时优先更新该 PR。用户试玩反馈不作为提交 PR 的前置许可，尚未收到的手感反馈应明确标为待验收。
-- 持续提交授权不包含合并 PR；合并须用户另行明确授权。
+- 用户已追加持续合并授权：以后在已授权开发范围内，通过必要验收并提交 PR 后，agent 可自行合并，无须再次确认。合并前核对最新 PR head、验收证据及源码哈希、适用的检查和冲突状态；默认使用 Merge commit 保留详细历史，完成后验证远端结果并同步本地 main。该授权不扩大功能或重要架构决策范围，也不代表用户已验收手感。
 
 ## 已采纳的设计约束
 

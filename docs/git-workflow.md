@@ -5,8 +5,8 @@
 - 仓库：`https://github.com/gzaii-promax/Codename_Astra`，私有；本机 CLI 已核实 private=true、push=true。
 - origin：`https://github.com/gzaii-promax/Codename_Astra.git`。
 - 默认分支：main；首版功能分支：feat/combat-v1。
-- 首版[草稿 PR #1](https://github.com/gzaii-promax/Codename_Astra/pull/1)已创建并附加到 Codex 任务，等待审核；未合并。
-- 用户已授权持续提交：在本项目已授权开发范围内，每次通过 agent 自己的必要验证后，可直接 commit、push 并创建或更新 PR，无需再次确认提交。PR 合并须用户另行明确授权。
+- 首版[PR #1](https://github.com/gzaii-promax/Codename_Astra/pull/1)已创建并附加到 Codex 任务；实际状态与提交以 GitHub 读取结果为准。
+- 用户已授权持续提交与合并：在本项目已授权开发范围内，通过必要验收并提交 PR 后，可自行合并，无需再次确认提交或合并。功能范围和重要架构决策仍按用户已有分工处理。
 
 ## 首次发布的历史
 
@@ -22,5 +22,7 @@
 4. 普通 push 推送功能分支，不 force、不自动覆盖默认分支。首版仅初始化 main 与功能分支，此后保持常规分支流程。
 5. 同一目标已有未合并 PR 时优先更新该 PR；新的独立改动再创建 PR。描述写明最终实现/验证/遗留信息，首版可参考 docs/delivery-v1.md，gh 使用 --body-file 保留实际换行。创建或继续处理实际 PR 时调用 Codex attach_artifact 附加它。
 6. 读取 GitHub 实际 PR 的 URL、base/head、状态和 head SHA，并核对远端 refs 与本地提交。不要把创建请求或描述草案当成成功结果。
+7. 按持续合并授权核对最新 head 与验收证据、源码哈希、适用的 GitHub 检查及冲突状态。必要检查未通过或证据与最新代码不对应时，先修复/复验；没有 CI 的仓库要明确本地证据范围。草稿在条件齐备后转 ready，默认用 Merge commit 保留详细历史，合并命令用 --match-head-commit 锁定已核对的 SHA，不绕过仓库要求。
+8. 合并后读取实际 merged 状态/合并提交，核对远端 main，再 fetch 并用 fast-forward 同步本地 main。后续从最新 main 创建新分支。合并不等于用户手感验收，待反馈仍保留；不因合并自动删除分支。
 
-授权存在系统 keyring；本地 git credential helper 调用当前项目的 gh，凭据不会写入 tracked files。新机器或移动目录后需重新配置工具路径/登录。本轮不新建 CI，不发布安装包；合并 PR 须用户另行明确授权。
+授权存在系统 keyring；本地 git credential helper 调用当前项目的 gh，凭据不会写入 tracked files。新机器或移动目录后需重新配置工具路径/登录。本轮不新建 CI，不发布安装包；按已授权范围的验收结果提交并自行合并 PR。
