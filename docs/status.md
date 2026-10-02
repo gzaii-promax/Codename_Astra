@@ -4,9 +4,11 @@
 
 用户采纳地图方案并授权第一版实现。启动进入 A ↔ B ↔ C 与 C → A 的三房间灰盒世界；A/C 复用同一可编辑 TileMapLayer 模板，连接及探索按独立 room_id 管理。切房保留玩家生命、等级、冷却与保护，清理当前动作/运动和旧攻击；安全落点、相机边界、无效配置原子失败及旧出口事件均已验证。菜单可实际往返原训练场。F3–F5 跳房、F6 显示真实碰撞，R 重置本次地图探索。范围、编辑与必做 TODO 见 [map-system.md](map-system.md)；实现分支 `codex/map-system-v1` 的 PR 记录远端 CI 与合并证据。
 
-最终本地 game `20261002T064953082Z-d5624293` 为 14/14 检查、134 tests、2742 assertions，0 failures/errors/skipped。保留全部 112 项既有回归，新增 22 项地图验收；独立测试 agent 与主 agent 分别读取原始 XML/日志，156 项源码/协议 SHA-256 与工作区一致，146 项游戏文件与冻结快照一致。未发现脚本/运行错误、孤儿或资源未释放警告。原目录主场景直接启动 120 帧 exit0，证据在 `artifacts/map-workspace/20261002T064953082Z-d5624293/startup.json`。
+最终本地 game `20261002T070747379Z-3e11afa4` 为 14/14 检查、134 tests、2742 assertions，0 failures/errors/skipped。保留全部 112 项既有回归，新增 22 项地图验收；独立测试 agent 与主 agent 分别读取原始 XML/日志，156 项源码/协议 SHA-256 与工作区一致，146 项游戏文件与冻结快照一致。未发现脚本/运行错误、孤儿或资源未释放警告。原目录主场景直接启动 120 帧 exit0，证据在 `artifacts/map-workspace/20261002T064953082Z-d5624293/startup.json`。
 
 真实图形证据位于 `artifacts/map-visual/20261002T064953082Z-d5624293/`：三语三个房间、B 右端、A F6 共 11 图，`endpoints/` 补 A/C 右端 2 图。两个捕获进程 exit0，主 agent 和独立 UI agent 实际查看全部 13 图，分别记录 `primary-review.json` 与 `independent-review.json`；在所审视角内通过，端点近侧出口/墙体完整，碰撞显示来自实际几何。远侧出口随相机滚动可离屏，不宣称整个房间同时入镜。
+
+[PR #10](https://github.com/gzaii-promax/Codename_Astra/pull/10) 已建立。首次远端 CI `36975939135` 暴露既有受击保护测试在渲染边界采样时多执行一物理帧；地图 22 项通过，整轮仍按失败保留。修复改为逐个真实物理 tick 缓存第 12/29/30 帧状态，原 13 项产品断言与 0.5 秒规则保持；正常帧率和 10 FPS 各 5 次专项复验及最终全量均通过，记录见 [MAP-CI](errors/ERR-20261002-MAP-CI.md)。两份冻结报告仅该测试文件不同，图形相关 101 项游戏文件逐一相同，可沿用 13 图；依据在图形目录的 `final-source-review.json`。远端验收与合并核对该 PR 最新 head 及原始 artifact，不以失败旧检查或本地通过替代。
 
 首轮真实 90 秒超时、旧 HUD 离树后延迟布局错误、1 px HUD 遮挡及 F6 API 使用问题均保留并复验关闭，见 [地图验收错误记录](errors/ERR-20261002-MAP-VALIDATION.md)。完整 GUT 有限预算调整为 150 秒，最终实际约 100 秒；未删减用例或忽略引擎错误。转场、预加载、攀爬、磁盘世界存档与完整地图后续扩展；本轮用户手感与正式美术仍待验收。
 
