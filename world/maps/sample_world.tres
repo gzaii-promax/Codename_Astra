@@ -1,0 +1,67 @@
+[gd_resource type="Resource" script_class="MapRegistry" load_steps=14 format=3]
+
+[ext_resource type="Script" path="res://world/maps/map_registry.gd" id="1"]
+[ext_resource type="Script" path="res://world/maps/map_room_definition.gd" id="2"]
+[ext_resource type="Script" path="res://world/maps/map_connection.gd" id="3"]
+[ext_resource type="PackedScene" path="res://world/rooms/corridor.tscn" id="4"]
+[ext_resource type="PackedScene" path="res://world/rooms/hall.tscn" id="5"]
+
+[sub_resource type="Resource" id="RoomA"]
+script = ExtResource("2")
+room_id = &"room_a"
+title_key = "map.room_a"
+scene = ExtResource("4")
+
+[sub_resource type="Resource" id="RoomB"]
+script = ExtResource("2")
+room_id = &"room_b"
+title_key = "map.room_b"
+scene = ExtResource("5")
+
+[sub_resource type="Resource" id="RoomC"]
+script = ExtResource("2")
+room_id = &"room_c"
+title_key = "map.room_c"
+scene = ExtResource("4")
+
+[sub_resource type="Resource" id="AtoB"]
+script = ExtResource("3")
+from_room_id = &"room_a"
+exit_id = &"east"
+to_room_id = &"room_b"
+entrance_id = &"west"
+
+[sub_resource type="Resource" id="BtoA"]
+script = ExtResource("3")
+from_room_id = &"room_b"
+exit_id = &"west"
+to_room_id = &"room_a"
+entrance_id = &"east"
+
+[sub_resource type="Resource" id="BtoC"]
+script = ExtResource("3")
+from_room_id = &"room_b"
+exit_id = &"east"
+to_room_id = &"room_c"
+entrance_id = &"west"
+
+[sub_resource type="Resource" id="CtoB"]
+script = ExtResource("3")
+from_room_id = &"room_c"
+exit_id = &"west"
+to_room_id = &"room_b"
+entrance_id = &"east"
+
+[sub_resource type="Resource" id="CtoA"]
+script = ExtResource("3")
+from_room_id = &"room_c"
+exit_id = &"return"
+to_room_id = &"room_a"
+entrance_id = &"start"
+
+[resource]
+script = ExtResource("1")
+rooms = Array[ExtResource("2")]([SubResource("RoomA"), SubResource("RoomB"), SubResource("RoomC")])
+connections = Array[ExtResource("3")]([SubResource("AtoB"), SubResource("BtoA"), SubResource("BtoC"), SubResource("CtoB"), SubResource("CtoA")])
+initial_room_id = &"room_a"
+initial_entrance_id = &"start"

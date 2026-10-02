@@ -1,5 +1,9 @@
 # GitHub 与分支交接
 
+## 地图首版交接（2026-10-02）
+
+本轮用户明确授权已采纳的地图方案实施，持续提交与合并授权适用。实现分支 `codex/map-system-v1` 从已整合 `main` 的 `5d3310364a162a0021de7ca71debc0328d68566c` 创建，[PR #10](https://github.com/gzaii-promax/Codename_Astra/pull/10) 以 main 为 base；不沿用历史功能草稿限制。最终本地 game `20261002T070747379Z-3e11afa4`、真实 13 图及原目录启动已核实，详见 [status.md](status.md)。首次远端 CI 失败已保留并修复精确物理帧测试，见 [MAP-CI](errors/ERR-20261002-MAP-CI.md)。远端检查必须核对该 PR 最新 head、原始 artifact 与源码哈希，再用 Merge commit 合并并同步本地 main；用户手感仍独立待验收，不发布安装包。
+
 ## 当前整合授权（2026-10-02）
 
 用户明确要求把 `codex/health-combat-v3` 和 `feat/localization-v2` 合入主分支。本轮保留两个分支历史，同时整合 `codex/scale-movement-v4` 中已经合入的心形 PR #7；处理公共生命代码与测试冲突，保留主角 0.5 秒保护、严格半心伤害、稻草人归零回满和可变跳跃。通过本轮必要验收后创建整合 PR，base 必须为 `main`，按持续授权合并并同步本地 main。

@@ -1,8 +1,22 @@
-# 训练场模块
+# 世界与训练场模块
+
+地图系统的已采纳方向、第一版范围与后续 TODO 见 [docs/map-system.md](../docs/map-system.md)。实际验收以本轮测试报告和图形检查为准。
+
+## 第一版房间世界
+
+`map_world.tscn` 现为主场景，包含持续存在的 Player、Camera 与 HUD；`map_world.gd` 实例化注册资源中的房间，保存本次会话探索记录并处理进出房间。3 房间关系为 A ↔ B ↔ C 与 C → A，A/C 使用同一模板但身份独立。配置与编辑入口分别见 [地图定义](maps/README.md) 和 [房间模板](rooms/README.md)。训练场作为独立场景保留，菜单可往返；返回地图开始新会话。
+
+`enter_room(room_id,entrance_id)` 先准备脱离场景树的房间并校验入口，成功后才替换旧房间；失败保留当前房间、玩家与探索记录，`last_error` 给出诊断。`prepare_room(room_id)` 返回尚未激活的 MapRoom 或 null，由调用者负责使用/释放；第一版只同步准备，不实现后台预加载。`travel(exit_id)` 解析当前房间的有向连接和能力条件；暂停、死亡/击倒、切换重入均拒绝通行。出口物理回调延迟到安全时点切换，并核对房间代次，旧房间的延迟事件不能影响重置或重新进入的实例。
+
+正常切房结束当前动作并停止/删除旧近战与火球，清空惯性和跳跃锁存，在目标入口按脚底安置玩家并设置朝向；保留玩家实例、生命、技能等级、剩余冷却与受击保护。重置使用独立 `reset_world()`：清空探索、回初始入口、恢复生命与动作/冷却/保护，技能等级沿用原训练重置语义。没有自动补血或借切房绕过冷却。
+
+Camera2D zoom=2，地图区域从逻辑屏幕 y=160 起，避开顶部 HUD；相机跟随玩家并按房间 bounds 夹取地图区域，短于可见范围的轴居中。房间坐标与 HUD 屏幕坐标分别维护，不沿用旧训练场放在视口中央的绝对偏移。
+
+操作：正常移动/跳跃进入蓝色出口；C 中央黄色出口单向回 A。R 重置地图、F2 调试火球等级；F3/F4/F5 跳至 A/B/C 的 start，F6 切换碰撞调试。调试跳房也保留生命与冷却，失活角色用 R 恢复。探索仅本次地图会话；没有磁盘存档、敌人 AI、正式美术、攀爬、转场效果或预加载。
 
 ## 职责
 
-`training_arena.tscn` 是主场景，包含 Player、TrainingDummy、PeriodicEnemy、HUD。`training_arena.gd` 创建 gray box 几何、输入配置、R 重置与 F2 等级调试；`training_dummy.gd/.tscn` 提供 10 心归零自动回满的受击目标；`periodic_enemy.gd/.tscn` 提供固定周期近战敌人。公共矩形地形创建在 shared/graybox_solid.gd。
+`training_arena.tscn` 是保留的训练场景，包含 Player、TrainingDummy、PeriodicEnemy、HUD。`training_arena.gd` 创建 gray box 几何、输入配置、R 重置与 F2 等级调试；`training_dummy.gd/.tscn` 提供 10 心归零自动回满的受击目标；`periodic_enemy.gd/.tscn` 提供固定周期近战敌人。公共矩形地形创建在 shared/graybox_solid.gd。
 
 当前采用 shared/GameUnits 的 1 U=16 px。gray box 世界外框 32 × 16 U（512 × 256 px），包含厚 1 U 的墙、顶和地板，位于 Rect2(224,200,512,256)。逻辑画布仍为 960 × 540，它与地图大小分别维护。地板上沿 y=440，主角/稻草人/敌人脚底初始分别为 (272,440)/(544,440)/(656,440)。`TrainingArena` 暴露 ARENA_ORIGIN、ARENA_WIDTH/HEIGHT、FLOOR_Y 与三个 SPAWN 常数，场景资源保存同样的初始位置，运行与重置复用这些位置。
 

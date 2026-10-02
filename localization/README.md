@@ -7,7 +7,7 @@
 查找使用本实例拥有的 `Translation.get_message()`，再查询默认语言，避免其他测试实例或全局翻译资源改变本实例结果。切语言同步 `TranslationServer.set_locale()`；模块只注册和销毁自己创建的资源，从不 `TranslationServer.clear()`。未加入树的独立实例销毁时也解除自己的资源。
 
 - `languages.json`：默认语言、语言顺序、名称、目录和字体。
-- `catalogs/*.json`：扁平文本字典；三语当前各 36 个相同 key，包含带心单位的生命数值、击倒/死亡、定时敌人标签与技能说明。
+- `catalogs/*.json`：扁平文本字典；三语当前各 55 个相同 key，包含带心单位的生命数值、击倒/死亡、定时敌人标签、技能说明与地图样例。
 - `localization_service.gd`：目录载入、查找与回退、语言切换、字体缓存、设置恢复。
 - `settings_store.gd`：ConfigFile 原生解析及损坏用户数据的诊断。
 
@@ -71,12 +71,19 @@
 | `arena.room/target` | 地图与目标标记 |
 | `skill.basic_attack.name/description`、`skill.fireball.name/description` | 技能名称与行为说明；技能资源保存对应 key |
 | `manual.title/movement/combat/training/languages` | 帮助标题与四段操作说明，无剧情 |
+| `menu.enter_map`、`map.enter_training/reset` | 训练场与地图样例切换、地图重置 |
+| `map.title/controls/debug_controls` | 地图样例标题、玩家控制与 F3–F6 调试按键 |
+| `map.target` | `{room}`、`{visited}`、`{total}`：当前房间、本次探索量与注册房间总数 |
+| `map.room_a/room_b/room_c`、`map.exit_east/exit_west/exit_return` | 房间名及出口标记 |
+| `map.manual.title/movement/combat/navigation/debug/languages` | 地图帮助；双向路线、单向返回、调试、重置和探索记录范围 |
 
 `String.format(args)` 替换 `{name}` 命名参数。缺参保留占位符便于诊断，多余参数不影响文本。UI 负责数字精度（心数整数不带小数，半心显示 0.5），译文负责语序和心单位。心容器图形由 UI 几何绘制，不依赖译文字体中的心字符。未知 key 原样返回，不对 key 做参数替换。后续剧情使用稳定的 `story.*` 等 key，走同一 API。
 
 说明对应 A/D 或左右方向键、空格/W/上方向键、J、K、F2、R、Esc。F2 是训练等级切换；一级/二级前摇说明来自首版规则。三语技能/手册明确主角 3 心容器、普通攻击 0.5 心、火球术 1 心、定时敌人 3 心且每击 0.5 心、稻草人 10 心且归零回满。后续玩法变化应同步说明译文与相关验收预期。
 
 统一尺度初版同步更新三语 `manual.movement`：短按低跳、长按高跳、松键缩短上升、空中不能再次跳跃、按住落地不自动起跳。数值与工程单位由主角/公共模块维护，帮助只描述玩家操作。
+
+地图首版使用平行的 `map.*` 文本键，不修改训练场原键与训练规则。`map.manual.movement/combat` 与现有移动／心容器说明保持一致；地图路线说明 A↔B↔C 和 C 中央黄色出口单向返回 A，调试说明 F3／F4／F5 跳到 A／B／C、F6 显示碰撞、F2 切火球等级、R 重置。探索仅当前地图运行保留，不承诺保存或正式小地图；切换语言仍由 Localization 独立保存。
 
 ## 降级与设置
 

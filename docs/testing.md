@@ -9,6 +9,7 @@
 - 新机器/CI 先执行 `node tools/bootstrap.mjs`；按输出配置路径设置 `ASTRA_TOOLCHAIN_CONFIG`。安装与验收分开，两个 scope 共用 `tools/toolchain-config.mjs`。CI 具体触发、证据与合并门槛见 [ci.md](ci.md)。
 - 具体安装与测试状态：见最新报告；未执行或报告缺失时为未验证。
 - 新建或修改测试流程后立即执行；每次准备验收前执行本轮必要检查。
+- 地图版完整 GUT 进程预算为 150 秒。新增真实物理用例使原 90 秒首轮真实超时，证据保留在 ERR-20261002-MAP-VALIDATION.md；提高有限预算不改变检查集合、断言、超时失败和原始 XML 要求。
 - 本机已验证的执行方式：在获准的沙箱外环境运行相同入口。沙箱内 Godot 用户缓存与 Python fixture 文件访问曾失败，见 [ENV-0004](errors/ENV-0004.md)。新 agent 应先读取该记录；权限失败时先核对执行环境，保持测试预期及 `HOME` 不变。
 
 ## 执行与交接

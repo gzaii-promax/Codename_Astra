@@ -3,13 +3,55 @@ extends GutTest
 const ARENA: PackedScene = preload("res://world/training_arena.tscn")
 const ENEMY_ATTACK: SkillDefinition = preload("res://skills/definitions/enemy_attack.tres")
 
+
+class ProtectionTickSampler:
+	extends Node
+
+	signal completed
+
+	var health: Combatant
+	var receiver: DamageReceiver
+	var hit: HitData
+	var start_frame: int = -1
+	var initial_accepted: bool = false
+	var samples: Dictionary = {}
+	var ticks: Array[Dictionary] = []
+
+	func _physics_process(_delta: float) -> void:
+		var engine_frame := Engine.get_physics_frames()
+		ticks.append({"physics": engine_frame, "process": Engine.get_process_frames()})
+		if start_frame < 0:
+			initial_accepted = receiver.receive_hit(hit)
+			start_frame = engine_frame
+			return
+		var elapsed := engine_frame - start_frame
+		if elapsed not in [12, 29, 30]:
+			return
+		var sample := {
+			"elapsed": elapsed,
+			"remaining": health.get_hit_protection_remaining(),
+			"can_receive": health.can_receive_damage(),
+			"process_frame": Engine.get_process_frames(),
+		}
+		if elapsed in [12, 30]:
+			sample["accepted"] = receiver.receive_hit(hit)
+			sample["after_remaining"] = health.get_hit_protection_remaining()
+			sample["after_health"] = health.current_health
+		samples[elapsed] = sample
+		if elapsed == 30:
+			set_physics_process(false)
+			completed.emit()
+
+
 var _original_scene: Node
 var _original_process_mode: Node.ProcessMode
+var _original_max_fps: int
 
 
 func before_each() -> void:
 	_original_scene = get_tree().current_scene
 	_original_process_mode = process_mode
+	_original_max_fps = Engine.max_fps
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	get_tree().paused = false
 
@@ -18,6 +60,7 @@ func after_each() -> void:
 	get_tree().paused = false
 	get_tree().current_scene = _original_scene
 	process_mode = _original_process_mode
+	Engine.max_fps = _original_max_fps
 	for action in ["move_left", "move_right", "jump", "basic_attack", "fireball"]:
 		if InputMap.has_action(action):
 			Input.action_release(action)
@@ -142,27 +185,44 @@ func test_hit_protection_expires_after_half_second_and_rejected_hits_do_not_exte
 	var actor := _actor(0.5)
 	var health := actor.get_node("Combatant") as Combatant
 	var receiver := _receiver(actor)
-	await _physics_frames(1)
-	var start_frame := Engine.get_physics_frames()
-	assert_true(receiver.receive_hit(_hit(null, 0.5)))
-	await _physics_frames(12)
-	assert_eq(Engine.get_physics_frames() - start_frame, 12)
-	assert_almost_eq(health.get_hit_protection_remaining(), 0.3, 0.00001)
-	var remaining := health.get_hit_protection_remaining()
-	assert_false(receiver.receive_hit(_hit(null, 0.5)))
+	if OS.get_environment("ASTRA_PROTECTION_SAMPLE_LOW_FPS") == "1":
+		Engine.max_fps = 10
+	var sampler := ProtectionTickSampler.new()
+	sampler.process_mode = Node.PROCESS_MODE_ALWAYS
+	# Read every real tick after Combatant has advanced, without waiting for a render frame.
+	sampler.process_physics_priority = 100
+	sampler.health = health
+	sampler.receiver = receiver
+	sampler.hit = _hit(null, 0.5)
+	get_tree().root.add_child(sampler)
+	autofree(sampler)
+	await sampler.completed
+	# Samples are already frozen; release the emitting callback before GUT frees the sampler.
+	await get_tree().process_frame
+	assert_true(sampler.initial_accepted)
+	var twelfth: Dictionary = sampler.samples[12]
+	assert_eq(twelfth["elapsed"], 12)
+	assert_almost_eq(twelfth["remaining"], 0.3, 0.00001)
+	assert_false(twelfth["accepted"])
 	assert_eq(
-		health.get_hit_protection_remaining(), remaining, "Rejected hit keeps original expiry"
+		twelfth["after_remaining"], twelfth["remaining"], "Rejected hit keeps original expiry"
 	)
-	await _physics_frames(17)
-	assert_eq(Engine.get_physics_frames() - start_frame, 29)
-	assert_false(health.can_receive_damage(), "29 frames are still less than 0.5 s")
-	await _physics_frames(1)
-	assert_eq(Engine.get_physics_frames() - start_frame, 30)
-	assert_eq(health.get_hit_protection_remaining(), 0.0)
-	assert_true(health.can_receive_damage(), "Exactly 30 frames complete the 0.5 s interval")
-	assert_true(receiver.receive_hit(_hit(null, 0.5)))
-	assert_eq(health.current_health, 2.0)
-	assert_eq(health.get_hit_protection_remaining(), 0.5)
+	var twenty_ninth: Dictionary = sampler.samples[29]
+	assert_eq(twenty_ninth["elapsed"], 29)
+	assert_false(twenty_ninth["can_receive"], "29 frames are still less than 0.5 s")
+	var thirtieth: Dictionary = sampler.samples[30]
+	assert_eq(thirtieth["elapsed"], 30)
+	assert_eq(thirtieth["remaining"], 0.0)
+	assert_true(thirtieth["can_receive"], "Exactly 30 frames complete the 0.5 s interval")
+	assert_true(thirtieth["accepted"])
+	assert_eq(thirtieth["after_health"], 2.0)
+	assert_eq(thirtieth["after_remaining"], 0.5)
+	print(
+		"HIT_PROTECTION_TICK_SAMPLES=",
+		JSON.stringify(
+			{"fps_limit": Engine.max_fps, "samples": sampler.samples, "ticks": sampler.ticks}
+		)
+	)
 
 
 func test_hit_protection_prevents_same_frame_reentrant_signal_damage() -> void:

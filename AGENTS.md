@@ -2,6 +2,8 @@
 
 ## 当前阶段与权威入口
 
+- 2026-10-02 用户已采纳地图系统讨论中的全部建议并授权第一版开发：Godot 原生编辑的 3 个灰盒房间、A ↔ B ↔ C 与 C → A、有向连接、共享模板与独立身份/探索、相机与调试入口。契约见 [docs/map-system.md](docs/map-system.md)，转场、预加载和攀爬为后续必做 TODO，不在第一版实现；持续提交/合并授权适用，用户手感仍独立验收。
+
 - 2026-10-02 用户明确授权把 `codex/health-combat-v3` 和 `feat/localization-v2` 合入 `main`；本轮同时整合已交付的心形分支，解决原反馈中的心形与跳跃缺失。此授权取代以下旧交付文档的 draft-only 限制；不扩大功能范围，不发布安装包。
 - 当前整合范围：多语言与菜单、通用生命与定时敌人、1 U=16 px 的统一尺度与 1–2.5 U 可变跳跃、心形生命和主角 0.5 秒受击保护。当前规则分别见 [localization-v2.md](docs/localization-v2.md)、[scale-movement-v4.md](docs/scale-movement-v4.md)、[heart-health-v5.md](docs/heart-health-v5.md)、[hit-protection.md](docs/hit-protection.md)；心单位取代旧减伤规则，其他角色默认 0 秒保护。
 - 合并链修复范围和当前验收见 [docs/integration-main.md](docs/integration-main.md)、[docs/status.md](docs/status.md)。旧 PR #4/#6/#7/#8 的 MERGED 状态仅表示合入原依赖分支；是否进入 main 以远端提交包含关系核实，不以 PR 状态推断。
@@ -15,7 +17,7 @@
 - [player/README.md](player/README.md)：主角控制、输入意图、可替换视觉。
 - [skills/README.md](skills/README.md)：动作阶段、技能定义、等级覆盖、执行器与效果。
 - [combat/README.md](combat/README.md)：心容器、公共命中数据与受击接口。
-- [world/README.md](world/README.md)：gray box 地图、训练稻草人、重置。
+- [world/README.md](world/README.md)：房间地图、连接与探索、保留训练场、稻草人和重置。
 - [ui/README.md](ui/README.md)：训练信息与调试反馈。
 - [localization/README.md](localization/README.md)：语言清单、翻译资源、设置保存、缺译文回退与新增语言。
 - [shared/README.md](shared/README.md)：公共输入配置与地图碰撞辅助。
