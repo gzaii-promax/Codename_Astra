@@ -7,6 +7,40 @@
 - 最新测试证据通过 `artifacts/test-runs/latest.json` 定位；具体安装与测试状态见最新报告。
 - 同一问题再次出现时追加复现记录并重新打开原记录；仅报错文字相同不能确认同一原因。
 
+## 记录索引（2026-10-02）
+
+以下状态按各记录正文核对；当前没有开放的技术错误。`MAIN-INTEGRATION` 只关闭缺少代码的技术问题，用户手感仍单独待反馈。resolved 不代表换环境后不会复发。新增、重开或关闭记录时同步本表，原始证据留在各记录中。
+
+| 记录 | 状态 | 问题 |
+| --- | --- | --- |
+| [ENV-0001](ENV-0001.md) | resolved | Xcode 许可阻止系统 Git 和 Python 执行 |
+| [ENV-0002](ENV-0002.md) | resolved | 沙箱网络限制导致官方域名无法解析 |
+| [ENV-0003](ENV-0003.md) | resolved | 沙箱内 Godot 签名检查失败 |
+| [ENV-0004](ENV-0004.md) | resolved | 工具链自检受沙箱文件权限限制 |
+| [ENV-0005](ENV-0005.md) | resolved | GitHub connector 与本机 CLI 的仓库权限不同 |
+| [ERR-20261001-ACTION-FACING-RESET](ERR-20261001-ACTION-FACING-RESET.md) | resolved | 动作朝向与重置效果的集成边界 |
+| [ERR-20261001-FIREBALL-SPAWN-WALL](ERR-20261001-FIREBALL-SPAWN-WALL.md) | resolved | 火球释放偏移跳过薄墙 |
+| [ERR-20261001-GAME-NOT-READY](ERR-20261001-GAME-NOT-READY.md) | resolved | 首版测试准备期间项目与测试契约未齐备 |
+| [ERR-20261001-GIT-BLOB-BUFFER](ERR-20261001-GIT-BLOB-BUFFER.md) | resolved | Git 交付核对缓冲读取大字体失败 |
+| [ERR-20261001-GIT-BOOTSTRAP](ERR-20261001-GIT-BOOTSTRAP.md) | resolved | commit-tree 消息文件参数不受支持 |
+| [ERR-20261001-HEALTH-BAR-OVERLAP](ERR-20261001-HEALTH-BAR-OVERLAP.md) | resolved | 近战距离的生命与状态文本重叠 |
+| [ERR-20261001-HEALTH-TEST-FIXTURE](ERR-20261001-HEALTH-TEST-FIXTURE.md) | resolved | 独立生命测试清理未初始化输入 |
+| [ERR-20261001-I18N-GRAPHICS-PROBE](ERR-20261001-I18N-GRAPHICS-PROBE.md) | resolved | 独立图形探针提前引用 autoload |
+| [ERR-20261001-LOCALIZATION-HUD-OVERFLOW](ERR-20261001-LOCALIZATION-HUD-OVERFLOW.md) | resolved | 英语切换后 HUD 容器高度溢出 |
+| [ERR-20261001-TEST-SCENE-PARENT](ERR-20261001-TEST-SCENE-PARENT.md) | resolved | 测试 fixture 不能成为 current_scene |
+| [ERR-20261002-CI-PYTHON](ERR-20261002-CI-PYTHON.md) | resolved | 托管 runner 缺少固定 Python 安装包 |
+| [ERR-20261002-HEART-READOUT-OVERLAP](ERR-20261002-HEART-READOUT-OVERLAP.md) | resolved | 击倒文本覆盖第三单位心容器 |
+| [ERR-20261002-HEART-TEST-FIXTURE](ERR-20261002-HEART-TEST-FIXTURE.md) | resolved | 半心验收测试解析与HUD刷新时机 |
+| [ERR-20261002-MAIN-INTEGRATION](ERR-20261002-MAIN-INTEGRATION.md) | resolved | 主分支缺少已交付的心形与跳跃更新 |
+| [ERR-20261002-MAP-CI](ERR-20261002-MAP-CI.md) | resolved | 受击保护精确物理帧用例在 CI 采样越界 |
+| [ERR-20261002-MAP-VALIDATION](ERR-20261002-MAP-VALIDATION.md) | resolved | 地图首版完整验收超时与 HUD 切换错误 |
+| [ERR-20261002-SCALE-TEST-SAMPLING](ERR-20261002-SCALE-TEST-SAMPLING.md) | resolved | 尺度测试的物理帧采样与等待条件 |
+| [ERR-20261002-SPEED-STEP-SAMPLING](ERR-20261002-SPEED-STEP-SAMPLING.md) | resolved | 提速后台阶用例越过采样位置 |
+| [ERR-20261002-WORKSPACE-CLASS-CACHE](ERR-20261002-WORKSPACE-CLASS-CACHE.md) | resolved | 工作区旧类缓存导致直接启动失败 |
+| [ERR-20261002-WORKTREE-TEST-FIXTURE](ERR-20261002-WORKTREE-TEST-FIXTURE.md) | resolved | 临时路径与清理夹具 |
+
+可用 `rg -n "status:|状态：|channel:|原因" docs/errors` 按状态、来源与原因检索；先读相同触发条件的记录再复跑。
+
 ## 每条记录的必需内容
 
 | 字段 | 内容 |

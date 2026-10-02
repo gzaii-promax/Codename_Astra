@@ -2,6 +2,8 @@
 
 ## 当前阶段与权威入口
 
+- 初次接手先读 [架构导航](ARCHITECTURE.md)、[文档索引](docs/index.md) 和 [当前状态](docs/status.md)。历史交付快照见 [status-history.md](docs/status-history.md)、[git-history.md](docs/git-history.md)；其中旧 PR 状态、数值与授权例外不能作为今天的 main 状态或新增限制。
+
 - 2026-10-02 用户已采纳地图系统讨论中的全部建议并授权第一版开发：Godot 原生编辑的 3 个灰盒房间、A ↔ B ↔ C 与 C → A、有向连接、共享模板与独立身份/探索、相机与调试入口。契约见 [docs/map-system.md](docs/map-system.md)，转场、预加载和攀爬为后续必做 TODO，不在第一版实现；持续提交/合并授权适用，用户手感仍独立验收。
 
 - 2026-10-02 用户明确授权把 `codex/health-combat-v3` 和 `feat/localization-v2` 合入 `main`；本轮同时整合已交付的心形分支，解决原反馈中的心形与跳跃缺失。此授权取代以下旧交付文档的 draft-only 限制；不扩大功能范围，不发布安装包。

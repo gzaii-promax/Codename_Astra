@@ -4,11 +4,11 @@
 
 在既有 Godot 4.7.2 / GDScript 工程上增加可配置、可扩展的多语言入口。首批英文 `en`、日文 `ja`、简体中文 `zh_CN`，默认简体中文。覆盖菜单、通用 UI、技能名称与说明、manual/帮助。后续故事脚本由用户编写，本轮不生成或翻译剧情，故事文本以后复用同一文本键入口。
 
-本轮只创建或更新 draft PR，不自动合并或发布。这是最新授权的具体限制，优先于既有持续自行合并授权。原移动、跳跃、攻击、火球与训练场数值保持原验收基线；手感仍由用户反馈。
+原交付时点只创建或更新 draft PR，不自动合并或发布；该历史限制已被 2026-10-02 明确整合授权取代，多语言内容已进入 main。当前交付见 [status.md](status.md)，持续授权见 [AGENTS](../AGENTS.md)。原移动、跳跃、攻击、火球与训练场数值保持原验收基线；手感仍由用户反馈。
 
 ## 工程选择
 
-现有项目没有多语言模块，项目根也没有 `.agents/skills`。复用 Godot 原生 [Translation 与国际化机制](https://docs.godotengine.org/en/stable/tutorials/i18n/internationalizing_games.html)，不增加第三方本地化插件。独立 localization 模块负责语言 manifest、资源、回退和用户设置；UI 读取翻译入口、响应语言变化；技能只声明名称/说明键，战斗控制器不判断语言。
+原实施前项目没有多语言模块，项目根也没有 `.agents/skills`。复用 Godot 原生 [Translation 与国际化机制](https://docs.godotengine.org/en/stable/tutorials/i18n/internationalizing_games.html)，不增加第三方本地化插件。独立 localization 模块负责语言 manifest、资源、回退和用户设置；UI 读取翻译入口、响应语言变化；技能只声明名称/说明键，战斗控制器不判断语言。
 
 语言清单和 JSON 译文可编辑；新增语言通过 manifest、文本目录和字体配置完成，不修改战斗或 UI 分支。命名占位符与默认语言回退规则由模块文档定义，未配置的故事文本不占用本轮内容范围。用 ConfigFile 保存语言设置，菜单可切换语言，暂停菜单阻断战斗输入。
 

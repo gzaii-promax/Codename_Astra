@@ -1,5 +1,7 @@
 # 多语言下一版交付与草稿 PR 描述
 
+> 原草稿交付快照：以下 OPEN/draft 与“不合并”描述按原交付时点阅读，限制已被 2026-10-02 明确整合授权取代，内容已进入 main。当前结果见 [status.md](status.md)，原始验收和 PR 描述保留。
+
 实际[草稿 PR #3](https://github.com/gzaii-promax/Codename_Astra/pull/3)已创建并附加到当前 Codex 任务，核实为 OPEN、isDraft=true；功能实现提交 `23c64a28b1237df2cd8c3f7dee46fabf623d7bec`。后续仅在同一 PR 更新文档，不合并或发布。
 
 ## 实现
