@@ -185,6 +185,17 @@ func clear_control_override() -> void:
 func reset_state(spawn_position: Vector2) -> void:
 	combatant.reset_state()
 	actions.reset_state()
+	_clear_motion_at(spawn_position, 1.0)
+
+
+func relocate_to(spawn_position: Vector2, facing: float = 1.0) -> void:
+	# Changing rooms must not heal, remove protection, or grant fresh skill cooldowns.
+	actions.finish_for_transition()
+	_clear_melee_windows()
+	_clear_motion_at(spawn_position, facing)
+
+
+func _clear_motion_at(spawn_position: Vector2, facing: float) -> void:
 	global_position = spawn_position
 	velocity = Vector2.ZERO
 	_motion_velocity = Vector2.ZERO
@@ -196,7 +207,7 @@ func reset_state(spawn_position: Vector2) -> void:
 	_jump_cut_applied = false
 	_jump_release_pending = false
 	_jump_origin_y = 0.0
-	facing_direction = 1.0
+	facing_direction = -1.0 if facing < 0.0 else 1.0
 
 
 func _on_damaged(_hit: HitData, amount: float) -> void:

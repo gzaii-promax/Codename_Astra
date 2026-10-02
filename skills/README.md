@@ -68,6 +68,7 @@
 4. `get_movement_policy()` 返回当前阶段字典；空闲时返回不限制移动的默认策略。
 5. `cancel(&"player")` 检查主动取消；`cancel(&"hit")` 检查受击中断。未知原因拒绝取消。返回值表示是否实际结束动作。
 6. `reset_state()` 为训练场重置无条件清空冷却与当前动作，不检查阶段中断许可。非空闲时发出取消完成事件，空闲时只清理引用。场景重置另行删除已发布火球和近战窗口。
+7. `finish_for_transition()` 用于切房，无条件结束当前动作并发出取消完成事件，保留全部剩余冷却；不检查主动取消或受击中断策略。地图与角色负责撤销旧效果、安置入口及清空运动，不把切房伪装成训练重置。
 
 可读取 `phase`（`Phase.IDLE/WINDUP/ACTIVE/RECOVERY`）、`phase_remaining`、`active_definition`、`active_action_id`；通过 `get_definition(action_id)`、`get_cooldown_remaining(action_id)` 查看绑定后的最终属性和冷却。这些运行对象视为只读，不用于写回基础资源。
 

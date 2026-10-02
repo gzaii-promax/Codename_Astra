@@ -4,7 +4,7 @@
 
 1. 读取 `AGENTS.md`、`docs/testing.md`、`tests/manifest.json` 和 `docs/errors/README.md`，再检查最新报告的 scope 与代码 hash。
 2. 项目根目录执行 `node tools/check.mjs --scope game`；本机按 ENV-0004 使用获准的沙箱外环境。新建或修改测试流程后立即执行。
-3. 读取 stdout JSON 的 `report_path`，核对 `expected_check_ids` 全部执行、`tests/manifest.json` 的全部预期测试均出现，且 JUnit 没有失败/错误/跳过；核对源码 hash、原始日志、Git 状态和报告时间。本轮保留既有动作、物理、多语言、生命场景和 14 项尺度/可变跳跃回归，迁移心单位和目标计算，完整保留 8 项心容器及 10 项受击保护验收，并新增 1 项回满与保护整合验收，共 112 项。完整用例名册以 `manifest.json` 为准。
+3. 读取 stdout JSON 的 `report_path`，核对 `expected_check_ids` 全部执行、`tests/manifest.json` 的全部预期测试均出现，且 JUnit 没有失败/错误/跳过；核对源码 hash、原始日志、Git 状态和报告时间。本轮完整保留既有 112 项动作、物理、多语言、生命、尺度/可变跳跃、心容器及受击保护回归，新增 22 项地图系统验收，共 134 项。完整用例名册以 `manifest.json` 为准；数量仅表示契约，是否实际通过以本轮报告为准。
 4. 失败先查公共错误目录，分类依赖/环境/配置/代码/测试问题；记录假设与修复证据，再复跑。交接提供 `run_id`、状态、报告路径、原始日志与开放错误。
 
 ## 职责与接口
@@ -21,6 +21,7 @@
 | `game/test_health_scene.gd` | 真实敌人攻击、三单位心容器、稻草人真实 20 普攻/10 火球归零回满、过量统计、受击中断、重置、暂停与三语显示 | `TrainingArena`、`PlayerCharacter`、`PeriodicEnemy`、`HealthBar` |
 | `game/test_hit_protection.gd` | 公共保护默认值、零秒旁路、配置校验、正心伤害条件、拒绝副作用、实际计时/暂停/重置、信号重入、死亡/击倒/恢复、真实攻击路径和非零保护 REFILL 整合 | `CombatConfig`、`Combatant`、`DamageReceiver`、实际主场景与引擎 physics frames |
 | `game/test_unit_scale.gd` | 16 px 单位、主角/稻草人判定框、32U×16U 外框、24 px/s 位移、短/中/长跳、真实键盘按松、重按/连跳/重置/失活恢复回归 | 正式场景的 CollisionShape2D / StaticBody2D、实际 physics frames、InputEventKey |
+| `game/test_map_world.gd` | 三房间五条有向连接、模板复用与独立探索、安全落点、真实 Area2D/输入通行、失败原子回退、跨房间角色状态保留、暂停/死亡阻止通行、重置、相机边界、能力门槛扩展、三语 HUD/菜单与训练场往返 | `MapRegistry`、`MapRoom`、`MapWorld`、持久 `PlayerCharacter`、实际 physics frames、`TrainingHUD` |
 | `fixtures/localization/` | 手写独立验收数据：默认 en、三语局部译文、新增 fr、损坏目录与无效清单 | 独立 JSON 数据，不从业务实现自动复制预期 |
 | `manifest.json` | 审核后的完整预期 case 名称，拒绝空执行或漏执行 | runner 和 JUnit 对照 |
 
@@ -37,6 +38,14 @@
 - 布局使用真实 Control 全局矩形和 Font 多行测量验证三语 HUD/菜单/帮助面板不越出 viewport、正文不被控件裁剪；帮助正文允许位于可滚动容器内。尺寸误差仅容许 1 像素。
 - 新服务实例恢复不等同操作系统进程重启。`tests/probes/` 由主 agent 维护，公共 runner 的 `restart-write` / `restart-read` 使用同一独立文件启动两个 Godot 进程，并由报告提供恢复标记；不要把 GUT 用例数量与外部进程检查混计。
 - 当前自动检查不判断翻译风格、像素视觉质量、动画观感、音效、实际键盘硬件、导出包、跨平台兼容或手感。主 agent 另做有画面的三语截图核查；这些不由 headless 成功推定。
+
+## 第一版地图验收与图形入口
+
+- 期望来自用户采纳的三房间样例：`A ↔ B ↔ C` 与 `C → A`，固定 5 条有向连接；A/C 共用同一模板，但身份与运行期间的探索记录独立。A/C 为 512×256 px，B 为 768×256 px，入口脚底为 `(80,240)` 或 `(width-80,240)`，相机 zoom 为 2。顶部 160 px 留给 HUD，地图可见区域经实际 viewport canvas transform 逆变换后须位于房间边界内；房间小于可见区域时居中。
+- 真实通行用 `Input.action_press` 驱动持久玩家穿过 `MapExit` 的实际 `Area2D`，并用等待物理帧确认目标及防反弹。API 用例另覆盖全部 5 条路径、目标入口和未显式存在的反向路线。真实房间地形须支持落地和既有跳跃。
+- 无效房间、入口、出口、空场景、错误根类型、损坏连接不得替换当前房间、移动玩家或污染探索记录。跨房间清动作、位移、跳跃缓存与旧攻击效果，同时保留同一个玩家的生命、技能等级、剩余冷却与受击保护；这些条件使用跨房间前后的实际状态对照。
+- 本轮只验证运行期间探索记录，不新增宝箱、存档、攀爬、转场效果或预加载行为。非空能力需求走统一查询，并且首版没有攀爬能力，不能把接口预留视作功能完成。
+- `tests/probes/map_world_visual.gd` 使用 `docs/testing.md` 的同一非 headless argv、独立 settings 和有限超时协议；保存三语各 3 房间、B 右侧视角及中文 A 的真实 F6 碰撞视角共 11 张真实 viewport PNG、玩家坐标、真实相机中心/zoom、房间边界、探索状态和实际碰撞 polygon 数。它不计入 GUT；截图保存完成后还需查看全部图片、检查原始引擎日志并另记视觉审核结果。
 
 ## 心之容器与阵营验收
 
@@ -78,3 +87,5 @@
 - 新行为测试应来自需求和可观察结果；新增不同技能的同控制器用例用于验证现有机制的组合能力。
 - 修改技能规则时维护技能模块文档和相关测试预期。新增 case 手动维护 manifest；不要用重新生成清单消除漏测警报。
 - 超时、故意失败与报告读取能力由工具链自检验证，不混入游戏通过数量。游戏正常验收不接受预期之外的失败或超时。
+
+- F6 用例通过真实 `InputEventKey` 打开/关闭覆盖层，并独立检查固定地板、玩家 body、位移后的 body、切换后的 B 地形以及有/无路由出口几何；不以界面开关状态替代真实碰撞数据。

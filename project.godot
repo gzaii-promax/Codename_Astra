@@ -1,9 +1,9 @@
-; Godot project configuration. First playable training room.
+; Godot project configuration. Editable three-room map sample.
 config_version=5
 
 [application]
 config/name="Ember Trial — Prototype 01"
-run/main_scene="res://world/training_arena.tscn"
+run/main_scene="res://world/map_world.tscn"
 config/features=PackedStringArray("4.7", "GL Compatibility")
 
 [autoload]

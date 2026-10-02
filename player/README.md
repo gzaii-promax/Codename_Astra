@@ -25,6 +25,7 @@ Actions 按物理帧 tick。每阶段的 inertia_scale 只在进入阶段时缩�
 - `set_fireball_level(1|2)` 只重绑下一次施法定义，正在执行的动作保持开始时的定义。
 - `set_control_input(horizontal, jump_requested=false, jump_held=false)` 启用外部输入意图；jump_requested 是单次消费的起跳请求，jump_held 是保持到下次调用的持键状态。旧两参数跳跃调用表示短按；长按用 `set_control_input(0.0, true, true)` 起跳，松开时调用 `set_control_input(0.0, false, false)`。真实键盘分别读取 `Input.is_action_just_pressed("jump")` 和 `Input.is_action_pressed("jump")`，走相同跳跃路径。当前上升期间，外部松键提交与真实 `_input` 松键事件都会锁存到下一物理帧，因此同一物理帧间松开后重按仍会截断本次上升；锁存不会带入下一次跳跃。`clear_control_override()` 恢复真实键盘输入并清除输入锁存。测试、后续回放可以通过同一控制路径驱动真实物理。
 - `reset_state(position)` 无条件重置生命/生命周期、动作/冷却、位置与运动状态；外部控制模式保留以方便测试重置，真实训练场使用键盘模式。训练场整体重置同时删除场上效果并恢复敌人。
+- `relocate_to(position,facing=1)` 用于正常切房：调用动作控制器的 `finish_for_transition()` 结束当前阶段并保留冷却，撤销本人近战窗口，清空惯性、跳跃缓冲与松键锁存，脚底安置到入口并设置朝向。生命、技能等级、受击保护与外部控制模式保留；地图管理器同时清理场上旧效果。此接口不替代无条件重置。
 
 新增技能先完成 skills 定义/执行器，然后在角色的绑定和输入映射处注册。已有控制器无需理解新行为。若加入墙跳、滑铲、锁定朝向等新移动机制，必须明确与阶段策略的组合并更新行为测试。
 

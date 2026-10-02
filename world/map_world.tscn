@@ -1,0 +1,27 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://world/map_world.gd" id="1"]
+[ext_resource type="Resource" path="res://world/maps/sample_world.tres" id="2"]
+[ext_resource type="PackedScene" path="res://player/player_character.tscn" id="3"]
+[ext_resource type="Script" path="res://ui/training_hud.gd" id="4"]
+[ext_resource type="Script" path="res://world/maps/map_collision_overlay.gd" id="5"]
+
+[node name="MapWorld" type="Node2D"]
+script = ExtResource("1")
+registry = ExtResource("2")
+
+[node name="Player" parent="." instance=ExtResource("3")]
+position = Vector2(80, 240)
+
+[node name="Camera" type="Camera2D" parent="."]
+position = Vector2(240, 128)
+zoom = Vector2(2, 2)
+position_smoothing_enabled = false
+
+[node name="CollisionDebug" type="Node2D" parent="."]
+visible = false
+z_index = 100
+script = ExtResource("5")
+
+[node name="HUD" type="CanvasLayer" parent="."]
+script = ExtResource("4")

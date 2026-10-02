@@ -95,6 +95,12 @@ func reset_state() -> void:
 		_executor = Callable()
 
 
+func finish_for_transition() -> void:
+	# Room departure ends any phase regardless of cancel policy, retaining cooldowns.
+	if phase != Phase.IDLE:
+		_finish(true)
+
+
 func get_movement_policy() -> Dictionary:
 	var policy := _get_phase_policy()
 	return policy.as_dictionary() if policy != null else PhasePolicy.new().as_dictionary()

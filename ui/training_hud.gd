@@ -1,6 +1,6 @@
 class_name TrainingHUD
 extends CanvasLayer
-## Localized training readout and pause/help navigation; combat stays in its own modules.
+## Localized training/map readout and pause/help navigation; combat stays in its own modules.
 
 const PHASE_KEYS := ["phase.idle", "phase.windup", "phase.active", "phase.recovery"]
 
@@ -26,6 +26,7 @@ var _help_text: Label
 var _menu_button: Button
 var _resume_button: Button
 var _reset_button: Button
+var _world_mode_button: Button
 var _help_button: Button
 var _help_close_button: Button
 var _language_picker: OptionButton
@@ -35,12 +36,14 @@ var _menu_open: bool = false
 var _help_open: bool = false
 var _paused_before_menu: bool = false
 var _language_error: String = ""
+var _map_mode: bool = false
 
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	_player = get_parent().get_node("Player") as PlayerCharacter
-	_dummy = get_parent().get_node("TrainingDummy") as TrainingDummy
+	_dummy = get_parent().get_node_or_null("TrainingDummy") as TrainingDummy
+	_map_mode = get_parent().has_method("reset_world")
 	_build_interface()
 	Localization.language_changed.connect(_on_language_changed)
 	get_viewport().size_changed.connect(_resize_interface)
@@ -197,6 +200,7 @@ func _build_menu(parent: Control) -> void:
 	_menu_title = _label("MenuTitle", content, 24, Color("e3c28c"))
 	_resume_button = _button("ResumeButton", content, close_menu)
 	_reset_button = _button("ResetButton", content, _on_reset_pressed)
+	_world_mode_button = _button("WorldModeButton", content, _on_world_mode_pressed)
 	var language_row := HBoxContainer.new()
 	language_row.name = "LanguageRow"
 	language_row.add_theme_constant_override("separation", 12)
@@ -236,20 +240,34 @@ func _build_help(parent: Control) -> void:
 
 func _refresh_text() -> void:
 	_ui_theme.default_font = Localization.get_font()
-	_title.text = Localization.text("app.title")
-	_controls.text = Localization.text("hud.controls")
-	_debug_controls.text = Localization.text("hud.debug_controls")
+	_title.text = Localization.text("map.title" if _map_mode else "app.title")
+	_controls.text = Localization.text("map.controls" if _map_mode else "hud.controls")
+	_debug_controls.text = Localization.text(
+		"map.debug_controls" if _map_mode else "hud.debug_controls"
+	)
 	_menu_button.text = Localization.text("menu.open")
 	_menu_title.text = Localization.text("menu.title")
 	_resume_button.text = Localization.text("menu.resume")
-	_reset_button.text = Localization.text("menu.reset")
+	_reset_button.text = Localization.text("map.reset" if _map_mode else "menu.reset")
+	_world_mode_button.text = Localization.text(
+		"map.enter_training" if _map_mode else "menu.enter_map"
+	)
 	_language_label.text = Localization.text("menu.language")
 	_help_button.text = Localization.text("menu.help")
 	_menu_hint.text = Localization.text("menu.hint")
-	_help_title.text = Localization.text("manual.title")
+	_help_title.text = Localization.text("map.manual.title" if _map_mode else "manual.title")
 	_help_close_button.text = Localization.text("menu.close")
 	var manual: Array[String] = []
-	for key in ["manual.movement", "manual.combat", "manual.training", "manual.languages"]:
+	var manual_keys := ["manual.movement", "manual.combat", "manual.training", "manual.languages"]
+	if _map_mode:
+		manual_keys = [
+			"map.manual.movement",
+			"map.manual.combat",
+			"map.manual.navigation",
+			"map.manual.debug",
+			"map.manual.languages",
+		]
+	for key in manual_keys:
 		manual.append(Localization.text(key))
 	for action_id in [&"basic_attack", &"fireball"]:
 		var definition := _player.get_action_controller().get_definition(action_id)
@@ -289,9 +307,25 @@ func _refresh_readout() -> void:
 			}
 		)
 	)
-	_target.text = Localization.text(
-		"hud.target", {"damage": _heart_number(_dummy.total_damage), "hits": _dummy.hit_count}
-	)
+	if _map_mode:
+		var world := get_parent()
+		var registry: Resource = world.get("registry")
+		var room_count: int = registry.get("rooms").size() if registry != null else 0
+		_target.text = (
+			Localization
+			. text(
+				"map.target",
+				{
+					"room": world.get_room_title(),
+					"visited": world.get_visited_rooms().size(),
+					"total": room_count,
+				}
+			)
+		)
+	elif is_instance_valid(_dummy):
+		_target.text = Localization.text(
+			"hud.target", {"damage": _heart_number(_dummy.total_damage), "hits": _dummy.hit_count}
+		)
 	_phase.text = (
 		Localization
 		. text(
@@ -309,7 +343,12 @@ func _heart_number(value: float) -> String:
 
 
 func _resize_interface() -> void:
-	var viewport_size := get_viewport().get_visible_rect().size
+	if not is_inside_tree() or is_queued_for_deletion():
+		return
+	var viewport := get_viewport()
+	if viewport == null or not is_instance_valid(_menu_panel) or not is_instance_valid(_help_panel):
+		return
+	var viewport_size := viewport.get_visible_rect().size
 	_fit_hud()
 	_menu_panel.custom_minimum_size = Vector2(minf(500.0, viewport_size.x - 48.0), 0.0)
 	_help_panel.custom_minimum_size = Vector2(
@@ -318,14 +357,21 @@ func _resize_interface() -> void:
 
 
 func _on_hud_minimum_size_changed() -> void:
-	_fit_hud.call_deferred()
+	if is_inside_tree() and not is_queued_for_deletion():
+		_fit_hud.call_deferred()
 
 
 func _fit_hud() -> void:
 	# Auto-wrap can initially grow the minimum height before containers assign widths.
 	# Reapply the desired size after reflow so a reduced minimum also shrinks this panel.
-	var viewport_size := get_viewport().get_visible_rect().size
-	_hud_panel.position = Vector2(16.0, 12.0)
+	# A queued reflow may outlive the old scene during a deferred mode switch.
+	if not is_inside_tree() or is_queued_for_deletion() or not is_instance_valid(_hud_panel):
+		return
+	var viewport := get_viewport()
+	if viewport == null:
+		return
+	var viewport_size := viewport.get_visible_rect().size
+	_hud_panel.position = Vector2(16.0, 10.0 if _map_mode else 12.0)
 	_hud_panel.size = Vector2(maxf(0.0, viewport_size.x - 32.0), 145.0)
 
 
@@ -345,8 +391,20 @@ func _on_language_selected(index: int) -> void:
 
 
 func _on_reset_pressed() -> void:
-	get_parent().reset_training()
+	if _map_mode:
+		get_parent().reset_world()
+	else:
+		get_parent().reset_training()
 	close_menu()
+
+
+func _on_world_mode_pressed() -> void:
+	var scene_path := (
+		"res://world/training_arena.tscn" if _map_mode else "res://world/map_world.tscn"
+	)
+	close_menu()
+	get_tree().paused = false
+	get_tree().change_scene_to_file.call_deferred(scene_path)
 
 
 func _panel(node_name: String) -> PanelContainer:
