@@ -138,7 +138,7 @@ export async function runGameChecks() {
     await cp(tool('gut'), path.join(snapshot, 'addons/gut'), { recursive: true });
     // Hash the tested snapshot rather than a live file another agent might edit during this run.
     for (const file of sourceFiles) report.code_state.files_sha256[relative(file)] = hash(await readFile(path.join(snapshot, relative(file))));
-    for (const file of ['tools/check.mjs', 'tools/check-game.mjs', 'tools/toolchain-config.mjs', 'tools/bootstrap.mjs', 'tools/test-toolchain.mjs', 'tools/requirements-gdtoolkit.lock', '.github/workflows/check.yml', 'tools/read-junit.py', 'tools/toolchain.json', 'docs/testing.md']) report.code_state.files_sha256[file] = hash(await readFile(path.join(root, file)));
+    for (const file of ['tools/check.mjs', 'tools/check-game.mjs', 'tools/toolchain-config.mjs', 'tools/bootstrap.mjs', 'tools/test-toolchain.mjs', 'tools/prepare-worktree.mjs', 'tools/test-worktree.mjs', 'tools/test-worktree-runtime.mjs', 'tools/with-integration-lock.mjs', 'tools/play.mjs', 'tools/requirements-gdtoolkit.lock', '.github/workflows/check.yml', 'tools/read-junit.py', 'tools/toolchain.json', 'docs/testing.md', 'docs/worktrees.md', 'AGENTS.md']) report.code_state.files_sha256[file] = hash(await readFile(path.join(root, file)));
     const git = await execute([tool('git'), 'rev-parse', 'HEAD'], path.join(logs, 'git-state.log'));
     report.code_state.git = clean(git) ? 'repository' : 'no_commit_available';
     report.code_state.commit = clean(git) ? git.stdout.trim() : null;

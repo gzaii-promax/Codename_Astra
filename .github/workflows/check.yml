@@ -45,7 +45,7 @@ jobs:
         id: bootstrap
         run: node tools/bootstrap.mjs
       - name: Check dependency preparation
-        run: node --test tools/test-toolchain.mjs
+        run: node --test tools/test-toolchain.mjs tools/test-worktree.mjs tools/test-worktree-runtime.mjs
       - name: Verify test tools
         id: toolchain
         run: node tools/check.mjs --scope toolchain

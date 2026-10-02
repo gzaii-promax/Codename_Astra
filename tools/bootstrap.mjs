@@ -103,7 +103,7 @@ export async function bootstrap(root, environment = process.env) {
   try {
     const { manifest, config_hash } = await step('configuration', async () => {
       if (process.platform !== 'darwin' || process.arch !== 'arm64') throw new Error('Bootstrap supports darwin-arm64 only.');
-      const pinned = await loadToolchain(root, {});
+      const pinned = await loadToolchain(root, { ASTRA_TOOLCHAIN_CONFIG: 'tools/toolchain.json' });
       for (const file of ['tools/toolchain.json', 'tools/requirements-gdtoolkit.lock', 'tools/bootstrap.mjs', 'tools/toolchain-config.mjs']) {
         report.source_files_sha256[file] = await fileHash(path.join(root, file));
       }
