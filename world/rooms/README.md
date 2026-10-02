@@ -9,7 +9,7 @@
 - 房间根节点：`MapRoom`，`bounds` 是房间局部像素范围，供相机边界和校验读取。
 - `Entrances/Start`、`West`、`East`：`MapEntrance`，位置是玩家脚底落点；稳定 `entrance_id` 与进入朝向分别可编辑。绿色标记仅在编辑器显示，不是角色碰撞。
 - `Exits/West`、`East`、走廊的 `Return`：`MapExit`，蓝色普通通道、金色返回通道；`Trigger` 是实际 `CollisionShape2D`，节点位置、形状、出口身份和标签可编辑。出口仅发送 `exit_requested(exit_id)`，不储存路由。
-- 管理器通过 `enabled` 禁用没有连接的出口；禁用后为灰色并关闭 `monitoring`。A/C 共享 Return 节点，但 A 无此连接，不会触发返回。
+- MapWorld 将没有连接的出口设为 `enabled=false` 并隐藏，出口同时关闭 `monitoring`。单独显示禁用的 MapExit 时，其标记绘制为灰色。A/C 共享 Return 节点，但 A 无此连接，不会触发返回。
 
 出口仅接受 `PlayerCharacter` 且 `Combatant.LifeState.ACTIVE`，碰撞层 0、检测 Player 层 2；死亡角色和其他身体不会请求切房。进出树会连接和撤销出口身体信号及语言信号。标签读取 `map.exit_west`、`map.exit_east`、`map.exit_return`。
 

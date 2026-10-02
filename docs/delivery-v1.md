@@ -1,5 +1,7 @@
 # 首版提交与 PR 描述
 
+> 首版交付历史快照：以下伤害数值、无限生命目标与 CI 待接入均属于当时版本。现行规则与交付见 [index.md](index.md)、[status.md](status.md)，不以此页旧描述覆盖当前源码。
+
 用户已指定私有远端 `gzaii-promax/Codename_Astra`；首版从 `feat/combat-v1` 向 `main` 提交[PR #1](https://github.com/gzaii-promax/Codename_Astra/pull/1)，于 2026-10-01 在本地验收通过、对应文件哈希核对一致及用户持续授权下合并。合并提交为 `09f35ec8b0ffaba38f6e77974ecc943721828083`，完整工程已在 main。本文维护首版描述，实际验证与待反馈事项在 docs/status.md 记录。
 
 ## PR 标题

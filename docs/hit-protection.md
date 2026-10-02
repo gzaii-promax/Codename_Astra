@@ -25,6 +25,10 @@
 5. 真实暂停/恢复、训练重置、剧情死亡、击倒/起身和既有可选恢复计时均保留约定；真实近战/火球覆盖保护后的碰撞语义。
 6. 保留心系统与受击保护的完整用例；统一入口 `node tools/check.mjs --scope game` 核对完整报告、JUnit、日志和源码哈希。
 
+## 当前交付
+
+保护机制已随 [PR #9](https://github.com/gzaii-promax/Codename_Astra/pull/9) 整合到 main；当前结果见 [status.md](status.md)，以下原草稿边界不再限制后续已授权工作。
+
 ## 原交付边界（历史）
 
-当前远端尺度 PR #6 已合入生命分支，生命 PR #4 仍为未合并草稿。本轮从已核实的 `origin/codex/health-combat-v3` 提交 `06718c78a27e4ffd822d8d8ec9e61ca48897fa79` 创建 `codex/hit-protection`，以生命分支为 base 交付独立 draft PR，保持未合并、未发布。具体执行证据与 PR 链接记录在 `status.md` 和 `git-workflow.md`；不能把旧报告当成本轮验收。
+原交付时点，远端尺度 PR #6 已合入生命分支，生命 PR #4 仍为未合并草稿。本轮从已核实的 `origin/codex/health-combat-v3` 提交 `06718c78a27e4ffd822d8d8ec9e61ca48897fa79` 创建 `codex/hit-protection`，以生命分支为 base 交付独立 draft PR，保持未合并、未发布。原执行证据与 PR 链接保留在 [status-history.md](status-history.md) 和 [git-history.md](git-history.md)；不能把旧报告当成本轮验收。

@@ -4,7 +4,7 @@
 
 `combat_config.gd` 提供无状态 `CombatConfig extends RefCounted`，受击保护时长以未暂停的游戏秒数计量：`PLAYER_HIT_PROTECTION_SECONDS=0.5` 是主角初值，`DEFAULT_HIT_PROTECTION_SECONDS=0.0` 是其他生命角色初值。主角初始化时将主角常数赋给自己的 `Combatant.hit_protection_seconds`；其他生命组件直接使用公共默认值。常数不根据阵营选择，主角改变阵营也不改变保护配置。
 
-实际剩余时间属于各自 `Combatant`，不保存在公共配置中。零秒跳过保护判定、不启动保护计时；训练稻草人仍走没有生命组件的接收路径。新增角色可显式配置有限且非负的秒数。更改常数或保护规则时同步 combat/player 模块文档，并通过真实受击、暂停、重置与现有战斗回归验证。范围与行为约定见 ../docs/hit-protection.md。
+实际剩余时间属于各自 `Combatant`，不保存在公共配置中。零秒跳过保护判定、不启动保护计时；训练稻草人复用 `Combatant` 的 10 心与 `REFILL` 行为，默认零秒保护。新增角色可显式配置有限且非负的秒数。更改常数或保护规则时同步 combat/player 模块文档，并通过真实受击、暂停、重置与现有战斗回归验证。范围与行为约定见 ../docs/hit-protection.md。
 
 ## 公共长度单位
 

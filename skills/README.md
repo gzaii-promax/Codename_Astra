@@ -35,7 +35,7 @@
 
 `windup_policy`、`active_policy`、`recovery_policy` 各自是一份 `PhasePolicy` 资源。默认 `control_scale = 1`、`inertia_scale = 1`、`skill_velocity = (0, 0)`；`can_jump`、`can_cancel_player`、`can_interrupt_hit` 均为 `true`。比例在 `0..1`；技能位移单位为像素/秒，其 X 方向由主角按面朝方向转换。角色负责执行移动规则，控制器只提供策略。
 
-`control_scale` 控制玩家输入产生的目标水平速度比例；`inertia_scale` 表示开始动作时水平惯性保留比例。具体加速和惯性衰减由主角模块记录，避免把相同比例误解成相同手感。主动取消与受击中断独立配置。
+`control_scale` 控制玩家输入产生的目标水平速度比例；`inertia_scale` 表示进入每个动作阶段时水平惯性保留比例。具体加速和惯性衰减由主角模块记录，避免把相同比例误解成相同手感。主动取消与受击中断独立配置。
 
 统一尺度初版使用 `GameUnits.PIXELS_PER_UNIT=16`。主角的 `get_attack_origin()` 位于脚底上 1 U、面朝方向前 0.5 U，由主角模块按身体尺寸维护；技能仍自行配置攻击框、投射物大小与速度，未要求按 U 的整数倍取值。已有攻击尺寸和阶段时序保持原配置，伤害采用下方心系统配置。
 
@@ -60,7 +60,7 @@
 
 ## 启动、阶段与行为接口
 
-主角创建 `ActionController` 子节点后调用：
+主角场景配置 `Actions`（`ActionController`）子节点，角色初始化时绑定技能，随后调用以下接口：
 
 1. `bind_action(action_id: StringName, definition: SkillDefinition, executor: Callable, level: int = 1)` 注册。执行器接收 `(caster: Node, resolved_definition: SkillDefinition)`。
 2. `request_action(action_id, caster) -> bool` 尝试启动。正在出招、未装备、冷却中、定义无效或执行器无效时返回 `false`。

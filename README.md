@@ -36,7 +36,7 @@ node tools/play.mjs
 
 地图关系为 A ↔ B ↔ C，C 中央黄色通道单向回 A。进入蓝色出口即可切房；有台阶时用当前跳跃登上。地图 R 回 A 并清空本次探索，F3/F4/F5 跳至 A/B/C，F6 显示碰撞；正常切房保留生命、技能等级与剩余冷却。地图没有磁盘存档，切出再返回也开始新探索。房间在 Godot 选中 Terrain 编辑地形，在入口/出口节点编辑标记，在 sample_world.tres 编辑连接；见 [地图契约](docs/map-system.md)、[房间编辑](world/rooms/README.md) 和 [连接配置](world/maps/README.md)。
 
-开发规则/模块索引见 AGENTS.md；第一版基线见 docs/first-version.md；多语言范围见 docs/localization-v2.md；生命与定时敌人范围见 docs/health-combat-v3.md；心容器重设计范围见 [docs/heart-health-v5.md](docs/heart-health-v5.md)；主分支整合见 [docs/integration-main.md](docs/integration-main.md)；实际验证和遗留见 docs/status.md。测试与错误协议见 docs/testing.md、docs/errors/README.md。
+开发时先读 [AGENTS](AGENTS.md) 与 [架构导航](ARCHITECTURE.md)，再按 [文档索引](docs/index.md) 找所属模块和现行规则。[当前状态](docs/status.md) 只记录已交付结果、证据入口和遗留；历史验收与旧授权另有明确入口。测试和查错分别见 [测试协议](docs/testing.md)、[错误索引](docs/errors/README.md)。
 
 统一尺度初值见 [docs/scale-movement-v4.md](docs/scale-movement-v4.md)：1 U=16 px，主角与稻草人受击框 16×32 px，训练场及 A/C 外框 512×256 px，B 为 768×256 px，基础移动 56 px/s，无遮挡短至长跳上升 16–40 px。公共单位职责在 [shared/README.md](shared/README.md)。
 
