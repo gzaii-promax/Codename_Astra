@@ -116,7 +116,10 @@ func test_map_player_jumps_onto_and_crosses_actual_corridor_and_hall_steps() -> 
 		await wait_physics_frames(6)
 		assert_true(world.player.is_on_floor())
 		world.player.set_control_input(1.0, true, true)
-		await wait_physics_frames(52)
+		for _frame in 60:
+			await get_tree().physics_frame
+			if world.player.global_position.x >= step_left:
+				world.player.set_control_input(0.0, false, true)
 		assert_true(world.player.is_on_floor(), "Jump lands on actual step in %s" % room_id)
 		assert_almost_eq(world.player.global_position.y, 224.0, 0.1)
 		assert_gte(world.player.global_position.x, step_left)

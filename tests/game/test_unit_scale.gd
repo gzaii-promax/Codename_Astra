@@ -62,12 +62,12 @@ func test_graybox_geometry_matches_approved_32_by_16_unit_envelope() -> void:
 	assert_true(touched_wall, "Real wall contact occurs during movement")
 
 
-func test_walk_speed_is_24_pixels_per_second_with_real_displacement() -> void:
+func test_walk_speed_is_56_pixels_per_second_with_real_displacement() -> void:
 	var player := _arena().player
 	await wait_physics_frames(6)
 	player.set_control_input(1.0)
-	await wait_physics_frames(10)
-	assert_almost_eq(player.velocity.x, 24.0, 0.01, "User: 1.5U/s = 24 px/s")
+	await wait_physics_frames(20)
+	assert_almost_eq(player.velocity.x, 56.0, 0.01, "User: 3.5U/s = 56 px/s")
 	var start := player.global_position.x
 	var first_frame := Engine.get_physics_frames()
 	for _frame in 60:
@@ -75,13 +75,13 @@ func test_walk_speed_is_24_pixels_per_second_with_real_displacement() -> void:
 	var elapsed_frames := Engine.get_physics_frames() - first_frame
 	assert_eq(elapsed_frames, 60, "Exactly 60 engine physics frames are sampled")
 	assert_eq(Engine.physics_ticks_per_second, 60, "The one-second interval uses real tick rate")
-	assert_almost_eq(player.global_position.x - start, 24.0, 0.05, "One second moves 1.5U")
-	assert_almost_eq(player.velocity.x, 24.0, 0.01)
+	assert_almost_eq(player.global_position.x - start, 56.0, 0.05, "One second moves 3.5U")
+	assert_almost_eq(player.velocity.x, 56.0, 0.01)
 	player.set_control_input(-1.0)
-	await wait_physics_frames(18)
-	assert_almost_eq(player.velocity.x, -24.0, 0.01)
+	await wait_physics_frames(40)
+	assert_almost_eq(player.velocity.x, -56.0, 0.01)
 	player.set_control_input(0.0)
-	await wait_physics_frames(6)
+	await wait_physics_frames(16)
 	assert_almost_eq(player.velocity.x, 0.0, 0.01)
 
 
