@@ -20,7 +20,7 @@
 | `game/test_heart_units.gd` | 容器配置、严格半心伤害、强化攻击、REFILL 连续归零回满、零伤害事件 | `Combatant`、`HitData`、`DamageReceiver`、`SkillDefinition` |
 | `game/test_health_scene.gd` | 真实敌人攻击、三单位心容器、稻草人真实 20 普攻/10 火球归零回满、过量统计、受击中断、重置、暂停与三语显示 | `TrainingArena`、`PlayerCharacter`、`PeriodicEnemy`、`HealthBar` |
 | `game/test_hit_protection.gd` | 公共保护默认值、零秒旁路、配置校验、正心伤害条件、拒绝副作用、实际计时/暂停/重置、信号重入、死亡/击倒/恢复、真实攻击路径和非零保护 REFILL 整合 | `CombatConfig`、`Combatant`、`DamageReceiver`、实际主场景与引擎 physics frames |
-| `game/test_unit_scale.gd` | 16 px 单位、主角/稻草人判定框、32U×16U 外框、24 px/s 位移、短/中/长跳、真实键盘按松、重按/连跳/重置/失活恢复回归 | 正式场景的 CollisionShape2D / StaticBody2D、实际 physics frames、InputEventKey |
+| `game/test_unit_scale.gd` | 16 px 单位、主角/稻草人判定框、32U×16U 外框、56 px/s 位移、短/中/长跳、真实键盘按松、重按/连跳/重置/失活恢复回归 | 正式场景的 CollisionShape2D / StaticBody2D、实际 physics frames、InputEventKey |
 | `game/test_map_world.gd` | 三房间五条有向连接、模板复用与独立探索、安全落点、真实 Area2D/输入通行、失败原子回退、跨房间角色状态保留、暂停/死亡阻止通行、重置、相机边界、能力门槛扩展、三语 HUD/菜单与训练场往返 | `MapRegistry`、`MapRoom`、`MapWorld`、持久 `PlayerCharacter`、实际 physics frames、`TrainingHUD` |
 | `fixtures/localization/` | 手写独立验收数据：默认 en、三语局部译文、新增 fr、损坏目录与无效清单 | 独立 JSON 数据，不从业务实现自动复制预期 |
 | `manifest.json` | 审核后的完整预期 case 名称，拒绝空执行或漏执行 | runner 和 JUnit 对照 |
@@ -64,7 +64,7 @@
 
 - 用户采纳的独立基线为 `1U = 16 px`；主角身体碰撞框、主角和稻草人的受击框实际宽 `16 px`、高 `32 px`，底部对齐脚底。读取真实 `CollisionShape2D` 的全局矩形，不从业务常量派生期望。
 - gray box 外框宽 `512 px`、高 `256 px`，本版摆放为 `Rect2(224, 200, 512, 256)`；地面上边为 `y=440`。验证实际四边碰撞形状以及左墙阻挡；既有右墙阻挡与贴左右墙发射火球用例同步坐标后继续保留。
-- 移动初值为 `24 px/s`。先等待加速稳定，再检查正负方向速度、准确60个引擎physics frames的实际位移 `24 px` 与停止；逆向输入等待足够时间让速度从正24变为负24。既有基础移动用例将20帧的最低位移门槛从30px改为5px，原因是用户授权速度由210px/s改为24px/s；新增独立实测用例承担精确速度验收。
+- 移动初值为 `56 px/s`。先等待加速稳定，再检查正负方向速度、准确60个引擎physics frames的实际位移 `56 px` 与停止；逆向输入等待足够时间让速度从正56变为负56。既有基础移动用例将20帧的最低位移门槛从30px改为5px，原因是此前用户授权速度由210px/s改为24px/s；本次用户要求改为3.5U/s（56px/s），延长加速、逆向与停止等待，独立实测用例承担精确速度验收。
 - 跳高从起跳脚底到最高脚底测量；短按 `16 px`、长按 `40 px`，60Hz离散与采样误差最多 `0.8 px`。测试最短触发、9帧中持键及持续持键，要求中跳严格位于短长之间；原始日志保存实测高度。真实 `InputEventKey` 的 Space 按下1个physics frame再松开也须达到短跳基线，长按须达到长跳基线。
 - 上升首次松键之后重新持键不得恢复长跳；按住至落地只产生一次起跳，松开再按可再次起跳。上升期间训练重置清空旧跳跃和未处理请求；死亡/击倒保留既有竖直惯性并继续受重力落地，但失活期间请求不能在恢复时重放，恢复后的新短跳不能继承长跳状态。
 - 真实小平台验证原有 `0.1 s` 土狼时间的离地后起跳与过期失败；落地前已松开的缓冲请求仍只能产生 `16 px` 短跳；头顶实际 `StaticBody2D` 截断长跳并允许回地。上升3帧后，同一physics采样间连续松开/重按也必须截断到短跳，分别通过外部输入接口和真实 Space 事件验证，避免采样遗漏短暂释放。

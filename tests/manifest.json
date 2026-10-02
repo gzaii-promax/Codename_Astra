@@ -83,7 +83,7 @@
     "test_training_dummy_counts_resolved_damage_without_mutating_original_hit",
     "test_unit_scale_matches_approved_player_and_dummy_collision_dimensions",
     "test_graybox_geometry_matches_approved_32_by_16_unit_envelope",
-    "test_walk_speed_is_24_pixels_per_second_with_real_displacement",
+    "test_walk_speed_is_56_pixels_per_second_with_real_displacement",
     "test_short_medium_and_long_holds_produce_16_to_40_pixel_jumps",
     "test_physical_key_press_release_drives_variable_height_jump",
     "test_repress_during_ascent_does_not_restore_long_jump",

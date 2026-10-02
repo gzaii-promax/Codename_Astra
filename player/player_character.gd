@@ -5,7 +5,7 @@ extends CharacterBody2D
 const BASIC_ATTACK: SkillDefinition = preload("res://skills/definitions/basic_attack.tres")
 const FIREBALL: SkillDefinition = preload("res://skills/definitions/fireball.tres")
 
-@export var move_speed: float = 1.5 * GameUnits.PIXELS_PER_UNIT
+@export var move_speed: float = 3.5 * GameUnits.PIXELS_PER_UNIT
 @export var acceleration: float = 12.0 * GameUnits.PIXELS_PER_UNIT
 @export var deceleration: float = 16.0 * GameUnits.PIXELS_PER_UNIT
 @export var gravity: float = 25.0 * GameUnits.PIXELS_PER_UNIT

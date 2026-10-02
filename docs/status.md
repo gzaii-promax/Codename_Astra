@@ -1,5 +1,13 @@
 # 当前交付状态
 
+## 基础移动速度调整（2026-10-02）
+
+用户要求主角基础移动速度加快到 `3.5 U/s`（`56 px/s`）。Inspector 默认值、模块文档与真实位移验收同步更新；加减速、重力、跳跃高度和技能阶段运动规则保持原值。开发基线 `30d79a420315f1be1adbeea1a4d718beabe34499`，独立 checkout `/private/tmp/astra-speed-01a0fc17`，分支 `codex/move-speed-3-5-01a0fc17`。
+
+工具链 `20261002T101134077Z-3e8c721d` 22/22通过。完整 game `20261002T101426979Z-f05abfa9` 14/14检查、134 tests / 2742 assertions，0 failures/errors/skipped，163项当前源码哈希一致；正负56px/s、稳定后准确60帧56px位移与停止均通过。首次失败暴露台阶测试持续横移在提速后已走出台阶，修复实际输入操作后完整复跑通过；原始证据与原因见 [SPEED-STEP-SAMPLING](errors/ERR-20261002-SPEED-STEP-SAMPLING.md)。
+
+本轮报告与CI核查将保存在主目录 `artifacts/speed-handoff/`；按持续授权在公共锁内核对最新 head/base、CI原始artifact和源码哈希后使用 Merge commit 并同步main，动态结果见本轮PR及该交接目录。用户手感待试玩验收。
+
 ## 多会话 worktree 机制（2026-10-02）
 
 用户要求多个本地会话互不切换彼此的分支，并明确授权调试至推送/合并。固定机制见 [worktrees.md](worktrees.md)，AGENTS 已要求所有写入会话采用独立 checkout/唯一分支，main 保留原目录。工具准备只读借用固定依赖；launcher 隔离设置、日志和编辑器环境；公共锁串行执行合并与 main 同步。Git 共享 refs/stash/config 和代码合并冲突仍按文档协调。
