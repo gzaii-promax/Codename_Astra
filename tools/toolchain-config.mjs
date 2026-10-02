@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import { readFile } from 'node:fs/promises';
+import { lstat, readFile, realpath } from 'node:fs/promises';
 import path from 'node:path';
 
 const required = ['godot', 'gut', 'python', 'gdlint', 'gdformat', 'node', 'git'];
@@ -23,7 +23,18 @@ export function toolPath(root, manifest, name) {
 }
 
 export async function loadToolchain(root, environment = process.env) {
-  const config_path = path.resolve(root, environment.ASTRA_TOOLCHAIN_CONFIG || 'tools/toolchain.json');
+  let selected = environment.ASTRA_TOOLCHAIN_CONFIG;
+  if (selected !== undefined && (typeof selected !== 'string' || !selected)) {
+    const error = new Error('ASTRA_TOOLCHAIN_CONFIG must be a non-empty configuration path; invalid explicit overrides never fall back.');
+    error.config_path = selected;
+    throw error;
+  }
+  if (selected === undefined) {
+    const derived = path.join(root, '.tools', 'worktree', 'toolchain.json');
+    try { await lstat(derived); selected = derived; }
+    catch (error) { if (error.code !== 'ENOENT') throw error; }
+  }
+  const config_path = path.resolve(root, selected || 'tools/toolchain.json');
   try {
     const source = await readFile(config_path);
     const manifest = JSON.parse(source.toString('utf8'));
@@ -39,6 +50,26 @@ export async function loadToolchain(root, environment = process.env) {
         }
       } else if (!item.version || (item.version_policy && item.version_policy !== 'exact')) {
         throw new Error(`Missing or unsupported version policy: ${name}`);
+      }
+    }
+    if (config_path === path.resolve(root, '.tools', 'worktree', 'toolchain.json')) {
+      const origin = manifest.worktree;
+      if (origin?.schema_version !== 1 || origin.root !== await realpath(root)
+        || !path.isAbsolute(origin.tools_from ?? '') || origin.tools_from === origin.root
+        || !path.isAbsolute(origin.common_git_dir ?? '') || !path.isAbsolute(origin.source_config_path ?? '')
+        || !/^[a-f0-9]{64}$/.test(origin.tracked_config_sha256 ?? '')
+        || !/^[a-f0-9]{64}$/.test(origin.source_config_sha256 ?? '')) {
+        throw new Error('Invalid derived worktree configuration provenance. Prepare this worktree again after inspecting and removing its derived configuration.');
+      }
+      for (const [name, item] of Object.entries(manifest.tools)) {
+        if (!path.isAbsolute(name === 'gut' ? item.addons_path ?? '' : item.path ?? '')) {
+          throw new Error(`Derived tool path must be absolute: ${name}`);
+        }
+      }
+      const tracked = createHash('sha256').update(await readFile(path.join(root, 'tools', 'toolchain.json'))).digest('hex');
+      const original = createHash('sha256').update(await readFile(origin.source_config_path)).digest('hex');
+      if (tracked !== origin.tracked_config_sha256 || original !== origin.source_config_sha256) {
+        throw new Error('Derived worktree configuration is stale: tracked or source configuration changed. Inspect and remove its derived configuration before preparing again; use independent bootstrap for changed tool versions.');
       }
     }
     return { manifest, config_path, config_hash: createHash('sha256').update(source).digest('hex') };

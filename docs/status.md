@@ -1,5 +1,23 @@
 # 当前交付状态
 
+## 多会话 worktree 机制（2026-10-02）
+
+用户要求多个本地会话互不切换彼此的分支，并明确授权调试至推送/合并。固定机制见 [worktrees.md](worktrees.md)，AGENTS 已要求所有写入会话采用独立 checkout/唯一分支，main 保留原目录。工具准备只读借用固定依赖；launcher 隔离设置、日志和编辑器环境；公共锁串行执行合并与 main 同步。Git 共享 refs/stash/config 和代码合并冲突仍按文档协调。
+
+本轮原目录基线为 main `a0204b483ef47c98f5e30c89948cc0e463094cd3`；独立主开发 worktree 为 `parallel-workflow/Godot-project`，分支 `codex/worktree-workflow-v1`；工具子 agent 为 `worktree-tools/Godot-project`，分支 `codex/worktree-tools-v1`，交付提交 `1d9f31b1a97b5f87ce1a0657b8920ff2757af95b` 快进接入主开发分支。两处同时改文件时，root 的 AGENTS 暂存只改变自己的 index，工具修改只出现在子 checkout，原目录文件/index/HEAD 均不变；真实重复分支检出正确 exit128 拒绝。原历史 heart-health worktree 未改动。
+
+| 验收 | 本轮证据 | 结论 |
+| --- | --- | --- |
+| 准备与原子配置 | 主 `20261002T073627740Z-84911a4d-fb16-49e7-a634-8cebadcec715` / 子 `20261002T073627563Z-97f46daa-4420-46f5-8203-8d7ddbd1cff6` | 各自 ignored 配置/报告，来源与目标 pin/hash 校验通过 |
+| Node 回归 | 主 artifacts/worktree-handoff/combined-node-tests.log | 33/33，包括配置漂移、同源幂等/异源竞争、路径空格、失败报告、公共锁与 SIGINT/SIGTERM 孙进程取消、launcher 环境 |
+| 并行工具链 | 主 `20261002T073657372Z-f3b8e96d` / 子 `20261002T073653941Z-b25478cd` | 各 22/22；报告/快照/设置独立，进程终止；主 17 项哈希和子冻结提交 10 项哈希匹配 |
+| 完整游戏 | 主 `20261002T073736177Z-43682abe` | 14/14，134 tests / 2742 assertions，0 failure/error/skip，163 项当前源码哈希一致 |
+| 实际引擎与 launcher | 主 artifacts/worktree-handoff/engine-probe/report.json，run `20261002T073858669Z` | 两 checkout 真实 ja/en 写入及重启恢复、独立 .godot；实际编辑器/游戏有限启动无脚本错误。编辑器仅重排配置，本轮恢复自己 clean baseline，未提交业务改动 |
+
+主审核保存在主 worktree artifacts/worktree-handoff/local-review.json；独立测试 agent 复读原始工具报告/JUnit/日志并保存子 checkout artifacts/worktree-review/review.json。首次夹具错误保留并修复，见 [WORKTREE-TEST-FIXTURE](errors/ERR-20261002-WORKTREE-TEST-FIXTURE.md)。自动验收不代替用户手感结论。
+
+推送与合并按 [Git 流程](git-workflow.md) 核对实际最终 head、CI 原始 artifact 和源码哈希，并在公共集成锁内执行 Merge commit、远端 ancestry 核实及干净 main 的 fast-forward 同步。最终动态 PR/CI/merge commit 及证据保存位置在本轮 PR 与原目录 `artifacts/worktree-handoff/` 交接记录中；本地先行验收不能当作远端检查。归档两个本任务 worktree 前保存必要 ignored 证据，历史 worktree 保留。
+
 ## 第一版房间地图（2026-10-02）
 
 用户采纳地图方案并授权第一版实现。启动进入 A ↔ B ↔ C 与 C → A 的三房间灰盒世界；A/C 复用同一可编辑 TileMapLayer 模板，连接及探索按独立 room_id 管理。切房保留玩家生命、等级、冷却与保护，清理当前动作/运动和旧攻击；安全落点、相机边界、无效配置原子失败及旧出口事件均已验证。菜单可实际往返原训练场。F3–F5 跳房、F6 显示真实碰撞，R 重置本次地图探索。范围、编辑与必做 TODO 见 [map-system.md](map-system.md)；实现分支 `codex/map-system-v1` 的 PR 记录远端 CI 与合并证据。

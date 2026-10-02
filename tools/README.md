@@ -8,8 +8,19 @@
 4. 核对 `expected_check_ids`、`summary.missing`、每项检查的 `status` 和证据。失败时读取该项 `log_path`，查公共错误记录，再定位原因并复跑同一入口。
 5. 交接时给出 `run_id`、`status`、`report_path`、开放错误及未完成项。无需依赖上一个 agent 的聊天上下文。
 
+## Worktree 开发
+
+先按 [多会话开发](../docs/worktrees.md) 建立独立 checkout，再运行 `node tools/prepare-worktree.mjs --tools-from <同仓库已验证目录>`。本目录派生配置默认优先加载；显式 ASTRA_TOOLCHAIN_CONFIG 优先且错误不回退。只读借用固定版本工具，缓存、报告、设置留在自己的 checkout；版本升级用自己目录的 bootstrap。准备后执行工具与相应游戏验收。
+
+`node tools/play.mjs [--editor]` 共用配置读取器，linked checkout 默认隔离试玩设置，每次日志独立；主目录保留用户默认设置。合并/同步完整序列使用 `node tools/with-integration-lock.mjs -- <集成脚本命令>`；竞争退出 73，失败传播，未知遗留锁人工核实，不抢占。
+
+新增 Node 回归执行 `node --test tools/test-toolchain.mjs tools/test-worktree.mjs tools/test-worktree-runtime.mjs`，覆盖依赖准备、配置失败、Git 工作区隔离、公共锁及 launcher argv/environment。真实引擎和完整 game 验收独立执行。
+
 ## 文件与边界
 
+- `prepare-worktree.mjs`：同仓库 linked checkout 的固定工具只读借用与派生配置/准备报告，不创建分支、不安装依赖、不替代验收。
+- `with-integration-lock.mjs`：Git common-dir 公共原子锁，执行明确 argv 命令并释放自己的锁。
+- `test-worktree.mjs` / `test-worktree-runtime.mjs`：隔离机制的 Node 回归，使用独立临时 Git 仓库。
 - `toolchain.json`：固定工具版本、路径及来源，由主 agent 维护。
 - `bootstrap.mjs`：全新 macOS ARM64 环境的固定依赖准备，独立安装至 `.tools/ci/`，校验归档与包锁哈希，保存成功/失败日志与报告。
 - `toolchain-config.mjs`：本机和 CI 共用配置选择、路径解析与版本规则。`ASTRA_TOOLCHAIN_CONFIG` 指向实际配置；报告保留源配置与派生配置各自证据。

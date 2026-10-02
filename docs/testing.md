@@ -12,6 +12,10 @@
 - 地图版完整 GUT 进程预算为 150 秒。新增真实物理用例使原 90 秒首轮真实超时，证据保留在 ERR-20261002-MAP-VALIDATION.md；提高有限预算不改变检查集合、断言、超时失败和原始 XML 要求。
 - 本机已验证的执行方式：在获准的沙箱外环境运行相同入口。沙箱内 Godot 用户缓存与 Python fixture 文件访问曾失败，见 [ENV-0004](errors/ENV-0004.md)。新 agent 应先读取该记录；权限失败时先核对执行环境，保持测试预期及 `HOME` 不变。
 
+## 并行验收
+
+写入/运行开发任务按 [worktrees.md](worktrees.md) 使用独立 checkout。工具准备和单测入口为 `node tools/prepare-worktree.mjs --tools-from <同仓库已验证目录>` 与 `node --test tools/test-toolchain.mjs tools/test-worktree.mjs tools/test-worktree-runtime.mjs`；随后运行既有 scope 验收。所有报告、快照、设置和引擎日志留在实际 checkout，交接写明绝对目录与 run_id。不要跨目录读取 latest.json，也不把依赖准备或故意失败 fixture 计为真实游戏通过。共享集成操作另用公共锁。
+
 ## 执行与交接
 
 1. 读 `AGENTS.md`、工具配置、`artifacts/test-runs/latest.json` 及其指向的报告。

@@ -12,6 +12,8 @@ node tools/play.mjs
 
 入口使用 `.tools/` 中已验证的稳定版，不使用系统里现有的开发版。也可以用该稳定版编辑器导入 `project.godot`。当前运行环境依赖本机已准备的 `.tools/` 与 `/usr/local/bin/node`；这是本地可玩的工程，尚未打包成独立发行应用。
 
+开发多项任务时，每个会话使用独立 worktree 和功能分支；工具准备、编辑器启动及合并规则见 [多会话开发](docs/worktrees.md)。
+
 ## 操作
 
 | 操作 | 按键 |

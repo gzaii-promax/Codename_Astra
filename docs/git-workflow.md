@@ -1,5 +1,10 @@
 # GitHub 与分支交接
 
+## 当前多会话约定（2026-10-02）
+
+所有写入开发在每会话独立 worktree/唯一功能分支内完成，原目录保留 main。创建、工具准备、Godot 启动、测试证据、公共串行集成锁及安全归档的固定流程见 [worktrees.md](worktrees.md)，后续 Agent 必须执行。持续提交/合并授权适用；并行不意味着可以操作别人的 checkout 或同时推进 main。
+
+
 ## 地图首版交接（2026-10-02）
 
 本轮用户明确授权已采纳的地图方案实施，持续提交与合并授权适用。实现分支 `codex/map-system-v1` 从已整合 `main` 的 `5d3310364a162a0021de7ca71debc0328d68566c` 创建，[PR #10](https://github.com/gzaii-promax/Codename_Astra/pull/10) 以 main 为 base；不沿用历史功能草稿限制。最终本地 game `20261002T070747379Z-3e11afa4`、真实 13 图及原目录启动已核实，详见 [status.md](status.md)。首次远端 CI 失败已保留并修复精确物理帧测试，见 [MAP-CI](errors/ERR-20261002-MAP-CI.md)。远端检查必须核对该 PR 最新 head、原始 artifact 与源码哈希，再用 Merge commit 合并并同步本地 main；用户手感仍独立待验收，不发布安装包。

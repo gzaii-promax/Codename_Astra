@@ -16,7 +16,7 @@ const fixture = async (t) => {
 };
 
 test('local configuration retains exact versions and has official pinned archives', async () => {
-  const { manifest, config_path, config_hash } = await loadToolchain(root, {});
+  const { manifest, config_path, config_hash } = await loadToolchain(root, { ASTRA_TOOLCHAIN_CONFIG: 'tools/toolchain.json' });
   assert.equal(config_path, path.join(root, 'tools', 'toolchain.json'));
   assert.equal(config_hash, await fileHash(config_path));
   assert.equal(manifest.tools.git.version, '2.54.0');
@@ -27,7 +27,7 @@ test('local configuration retains exact versions and has official pinned archive
 });
 
 test('default Python uses exact standalone release rather than any host Python; explicit override remains available', async () => {
-  const { manifest } = await loadToolchain(root, {});
+  const { manifest } = await loadToolchain(root, { ASTRA_TOOLCHAIN_CONFIG: 'tools/toolchain.json' });
   const source = pythonRuntimeSource(manifest, { PATH: '/usr/bin' });
   assert.equal(source.kind, 'archive');
   assert.equal(source.release, '20260929');
@@ -41,7 +41,7 @@ test('default Python uses exact standalone release rather than any host Python; 
 
 test('relative and absolute explicit configurations load actual bytes and SHA256', async (t) => {
   const directory = await fixture(t);
-  const { manifest } = await loadToolchain(root, {});
+  const { manifest } = await loadToolchain(root, { ASTRA_TOOLCHAIN_CONFIG: 'tools/toolchain.json' });
   manifest.tools.git = { path: '/usr/bin/git', version_policy: 'minimum', min_version: '2.39.0' };
   delete manifest.tools.gh;
   const source = JSON.stringify(manifest) + '\n';
@@ -61,7 +61,7 @@ test('bad config, incomplete tools and underspecified minimum policies reject', 
   const file = path.join(directory, 'tools', 'toolchain.json');
   await writeFile(file, '{');
   await assert.rejects(loadToolchain(directory, {}), (error) => error instanceof SyntaxError && error.config_path === file && error.message.includes(file));
-  const { manifest } = await loadToolchain(root, {});
+  const { manifest } = await loadToolchain(root, { ASTRA_TOOLCHAIN_CONFIG: 'tools/toolchain.json' });
   const variations = [
     { ...manifest, schema_version: 2 },
     { ...manifest, tools: { ...manifest.tools, python: undefined } },
@@ -137,7 +137,7 @@ test('bootstrap prerequisite failure saves readable evidence and removes stale c
   const directory = await fixture(t);
   await mkdir(path.join(directory, 'tools'));
   for (const file of ['bootstrap.mjs', 'toolchain-config.mjs', 'requirements-gdtoolkit.lock']) await cp(path.join(root, 'tools', file), path.join(directory, 'tools', file));
-  const { manifest } = await loadToolchain(root, {});
+  const { manifest } = await loadToolchain(root, { ASTRA_TOOLCHAIN_CONFIG: 'tools/toolchain.json' });
   manifest.tools.node.version = '0.0.0';
   await writeFile(path.join(directory, 'tools', 'toolchain.json'), JSON.stringify(manifest));
   await mkdir(path.join(directory, '.tools', 'ci'), { recursive: true });
