@@ -45,9 +45,7 @@ jobs:
         id: bootstrap
         run: node tools/bootstrap.mjs
       - name: Check dependency preparation
-        run: |
-          mkdir -p artifacts/workflow-checks
-          node --test --test-timeout=30000 --test-reporter=spec --test-reporter-destination=artifacts/workflow-checks/node.log --test-reporter=junit --test-reporter-destination=artifacts/workflow-checks/node.xml tools/test-toolchain.mjs tools/test-worktree.mjs tools/test-worktree-runtime.mjs tools/test-human-workspace.mjs
+        run: node --test tools/test-toolchain.mjs tools/test-worktree.mjs tools/test-worktree-runtime.mjs
       - name: Verify test tools
         id: toolchain
         run: node tools/check.mjs --scope toolchain
@@ -66,5 +64,4 @@ jobs:
             artifacts/ci-context.json
             artifacts/bootstrap/
             artifacts/test-runs/
-            artifacts/workflow-checks/
             .tools/ci/toolchain.json

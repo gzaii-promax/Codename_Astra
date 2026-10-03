@@ -55,12 +55,3 @@ GitHub CLI 2.102.0 已从官方 macOS arm64 发布包安装到 `.tools/gh-2.102.
 仓库为私有 `gzaii-promax/Codename_Astra`，Git/PR 流程见 [docs/git-workflow.md](../docs/git-workflow.md)。GitHub connector 和本机 CLI 各自有权限；连接能返回 profile 不代表能访问当前私有仓库。不要因 connector 404 就判断仓库不存在。
 
 CI 已获实现授权，先在 macos-15 ARM64 runner 上实际验证全新安装。Node 由固定官方 setup action 准备，Python 使用固定 Astral python-build-standalone 归档及 SHA-256；bootstrap 精确校验后创建 venv；Godot/GUT 归档和 pip 包使用 SHA-256。CI 的 Git 使用最低版本策略并记录实际值；不安装 gh、不获取个人凭据。是否已跑通及实际 run 见 docs/status.md，不将工作流文件存在等同于成功。
-
-## 人类创作与资源守卫
-
-- `workspace-state.mjs`：共用登记/活动/资源占用、进程检查、交接快照与持锁归属，使用现有 Git common-dir。
-- `workspace.mjs`：`setup-human --path <绝对路径> --base <完整SHA>`、`status`、`handoff --saved --closed`、`check-handoff --report <绝对报告>`、`edit --files <资源> -- <命令>`、集成锁内 `sync --root <目标> --revision <SHA> --saved --closed`。未知参数失败，不覆盖已有工作区/登记；源码入口根目录由脚本位置决定，显式 root 规范化。
-- `play.mjs`：普通试玩登记目录活动；linked 编辑器全资源独占；原目录拒绝编辑器。配置/日志继续各自隔离。语言设置变量并非完整 user:// 隔离。
-- `test-human-workspace.mjs`：独立真实 Git 夹具及受控进程观测，故意失败、争用、取消、交接漂移、冲突、脏目录保留与快进。与原三个 Node suite 一起运行，CI 及源码哈希均覆盖新工具。
-
-完整使用、角色边界、未知锁恢复和用户进入方法见 [human-editing.md](../docs/human-editing.md)。工作区守卫不阻止原生启动/手工写入，不能读取未保存内存状态。

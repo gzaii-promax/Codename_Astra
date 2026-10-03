@@ -13,12 +13,6 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 async function repository(t) {
   const base = await realpath(await mkdtemp(path.join(os.tmpdir(), 'astra runtime ')));
   t.after(() => rm(base, { recursive: true, force: true }));
-  // Fixture process inventory is isolated from the user's live editor. Ancestry uses real ps.
-  const inventory=path.join(base,'inventory'); await mkdir(inventory);
-  await writeFile(path.join(inventory,'ps'),'#!/bin/sh\nif [ "$1" = "-axo" ]; then exit 0; fi\nexec /bin/ps "$@"\n');
-  await chmod(path.join(inventory,'ps'),0o755);
-  const oldPath=process.env.PATH; process.env.PATH=inventory+path.delimiter+oldPath;
-  t.after(()=>{process.env.PATH=oldPath;});
   const primary = path.join(base, 'primary'), linked = path.join(base, 'linked checkout');
   await mkdir(primary);
   await execute('git', ['init', '-b', 'main'], { cwd: primary });
@@ -70,7 +64,7 @@ async function launcher(t) {
   const repo = await repository(t);
   for (const checkout of [repo.primary, repo.linked]) {
     await mkdir(path.join(checkout, 'tools'));
-    for (const file of ['play.mjs', 'toolchain-config.mjs', 'workspace-state.mjs']) await cp(path.join(root, 'tools', file), path.join(checkout, 'tools', file));
+    for (const file of ['play.mjs', 'toolchain-config.mjs']) await cp(path.join(root, 'tools', file), path.join(checkout, 'tools', file));
     const engine = path.join(checkout, 'fake-godot');
     await writeFile(engine, `#!/bin/sh\nexec '${process.execPath}' '${path.join(checkout, 'fake-engine.mjs')}' "$@"\n`);
     await chmod(engine, 0o755);

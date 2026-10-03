@@ -216,7 +216,7 @@ try {
     report.toolchain_config = { path: relative(configuration.config_path), sha256: configuration.config_hash, manifest };
     return { observed_status: 'pass', manifest_path: relative(configuration.config_path), schema_version: 1 };
   });
-  for (const sourcePath of ['tools/check.mjs', 'tools/check-game.mjs', 'tools/toolchain-config.mjs', 'tools/bootstrap.mjs', 'tools/test-toolchain.mjs', 'tools/prepare-worktree.mjs', 'tools/test-worktree.mjs', 'tools/test-worktree-runtime.mjs', 'tools/with-integration-lock.mjs', 'tools/play.mjs', 'tools/workspace-state.mjs', 'tools/workspace.mjs', 'tools/test-human-workspace.mjs', 'docs/human-editing.md', 'docs/design-baselines.md', 'tools/toolchain.json', 'tools/requirements-gdtoolkit.lock', '.github/workflows/check.yml', 'tools/read-junit.py', 'docs/testing.md', 'docs/worktrees.md', 'AGENTS.md']) {
+  for (const sourcePath of ['tools/check.mjs', 'tools/check-game.mjs', 'tools/toolchain-config.mjs', 'tools/bootstrap.mjs', 'tools/test-toolchain.mjs', 'tools/prepare-worktree.mjs', 'tools/test-worktree.mjs', 'tools/test-worktree-runtime.mjs', 'tools/with-integration-lock.mjs', 'tools/play.mjs', 'tools/toolchain.json', 'tools/requirements-gdtoolkit.lock', '.github/workflows/check.yml', 'tools/read-junit.py', 'docs/testing.md', 'docs/worktrees.md', 'AGENTS.md']) {
     report.code_state.files_sha256[sourcePath] = createHash('sha256').update(await readFile(path.join(root, sourcePath))).digest('hex');
   }
   const tool = (name) => toolPath(root, manifest, name);

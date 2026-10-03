@@ -20,8 +20,7 @@
 
 | 工作 | 入口 |
 | --- | --- |
-| 开发隔离、工具借用、编辑器、集成锁、归档 | [worktrees.md](worktrees.md)、[人类创作交接](human-editing.md) |
-| 有意调参、地图修改与独立测试基线 | [design-baselines.md](design-baselines.md) |
+| 开发隔离、工具借用、编辑器、集成锁、归档 | [worktrees.md](worktrees.md) |
 | Commit、PR、合并与 main 同步 | [git-workflow.md](git-workflow.md) |
 | 运行验收、读取报告、失败复跑与证据边界 | [testing.md](testing.md)、[tests/README.md](../tests/README.md) |
 | 安装、检查入口和工具职责 | [tools/README.md](../tools/README.md)、[tools/toolchain.json](../tools/toolchain.json) |

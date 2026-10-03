@@ -24,13 +24,6 @@
 | `game/test_map_world.gd` | 三房间五条有向连接、模板复用与独立探索、安全落点、真实 Area2D/输入通行、失败原子回退、跨房间角色状态保留、暂停/死亡阻止通行、重置、相机边界、能力门槛扩展、三语 HUD/菜单与训练场往返 | `MapRegistry`、`MapRoom`、`MapWorld`、持久 `PlayerCharacter`、实际 physics frames、`TrainingHUD` |
 | `fixtures/localization/` | 手写独立验收数据：默认 en、三语局部译文、新增 fr、损坏目录与无效清单 | 独立 JSON 数据，不从业务实现自动复制预期 |
 | `manifest.json` | 审核后的完整预期 case 名称，拒绝空执行或漏执行 | runner 和 JUnit 对照 |
-| `baselines/design-v1.json`、`support/design_baseline.gd` | 独立设计/布局预期与只读 JSON 读取器；不从业务生成期望 | 尺度/地图 GUT；随真实快照复制和哈希 |
-
-## 设计变化与机制回归
-
-自 2026-10-03 起，尺度/地图精确预期集中在测试独立维护的 [基线数据](baselines/README.md)，操作流程见 [design-baselines.md](../docs/design-baselines.md)。`DESIGN_BASELINE` 检查当前配置与已采纳规则/样例布局一致性，`MECHANISM` 检查实际物理、输入和状态关系；同一 case 可兼有两者，完整 manifest 不跳过任一类。
-
-用户有意调参或保存地图后，保留其创作状态，先交接到 agent 独立工作区并执行原验收，记录失败及新旧差异；根据具体授权审查基线 diff，再同步模块文档和复验。不能把用户的新值改回旧值，也不能读业务值自动改 JSON、删测试或放宽精度换取通过。样例坐标只是已交付布局的技术预期，手感仍待用户审核。具体交接字段、分类与人工批准步骤在上述流程中维护。
 
 ## 验收基线与可证明范围
 

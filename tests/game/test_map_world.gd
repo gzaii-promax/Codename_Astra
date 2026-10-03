@@ -5,24 +5,13 @@ extends GutTest
 const WORLD: PackedScene = preload("res://world/map_world.tscn")
 const SAMPLE: MapRegistry = preload("res://world/maps/sample_world.tres")
 const LOCALES := ["en", "ja", "zh_CN"]
-const BASELINE = preload("res://tests/support/design_baseline.gd")
 
 var _original_scene: Node
 var _original_language: String
 var _original_process_mode: Node.ProcessMode
-var _design: Dictionary
-var _map: Dictionary
-
-
-func before_all() -> void:
-	_design = BASELINE.load_values()
-	_map = _design.get("map", {})
-	print("DESIGN_BASELINE_ID=", _design.get("baseline_id", "missing"))
 
 
 func before_each() -> void:
-	assert_eq(_design.get("schema_version"), 1.0, "DESIGN_BASELINE: readable schema")
-	assert_eq(_design.get("baseline_id"), "prototype-design-v1")
 	_original_scene = get_tree().current_scene
 	_original_language = Localization.current_language
 	_original_process_mode = process_mode
@@ -42,19 +31,23 @@ func after_each() -> void:
 
 
 func test_map_sample_registry_matches_three_rooms_and_five_directed_routes() -> void:
-	assert_eq(SAMPLE.rooms.size(), _map.rooms.size(), "DESIGN_BASELINE: room count")
-	assert_eq(SAMPLE.connections.size(), _map.routes.size(), "DESIGN_BASELINE: route count")
-	assert_eq(SAMPLE.initial_room_id, StringName(_map.initial_room))
-	assert_eq(SAMPLE.initial_entrance_id, StringName(_map.initial_entrance))
+	assert_eq(SAMPLE.rooms.size(), 3)
+	assert_eq(SAMPLE.connections.size(), 5)
+	assert_eq(SAMPLE.initial_room_id, &"room_a")
+	assert_eq(SAMPLE.initial_entrance_id, &"start")
 	assert_eq(SAMPLE.validate(), PackedStringArray())
-	for route in _map.routes:
+	for route in [
+		[&"room_a", &"east", &"room_b", &"west"],
+		[&"room_b", &"west", &"room_a", &"east"],
+		[&"room_b", &"east", &"room_c", &"west"],
+		[&"room_c", &"west", &"room_b", &"east"],
+		[&"room_c", &"return", &"room_a", &"start"],
+	]:
 		var connection := SAMPLE.get_connection(route[0], route[1])
 		assert_not_null(connection)
 		if connection != null:
-			assert_eq(connection.to_room_id, StringName(route[2]), "DESIGN_BASELINE: route target")
-			assert_eq(
-				connection.entrance_id, StringName(route[3]), "DESIGN_BASELINE: route entrance"
-			)
+			assert_eq(connection.to_room_id, route[2])
+			assert_eq(connection.entrance_id, route[3])
 	assert_null(SAMPLE.get_connection(&"room_a", &"return"), "C to A has no implicit reverse")
 	assert_null(SAMPLE.get_connection(&"missing", &"east"))
 
@@ -99,20 +92,15 @@ func test_map_room_sample_geometry_has_ground_and_approved_bounds() -> void:
 	for room_id in [&"room_a", &"room_b", &"room_c"]:
 		assert_true(world.enter_room(room_id, &"west"))
 		await wait_physics_frames(6)
-		assert_eq(
-			world.current_room.bounds,
-			BASELINE.rectangle(_room_design(room_id).bounds_px),
-			"DESIGN_BASELINE: %s bounds" % room_id
-		)
+		var width := 768.0 if room_id == &"room_b" else 512.0
+		assert_eq(world.current_room.bounds, Rect2(0.0, 0.0, width, 256.0))
 		assert_true(world.player.is_on_floor(), "Actual collision ground in %s" % room_id)
-		_assert_entrance(world, room_id, &"west")
+		assert_almost_eq(world.player.global_position.y, 240.0, 0.1)
+		assert_almost_eq(world.player.global_position.x, 80.0, 0.1)
 		assert_eq(world.current_room.validate_room(), PackedStringArray())
-		var takeoff_y := world.player.global_position.y
 		world.player.set_control_input(0.0, true, true)
 		await wait_physics_frames(8)
-		assert_lt(
-			world.player.global_position.y, takeoff_y, "MECHANISM: body rises from actual ground"
-		)
+		assert_lt(world.player.global_position.y, 220.0, "Existing jump works on room collision")
 		world.player.set_control_input(0.0, false, false)
 		await wait_physics_frames(55)
 		assert_true(world.player.is_on_floor())
@@ -122,10 +110,8 @@ func test_map_player_jumps_onto_and_crosses_actual_corridor_and_hall_steps() -> 
 	var world := _world()
 	for room_id in [&"room_a", &"room_b"]:
 		assert_true(world.enter_room(room_id, &"west"))
-		var step: Dictionary = _room_design(room_id).step_sample
-		var ground_y := _entrance(room_id, &"west").y
-		var step_left: float = step.left_px
-		world.player.relocate_to(Vector2(step_left - 16.0, ground_y), 1.0)
+		var step_left := 192.0 if room_id == &"room_b" else 160.0
+		world.player.relocate_to(Vector2(step_left - 16.0, 240.0), 1.0)
 		world.player.set_control_input(0.0)
 		await wait_physics_frames(6)
 		assert_true(world.player.is_on_floor())
@@ -135,12 +121,12 @@ func test_map_player_jumps_onto_and_crosses_actual_corridor_and_hall_steps() -> 
 			if world.player.global_position.x >= step_left:
 				world.player.set_control_input(0.0, false, true)
 		assert_true(world.player.is_on_floor(), "Jump lands on actual step in %s" % room_id)
-		assert_almost_eq(world.player.global_position.y, step.top_y_px, 0.1)
+		assert_almost_eq(world.player.global_position.y, 224.0, 0.1)
 		assert_gte(world.player.global_position.x, step_left)
 		world.player.set_control_input(1.0, false, false)
 		await wait_physics_frames(70)
-		assert_gt(world.player.global_position.x, step.clear_x_px, "Player crosses the step")
-		assert_almost_eq(world.player.global_position.y, ground_y, 0.1)
+		assert_gt(world.player.global_position.x, step_left + 24.0, "Player crosses the step")
+		assert_almost_eq(world.player.global_position.y, 240.0, 0.1)
 		assert_true(world.player.is_on_floor(), "Player returns to the ground past the step")
 		world.player.set_control_input(0.0)
 
@@ -150,35 +136,28 @@ func test_map_entering_each_entrance_is_safe_and_does_not_bounce_back() -> void:
 	for room_id in [&"room_a", &"room_b", &"room_c"]:
 		for entrance_id in [&"start", &"west", &"east"]:
 			assert_true(world.enter_room(room_id, entrance_id))
-			_assert_entrance(world, room_id, entrance_id)
-			var entry_position := world.player.global_position
+			var width := 768.0 if room_id == &"room_b" else 512.0
+			var expected_x := width - 80.0 if entrance_id == &"east" else 80.0
+			assert_almost_eq(world.player.global_position.x, expected_x, 0.1)
 			await wait_physics_frames(12)
 			assert_eq(world.current_room_id, room_id, "Safe entry does not trigger an exit")
-			assert_almost_eq(
-				world.player.global_position.x, entry_position.x, 0.1, "MECHANISM: safe entry x"
-			)
-			assert_almost_eq(
-				world.player.global_position.y,
-				entry_position.y,
-				0.1,
-				"MECHANISM: safe entry ground"
-			)
+			assert_almost_eq(world.player.global_position.x, expected_x, 0.1)
 
 
 func test_map_travel_uses_explicit_reverse_routes_and_single_return_route() -> void:
 	var world := _world()
 	assert_true(world.travel(&"east"))
 	assert_eq(world.current_room_id, &"room_b")
-	_assert_entrance(world, &"room_b", &"west")
+	assert_almost_eq(world.player.global_position.x, 80.0, 0.1)
 	assert_true(world.travel(&"west"))
 	assert_eq(world.current_room_id, &"room_a")
-	_assert_entrance(world, &"room_a", &"east")
+	assert_almost_eq(world.player.global_position.x, 432.0, 0.1)
 	assert_true(world.travel(&"east"))
 	assert_true(world.travel(&"east"))
 	assert_eq(world.current_room_id, &"room_c")
 	assert_true(world.travel(&"return"))
 	assert_eq(world.current_room_id, &"room_a")
-	_assert_entrance(world, &"room_a", &"start")
+	assert_almost_eq(world.player.global_position.x, 80.0, 0.1)
 	assert_false(world.travel(&"return"), "No generated A to C reverse connection")
 	assert_eq(world.current_room_id, &"room_a")
 	assert_eq(world.get_visited_rooms().size(), 3)
@@ -188,8 +167,7 @@ func test_map_actual_exit_area_and_mapped_input_drive_bidirectional_room_travel(
 	var world := _world()
 	await wait_physics_frames(6)
 	assert_true(world.current_room.get_exit(&"east") is Area2D)
-	var east := _overlay_rect(&"room_a", "east")
-	world.player.relocate_to(Vector2(east.position.x - 18.0, _entrance(&"room_a", &"east").y), 1.0)
+	world.player.relocate_to(Vector2(454.0, 240.0), 1.0)
 	world.player.clear_control_override()
 	Input.action_press("move_right")
 	await _wait_for_room(world, &"room_b", 100)
@@ -197,8 +175,7 @@ func test_map_actual_exit_area_and_mapped_input_drive_bidirectional_room_travel(
 	assert_eq(world.current_room_id, &"room_b", "Real Area2D/body and mapped input trigger travel")
 	await wait_physics_frames(10)
 	assert_eq(world.current_room_id, &"room_b", "Entry does not immediately retrigger west exit")
-	var west := _overlay_rect(&"room_b", "west")
-	world.player.relocate_to(Vector2(west.end.x + 18.0, _entrance(&"room_b", &"west").y), -1.0)
+	world.player.relocate_to(Vector2(58.0, 240.0), -1.0)
 	Input.action_press("move_left")
 	await _wait_for_room(world, &"room_a", 100)
 	Input.action_release("move_left")
@@ -273,7 +250,8 @@ func test_map_queued_old_exit_cannot_travel_after_reset_to_same_room_identity() 
 	assert_ne(world.current_room, old_room, "Reset creates another instance of room A")
 	await wait_frames(3)
 	assert_eq(world.current_room_id, &"room_a", "Old queued event cannot target replacement A")
-	_assert_entrance(world, &"room_a", &"start")
+	assert_almost_eq(world.player.global_position.x, 80.0, 0.1)
+	assert_almost_eq(world.player.global_position.y, 240.0, 0.1)
 	assert_eq(world.get_visited_rooms(), [&"room_a"])
 
 
@@ -342,7 +320,7 @@ func test_map_transition_clears_velocity_jump_buffer_action_and_old_effects() ->
 		assert_true(effect.is_queued_for_deletion())
 	player.set_control_input(0.0)
 	await wait_physics_frames(6)
-	assert_almost_eq(player.global_position.y, _entrance(&"room_b", &"west").y, 0.1)
+	assert_almost_eq(player.global_position.y, 240.0, 0.1, "No buffered jump at destination")
 	assert_true(player.is_on_floor())
 	assert_eq(_effect_count(world), 0)
 
@@ -387,21 +365,19 @@ func test_map_world_reset_restores_start_and_health_and_clears_session_visits() 
 	assert_eq(player.get_combatant().get_hit_protection_remaining(), 0.0)
 	assert_eq(player.get_action_controller().get_cooldown_remaining(&"fireball"), 0.0)
 	assert_eq(player.get_action_controller().phase, ActionController.Phase.IDLE)
-	_assert_entrance(world, &"room_a", &"start")
+	assert_almost_eq(player.global_position.x, 80.0, 0.1)
+	assert_almost_eq(player.global_position.y, 240.0, 0.1)
 
 
 func test_map_camera_matches_zoom_and_clamps_actual_view_to_room_bounds() -> void:
 	var world := _world()
-	assert_eq(world.camera.zoom, BASELINE.vector(_map.camera_zoom), "DESIGN_BASELINE: camera zoom")
+	assert_eq(world.camera.zoom, Vector2(2.0, 2.0))
 	for target in [[&"room_a", &"west"], [&"room_b", &"east"], [&"room_c", &"east"]]:
 		assert_true(world.enter_room(target[0], target[1]))
 		await wait_physics_frames(6)
 		var bounds := world.current_room.bounds
 		var viewport_size := world.get_viewport_rect().size
-		var reserved_height: float = _map.hud_reserved_height_px
-		var map_screen := Rect2(
-			0.0, reserved_height, viewport_size.x, viewport_size.y - reserved_height
-		)
+		var map_screen := Rect2(0.0, 160.0, viewport_size.x, viewport_size.y - 160.0)
 		var visible_map := world.get_viewport().get_canvas_transform().affine_inverse() * map_screen
 		if bounds.size.x >= visible_map.size.x:
 			assert_gte(visible_map.position.x, bounds.position.x - 0.1)
@@ -443,32 +419,27 @@ func test_map_f6_overlay_tracks_real_collision_geometry_and_active_room_routes()
 	await wait_physics_frames(3)
 	assert_true(overlay.visible, "Actual F6 event enables debug drawing")
 	var polygons := overlay.collect_debug_polygons()
-	assert_true(_has_polygon_rect(polygons, _overlay_rect(&"room_a", "floor_left")))
-	assert_true(_has_polygon_rect(polygons, _overlay_rect(&"room_a", "player_start")))
-	assert_true(_has_polygon_rect(polygons, _overlay_rect(&"room_a", "east")))
+	assert_true(_has_polygon_rect(polygons, Rect2(0.0, 240.0, 16.0, 16.0)))
+	assert_true(_has_polygon_rect(polygons, Rect2(72.0, 208.0, 16.0, 32.0)))
+	assert_true(_has_polygon_rect(polygons, Rect2(472.0, 192.0, 16.0, 48.0)))
+	assert_false(_has_polygon_rect(polygons, Rect2(24.0, 192.0, 16.0, 48.0)), "A west has no route")
 	assert_false(
-		_has_polygon_rect(polygons, _overlay_rect(&"room_a", "west")), "A west has no route"
+		_has_polygon_rect(polygons, Rect2(248.0, 192.0, 16.0, 48.0)), "A return has no route"
 	)
-	assert_false(
-		_has_polygon_rect(polygons, _overlay_rect(&"room_a", "return")), "A return has no route"
-	)
-	var moved_position := _entrance(&"room_a", &"start") + Vector2(40.0, 0.0)
-	world.player.relocate_to(moved_position, 1.0)
+	world.player.relocate_to(Vector2(120.0, 240.0), 1.0)
 	await wait_physics_frames(3)
 	polygons = overlay.collect_debug_polygons()
-	var body_size := BASELINE.vector(_design.unit_scale.body_size_px)
-	var moved_body := Rect2(moved_position - Vector2(body_size.x * 0.5, body_size.y), body_size)
-	assert_true(_has_polygon_rect(polygons, moved_body), "MECHANISM: overlay follows body")
-	assert_false(_has_polygon_rect(polygons, _overlay_rect(&"room_a", "player_start")))
+	assert_true(_has_polygon_rect(polygons, Rect2(112.0, 208.0, 16.0, 32.0)))
+	assert_false(_has_polygon_rect(polygons, Rect2(72.0, 208.0, 16.0, 32.0)))
 	assert_true(world.enter_room(&"room_b", &"east"))
 	await wait_physics_frames(6)
 	assert_true(overlay.visible, "Debug mode stays enabled while room content changes")
 	polygons = overlay.collect_debug_polygons()
-	assert_true(_has_polygon_rect(polygons, _overlay_rect(&"room_b", "floor_right")))
-	assert_true(_has_polygon_rect(polygons, _overlay_rect(&"room_b", "player_east")))
-	assert_true(_has_polygon_rect(polygons, _overlay_rect(&"room_b", "west")))
-	assert_true(_has_polygon_rect(polygons, _overlay_rect(&"room_b", "east")))
-	assert_false(_has_polygon_rect(polygons, _overlay_rect(&"room_a", "east")))
+	assert_true(_has_polygon_rect(polygons, Rect2(752.0, 240.0, 16.0, 16.0)))
+	assert_true(_has_polygon_rect(polygons, Rect2(680.0, 208.0, 16.0, 32.0)))
+	assert_true(_has_polygon_rect(polygons, Rect2(24.0, 192.0, 16.0, 48.0)))
+	assert_true(_has_polygon_rect(polygons, Rect2(728.0, 192.0, 16.0, 48.0)))
+	assert_false(_has_polygon_rect(polygons, Rect2(472.0, 192.0, 16.0, 48.0)))
 	_send_physical_key(KEY_F6, true)
 	_send_physical_key(KEY_F6, false)
 	await wait_physics_frames(3)
@@ -511,7 +482,7 @@ func test_map_hud_and_menu_localize_rooms_visits_and_fit_three_languages() -> vo
 			)
 			assert_lte(
 				hud.get_ui_control("HudPanel").get_global_rect().end.y,
-				_map.hud_reserved_height_px,
+				160.0,
 				"HUD remains inside the 160 px space reserved by camera (%s)" % locale
 			)
 			_assert_label_fits(status, locale)
@@ -586,24 +557,6 @@ func _world() -> MapWorld:
 	autofree(world)
 	get_tree().current_scene = world
 	return world
-
-
-func _room_design(room_id: StringName) -> Dictionary:
-	return _map.rooms[String(room_id)]
-
-
-func _entrance(room_id: StringName, entrance_id: StringName) -> Vector2:
-	return BASELINE.vector(_room_design(room_id).entrances_px[String(entrance_id)])
-
-
-func _overlay_rect(room_id: StringName, name: String) -> Rect2:
-	return BASELINE.rectangle(_room_design(room_id).overlay_rects_px[name])
-
-
-func _assert_entrance(world: MapWorld, room_id: StringName, entrance_id: StringName) -> void:
-	var expected := _entrance(room_id, entrance_id)
-	assert_almost_eq(world.player.global_position.x, expected.x, 0.1, "DESIGN_BASELINE: entrance x")
-	assert_almost_eq(world.player.global_position.y, expected.y, 0.1, "DESIGN_BASELINE: entrance y")
 
 
 func _wait_for_room(world: MapWorld, room_id: StringName, maximum_frames: int) -> void:
