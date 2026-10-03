@@ -9,6 +9,7 @@
 | 房间地图 | [map-system.md](map-system.md)：三房间、有向连接、共享模板与独立探索；后续必做 TODO 也在此维护 | [world](../world/README.md)、[房间编辑](../world/rooms/README.md)、[世界配置](../world/maps/README.md) |
 | 尺度与移动 | [scale-movement-v4.md](scale-movement-v4.md)：1 U=16 px、3.5 U/s、可变跳跃；坐标表是训练场布局 | [player](../player/README.md)、[shared](../shared/README.md) |
 | 心生命与伤害 | [heart-health-v5.md](heart-health-v5.md)：当前心单位、伤害许可与归零回满；覆盖旧生命版减伤/血条 | [combat](../combat/README.md)、[world](../world/README.md)、[ui](../ui/README.md) |
+| Inspector 配置归属 | [inspector-configuration.md](inspector-configuration.md)：保存覆盖、默认值、运行状态、程序管理例外与真实保存往返 | [player](../player/README.md)、[combat](../combat/README.md)、[world](../world/README.md) |
 | 受击保护 | [hit-protection.md](hit-protection.md)：主角 0.5 秒、其他角色默认零秒及完整边界 | [combat](../combat/README.md)、[shared](../shared/README.md)、[player](../player/README.md) |
 | 技能与阶段 | 已采纳扩展约束见 [AGENTS](../AGENTS.md)；当前属性、单位、等级解析和行为接口见模块文档 | [skills](../skills/README.md) |
 | 语言与菜单 | [localization-v2.md](localization-v2.md)：多语言需求与原验收边界；原 draft-only 已被后续整合授权取代 | [localization](../localization/README.md)、[ui](../ui/README.md)、[字体](../assets/fonts/README.md) |
@@ -23,6 +24,7 @@
 | 开发隔离、工具借用、编辑器、集成锁、归档 | [worktrees.md](worktrees.md) |
 | Commit、PR、合并与 main 同步 | [git-workflow.md](git-workflow.md) |
 | 运行验收、读取报告、失败复跑与证据边界 | [testing.md](testing.md)、[tests/README.md](../tests/README.md) |
+| 设计数值变更与独立机制回归 | [design-baselines.md](design-baselines.md)、[tests/baselines/README.md](../tests/baselines/README.md) |
 | 安装、检查入口和工具职责 | [tools/README.md](../tools/README.md)、[tools/toolchain.json](../tools/toolchain.json) |
 | GitHub Actions、原始 artifact 与合并门槛 | [ci.md](ci.md) |
 | 查错、用户反馈与状态索引 | [errors/README.md](errors/README.md) |

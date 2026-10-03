@@ -20,3 +20,7 @@
 真实初始化覆盖另在 [PROTECTION-INSPECTOR](ERR-20261003-PROTECTION-INSPECTOR.md) 跟踪；本夹具问题不能解释没有继承夹具的入树前代码配置也被改写。修复后立即复跑完整 game 入口，run_id `20261003T123733949Z-2ef5caf5`：14/14 checks、138 tests / 2813 assertions、0 failures/errors/skipped；lint / format / import / GUT / JUnit 全部通过，GUT 退出 0 且未超时。原始 21 份日志无 SCRIPT ERROR / Parse Error / ERROR，四次继承夹具实例化的原引擎错误未再出现，保存往返也通过。
 
 实际报告、XML、日志与源码核对在本 checkout 的对应 test-runs 目录，关闭仅依据本次可复跑技术证据，不宣称最终 PR 已通过或已合并。原失败报告与夹具源码快照保留，后续相同触发条件复发先重开本记录。
+
+## 本轮重整合的复验
+
+前两条修复的组合 game `20261003T144553250Z-ee277490` 14/14、138 tests / 2916 assertions，零失败/错误/跳过，四个配置往返 case 均执行。原 editable 引擎错误与格式失败未复现；171 项源码/快照哈希及原始 XML/日志经主 agent 复读。最终 head 验收与证据归档入口见 [Inspector 原记录](ERR-20261003-PROTECTION-INSPECTOR.md)，历史 run 不代替本轮报告。

@@ -36,3 +36,5 @@ Actions 按物理帧 tick。每阶段的 inertia_scale 只在进入阶段时缩�
 ## 验证与限制
 
 统一入口 `node tools/check.mjs --scope game` 检查真实主场景中的移动速度、短/中/长跳峰高、真实键盘按松、跳跃缓冲/土狼时间、碰撞与攻击；实际执行状态以最新测试报告为准。没有正式行走、跳跃或攻击动画；当前程序偏移不等同于动画素材。手感待用户反馈。
+
+配置默认、保存覆盖与运行状态归属遵循 [Inspector 配置契约](../docs/inspector-configuration.md)；设计数值调整与机制回归遵循 [设计基线流程](../docs/design-baselines.md)。

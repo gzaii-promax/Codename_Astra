@@ -14,7 +14,7 @@
 
 `node tools/play.mjs [--editor]` 共用配置读取器，linked checkout 默认隔离试玩设置，每次日志独立；主目录保留用户默认设置。合并/同步完整序列使用 `node tools/with-integration-lock.mjs -- <集成脚本命令>`；竞争退出 73，失败传播，未知遗留锁人工核实，不抢占。
 
-新增 Node 回归执行 `node --test tools/test-toolchain.mjs tools/test-worktree.mjs tools/test-worktree-runtime.mjs`，覆盖依赖准备、配置失败、Git 工作区隔离、公共锁及 launcher argv/environment。真实引擎和完整 game 验收独立执行。
+新增 Node 回归执行 `node --test tools/test-toolchain.mjs tools/test-worktree.mjs tools/test-worktree-runtime.mjs tools/test-game-failures.mjs`，覆盖依赖准备、配置失败、Git 工作区隔离、公共锁及 launcher argv/environment。真实引擎和完整 game 验收独立执行。
 
 ## 文件与边界
 
@@ -31,6 +31,7 @@
 - game 的 GUT 进程上限为 150 秒；地图版新增真实通行、台阶、切房状态和三语菜单后，首轮 90 秒真实超时且没有 XML，失败证据见 docs/errors/ERR-20261002-MAP-VALIDATION.md。为完整套件保留有限执行预算，其他进程上限沿用原配置；不删用例、不更改断言、不接受超时为通过。
 - game 范围还在两个实际引擎进程中验证语言设置写入及重启恢复。所有引擎进程用 `ASTRA_SETTINGS_PATH` 隔离本轮设置文件，并在日志/报告记录路径；不改 HOME，不碰玩家配置。检查数量以 expected_check_ids 为准，不硬编码历史的 12 项。
 - `play.mjs` 与根目录 `Play.command`：用固定引擎打开真实游戏，不安装工具、不代替验收。macOS launcher 使用本机 Node `/usr/local/bin/node`。
+- `classify-game-failures.mjs` / `test-game-failures.mjs`：按原始 JUnit 与详细 GUT 日志的显式 DESIGN_BASELINE/MECHANISM 标签提供失败诊断与 Node 回归，报告字段和判读见 [测试协议](../docs/testing.md)。不修改原始证据、验收门槛或推断用户认可；缺 XML 时分类为 unavailable。
 - `read-junit.py`：用 Python 标准库独立解析 GUT JUnit XML；拒绝无法解析、空测试、无断言及计数矛盾的报告。
 - `.tools/`：工具本体；入口不安装工具，不修改系统配置，不建立 Git 仓库，不重新指定 `HOME`。
 - `artifacts/test-runs/<run_id>/`：每次运行独立保留 fixture 项目、命令日志、Godot 日志、GUT XML 和 `report.json`；`latest.json` 提供最新报告位置。

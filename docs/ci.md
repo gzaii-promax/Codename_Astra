@@ -16,7 +16,7 @@ CI 已通过 PR #5 进入 main。上述接入时点的功能草稿例外已由�
 
 ## 同一验收入口
 
-顺序执行 `node --test tools/test-toolchain.mjs tools/test-worktree.mjs tools/test-worktree-runtime.mjs`、`node tools/check.mjs --scope toolchain`、`node tools/check.mjs --scope game`。工具自检含预期失败与超时；它们只在检测结果符合预期时通过。普通 game 验收中的失败、跳过、缺失或超时仍判不通过。工作流不以 continue-on-error 隐藏失败。
+顺序执行 `node --test tools/test-toolchain.mjs tools/test-worktree.mjs tools/test-worktree-runtime.mjs tools/test-game-failures.mjs`、`node tools/check.mjs --scope toolchain`、`node tools/check.mjs --scope game`。工具自检含预期失败与超时；它们只在检测结果符合预期时通过。普通 game 验收中的失败、跳过、缺失或超时仍判不通过。工作流不以 continue-on-error 隐藏失败。设计/机制标签只提供 report.failure_classification 诊断；设计基线失败仍是失败，CI 不自动更新或接受基线。
 
 新安装验证通过后，即使先前检查失败也尝试执行 game，保留独立证据；安装失败则由安装报告定位环境问题。所有正常结束的失败运行仍尝试上传 `artifacts/bootstrap/`、`artifacts/test-runs/`、CI 上下文与实际配置，保留 7 天。CI 上下文在准备 Node/Python 前生成，使运行时准备失败也能留下最小证据。artifact 保存成功只证明可取回证据，不代表验收通过。
 

@@ -32,4 +32,10 @@
 
 该轮 `report.json`、`game.xml`、21 份原始日志和 `source-report-review.json` 位于本 checkout 的对应 test-runs 目录。GUT 退出 0、未超时，原始日志无 SCRIPT ERROR / Parse Error / ERROR。166 项报告源码 SHA-256 与当前文件和存在于冻结工程的相应文件一致。`protection-0.tscn` / `protection-20.tscn` 是实际引擎保存产物：零秒值等于通用声明默认值，保存时可省略属性，重新加载后仍为零；0.2 文件明确存有该字段。两个文件重新加载入树后的实际命中结果均符合独立预期。
 
-技术关闭依据是原失败项与完整回归通过，不因错误文本改变自动关闭。主目录的 project.godot 用户修改未在此独立 checkout 中迁移或改写，最终组合与 PR head 仍由主 agent 复验；当前任务只交草稿 PR，不合并。手感由用户另行反馈。
+技术关闭依据是原失败项与完整回归通过，不因错误文本改变自动关闭。主目录的 project.godot 用户修改未在此独立 checkout 中迁移或改写，最终组合与 PR head 仍由主 agent 复验；该历史独立提交未进入 main；2026-10-03 用户重新授权修复前两条，本轮在 c390803 基础重新整合，适用 AGENTS 的持续提交/合并授权。历史 run 只证明原快照；当前组合另行完整复验。手感由用户另行反馈。
+
+## 重新授权后的组合验证（2026-10-03）
+
+旧独立修复没有进入 main；用户本轮明确要求修复前两条。在 `c390803…` 的独立 worktree 重新整合配置修复，并补入跨模块配置归属契约与设计基线。组合 game `20261003T144553250Z-ee277490` 实际 14/14、138 tests / 2916 assertions，零失败、错误、跳过；四个保存/重载回归及默认/零秒完整机制均运行。主 agent 从 XML 独立解析、复读原始引擎日志，并核对 171 项源码与快照哈希，未发现引擎错误。
+
+当前组合报告位于 `/Users/hanguo/.codex/worktrees/config-baseline-fix-01a10240/Godot-project/artifacts/test-runs/20261003T144553250Z-ee277490/`；最终 PR head 与 main 的独立证据另存主目录 `artifacts/config-baseline-fix-01a10240/`。历史独立原始证据已保存在 `artifacts/rollback-workflow-01a10226/preserved/standalone-protection/`，原临时 checkout 路径仅为首次上下文，不要求它继续存在。持续提交/合并授权适用，用户手感仍独立验收。

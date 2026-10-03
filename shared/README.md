@@ -21,3 +21,5 @@ U 统一计量，不强制所有属性按 1 U 或 0.5 U 跳变。地图模块负
 `graybox_solid.gd` 提供 `GrayboxSolid.create(Rect2,Color,name)`，返回世界层 1 的 StaticBody2D；CollisionShape2D 与 Polygon2D 使用同一个矩形尺寸，保证 gray box 可见表面与物理表面一致。业务场景决定如何布局，不在公共工具中硬编码地图。
 
 新增公共工具应服务明确的共同需求并有单一职责；不把主角/技能/目标状态放进全局万能工具。输入与地形由实际主场景测试覆盖，统一入口 `node tools/check.mjs --scope game`。
+
+配置默认、保存覆盖与运行状态归属遵循 [Inspector 配置契约](../docs/inspector-configuration.md)；设计数值调整与机制回归遵循 [设计基线流程](../docs/design-baselines.md)。
