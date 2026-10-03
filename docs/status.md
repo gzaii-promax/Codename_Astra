@@ -43,3 +43,9 @@
 以 `da2cb246…` 为起点，仅整理 Markdown：补架构与索引，分离当前/历史状态及 Git 流程，纠正模块旧描述和已合并授权语境，补错误索引与技术闭环。源码、场景、数值、测试契约和 CI 实现均未改动。本地冻结验收：Node 33/33；toolchain `20261002T111811603Z-5602113a` 为 22/22；game `20261002T111921061Z-b7337712` 为 14/14、134 tests / 2742 assertions，0 failures/errors/skipped。主/测试 agent 分别复读原始 XML、日志和 163 项源码哈希。随后仅收尾导航、文案与本节记录，最终 head 再由 PR/main CI 核对。
 
 文档检查覆盖 62 份 Markdown、全部入口可达、25 条错误索引一致；两份历史正文逐字保留。执行结果、最终 PR 与合并证据保存在本轮 `artifacts/docs-handoff/`，其中 `completion.json` / `merge-verification.json` 记录实际最终结果；本页不把合并前计划写成已完成。
+
+## 2026-10-03 工程修正分支（仅草稿交付）
+
+本轮三项修正为 Inspector 参数实际生效、设计基线/机制回归分离，以及人类创作/AI/集成隔离。职责不绑定指定 agent。当前行为必须分别核对 main 与本轮 PR head；本轮不合并，原目录 main 与 project.godot 未提交内容保留。操作规则见 [human-editing.md](human-editing.md)、[design-baselines.md](design-baselines.md)。
+
+分项复验已保存：保护 `20261003T123733949Z-2ef5caf5`（138 tests），基线 `20261003T124235372Z-601c17bd`（134 tests）；这些不代表最终组合 head。基线四阶段对照明确标记 fixture_only，正式56/16/40和地图坐标未改。最终组合、Node原始JUnit、CI与本机保留/启动结果统一从本轮checkout的 `artifacts/engineering-handoff/` 定位，completion.json 记录实际结果，不预写 CI/合并成功。用户手感仍待主动反馈。

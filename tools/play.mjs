@@ -1,10 +1,10 @@
 #!/usr/bin/env node
-import { spawn } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
 import { mkdir, stat } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { loadToolchain, toolPath } from './toolchain-config.mjs';
+import { context, withLease, runCommand } from './workspace-state.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const args = process.argv.slice(2);
@@ -13,6 +13,8 @@ if (args.length > 1 || (args.length === 1 && args[0] !== '--editor')) {
   process.exitCode = 2;
 } else {
   try {
+    if (args[0] === '--editor' && !(await stat(path.join(root, '.git'))).isFile()) throw Error('Main is integration/play only. Open the fixed human workspace or an isolated AI checkout.');
+    await context(root);
     const { manifest } = await loadToolchain(root);
     const engine = toolPath(root, manifest, 'godot');
     const runId = `${new Date().toISOString().replace(/[-:.]/g, '')}-${randomUUID().slice(0, 8)}`;
@@ -28,8 +30,6 @@ if (args.length > 1 || (args.length === 1 && args[0] !== '--editor')) {
     const command = ['--path', root, '--log-file', path.join(logDirectory, 'godot.log')];
     if (args[0] === '--editor') command.push('--editor');
     console.error(`Godot project: ${root}\nSettings: ${environment.ASTRA_SETTINGS_PATH || 'default user://settings.cfg'}\nLog: ${path.join(logDirectory, 'godot.log')}`);
-    const child = spawn(engine, command, { cwd: root, env: environment, stdio: 'inherit' });
-    child.on('error', (error) => { console.error(`无法启动 Godot：${error.message}。参见 tools/README.md。`); process.exitCode = 1; });
-    child.on('exit', (code) => { process.exitCode = code ?? 1; });
+    process.exitCode = await withLease(root, args[0] === '--editor' ? ['*'] : [], args[0] === '--editor' ? 'editor' : 'play', () => runCommand(root, [engine, ...command], environment));
   } catch (error) { console.error(error.message); process.exitCode = 1; }
 }

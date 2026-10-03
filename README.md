@@ -50,3 +50,7 @@ node tools/check.mjs --scope toolchain
 ## 当前限制
 
 当前没有完整技能树、互动道具、敌人决策 AI、存档、音乐或正式场景。反弹只提供归属切换接口，击倒协助/定时恢复只提供可复用接口，未新增反弹技能、友方交互单位或自动复活玩法。角色为单帧图片，移动偏移/施法光点/攻击轨迹是程序反馈。正式美术与用户手感验收仍待后续反馈，自动通过不能代替试玩判断。
+
+## 调参和关卡创作
+
+固定人类工作区为同级 `Godot-project-human`，分支 `codex/human-editing`；原目录保留 main 集成/试玩。先保存并关闭现有 Godot 编辑器，再在人类目录运行 `node tools/play.mjs --editor`。第一次准备、保存交接、AI 接收、冲突与安全同步详见 [人类创作指南](docs/human-editing.md)，有意改数值见 [设计基线流程](docs/design-baselines.md)。
