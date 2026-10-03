@@ -8,10 +8,6 @@
 
 隔离工作区不会消除同一文件的合并冲突，也不会隔离 CPU、内存、默认网络端口或外部服务。开始时明确模块、接口和文件责任；合并后按实际组合复验。当前没有开发服务器端口；以后新增服务必须分配每会话端口和数据库。
 
-## 固定人类创作与逻辑资源归属
-
-原目录 main 是集成/试玩区，固定人类创作 worktree 与每个 AI 任务目录分离。完整职责、资源写入占用、保存交接、分歧恢复和进入方式见 [human-editing.md](human-editing.md)；职责不绑定某个 agent。所有 `.tscn/.tres` 同时唯一写入者，Godot 编辑器保守取得全资源独占；AI 资源修改通过 `workspace.mjs edit`。未知进程/占用/未保存状态阻断危险操作。
-
 ## 启动一个会话
 
 推荐在 Codex 新会话选择 **Worktree**，起点选择最新 `main`；或让 agent 创建并附加 managed worktree。以工具实际返回的绝对目录为准，所有编辑、Godot 编辑器、测试、commit/push 都在那里执行。默认可能为 detached HEAD，开发前在该目录创建唯一 `codex/<任务>-<短会话标识>` 分支。已附加且适合当前任务的 worktree 优先复用。不要仅新开 Local 会话后继续写原目录，也不要让两个写入会话共用永久 worktree。操作入口依据：[OpenAI 官方 Worktrees 文档](https://learn.chatgpt.com/docs/environments/git-worktrees)。
@@ -39,7 +35,7 @@ git worktree list --porcelain
 
 ```sh
 node tools/prepare-worktree.mjs --tools-from /Users/hanguo/Documents/ChatGPT/Godot-project
-node --test tools/test-toolchain.mjs tools/test-worktree.mjs tools/test-worktree-runtime.mjs tools/test-human-workspace.mjs
+node --test tools/test-toolchain.mjs tools/test-worktree.mjs tools/test-worktree-runtime.mjs
 node tools/check.mjs --scope toolchain
 node tools/check.mjs --scope game
 node tools/play.mjs
@@ -59,7 +55,7 @@ ASTRA_TOOLCHAIN_CONFIG=.tools/ci/toolchain.json node tools/play.mjs --editor
 
 bootstrap 始终从 tracked `tools/toolchain.json` 固定版本安装到当前 checkout 的 `.tools/ci`，不重装提供方工具。同一个 checkout 不并发 bootstrap。当前 CI 配置没有 gh；可从已经核实的主目录 gh 绝对路径运行 GitHub 操作，或另行准备并验证 gh，禁止借此修改共享认证配置。
 
-launcher 禁止在主目录启动编辑器，登记每 checkout 活动，编辑器保守独占全资源。资源写入/交接/同步检查本机 Godot 进程，存在占用时等待，不终止他人。launcher 在 linked checkout 自动使用 `.tools/play/settings.cfg`，编辑器入口继承同一环境；每次日志位于本目录唯一 `artifacts/play/<run_id>/godot.log`。显式 ASTRA_SETTINGS_PATH 优先。该变量只隔离语言配置，未隔离整个 user://；主目录试玩沿用原 user:// 设置；同一 checkout 的独立 launcher 启动互斥；编辑器内 F5/F6 试玩归属于该编辑器会话，继承配置。并行运行使用不同工作区，不以不同设置路径绕过占用。原生项目管理器直接打开不会自动获得此环境，开发请使用 launcher。
+launcher 在 linked checkout 自动使用 `.tools/play/settings.cfg`，编辑器入口继承同一环境；每次日志位于本目录唯一 `artifacts/play/<run_id>/godot.log`。显式 ASTRA_SETTINGS_PATH 优先。主目录试玩沿用原 user:// 设置；同一 worktree 同时试玩/编辑会共享该 checkout 的试玩设置，需要同时启动时为每进程显式给不同路径。原生项目管理器直接打开不会自动获得此环境，开发请使用 launcher。
 
 现有验收每轮生成独立快照、UUID 报告和 ASTRA_SETTINGS_PATH。交接必须写 **checkout 绝对路径、commit/源码哈希、scope、run_id、report_path**；latest.json 只代表该 checkout 最后结束的一次运行，不能拿另一目录或旧轮次的绿灯作本轮证据。运行引擎保留 HOME，不改全局用户配置。
 
@@ -73,7 +69,7 @@ launcher 禁止在主目录启动编辑器，登记每 checkout 活动，编辑�
 node tools/with-integration-lock.mjs -- node /private/tmp/astra-integrate-this-task.mjs
 ```
 
-该脚本路径为本轮自编集成脚本的示例，仓库不提供绕过验收的自动合并脚本。脚本不得启动后台 Git/gh；需包含整个序列：取得锁后重新读取最新 base/head、检查与冲突状态，核查对应 CI 原始 artifact/源码哈希；用 `--match-head-commit <已验收SHA>` 和 Merge commit 合并；读取远端实际 merge commit；fetch；确认主目录仍在 main、工作区干净且无人编辑/运行后，调用 `workspace.mjs sync --root <主目录绝对路径> --revision <已核实SHA> --saved --closed`（内部仅快进）；核对 ancestry、tree 和远端 main 检查。不要只包住 merge 命令就释放锁后再同步。目标 base 改变导致验证组合变化时，先更新/复验再合并；合并后一轮从新 main 起步，正在工作的其他分支不自动切换或 reset。
+该脚本路径为本轮自编集成脚本的示例，仓库不提供绕过验收的自动合并脚本。脚本不得启动后台 Git/gh；需包含整个序列：取得锁后重新读取最新 base/head、检查与冲突状态，核查对应 CI 原始 artifact/源码哈希；用 `--match-head-commit <已验收SHA>` 和 Merge commit 合并；读取远端实际 merge commit；fetch；确认主目录仍在 main、工作区干净且无人编辑/运行后，在主目录 `git merge --ff-only origin/main`；核对 ancestry、tree 和远端 main 检查。不要只包住 merge 命令就释放锁后再同步。目标 base 改变导致验证组合变化时，先更新/复验再合并；合并后一轮从新 main 起步，正在工作的其他分支不自动切换或 reset。
 
 竞争者退出 73 并打印持锁信息；等待持锁者结束后重试。普通结束和子进程失败都会释放自身锁并传播退出码；SIGINT/SIGTERM 取消终止整组子孙进程，确认结束后才释放，无法确认时留锁。强制结束/系统崩溃可能遗留锁；先读取 owner.json、核实 wrapper PID、其子孙进程/对应命令及工作区是否仍在运行，协调确认后才清理。工具不按时间擅自抢锁，不自动删除未知锁。此机制依赖各会话遵守入口，不能阻止手工绕过。
 

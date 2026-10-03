@@ -76,9 +76,3 @@
 心系统采用 `docs/heart-health-v5.md` 中用户已采纳的验收：半心步进、3/10/3 容器、普攻0.5/火球1/敌击0.5、自伤友伤完整心伤害、严格数值校验、稻草人反复回满与统计保留；旧减伤断言由对应新规则替换，其余生命/技能/语言/尺度回归保留。
 
 `tests/probes/heart_health_visual.gd` 是本版本额外图形入口，使用上面的同一 argv/独立 settings/有限超时协议，从最终通过的已导入快照捕获三语完整/半颗/空心、敌人死亡、主角击倒、稻草人受伤与回满。保存原始日志、源码哈希和 report.json，打开全部 PNG 后另写审核结论；截图保存成功不等于视觉审核或用户试玩通过。旧 `health_combat_visual.gd` 也已迁移到心单位，不使用旧25/40等生命版数值作为本轮验收。
-
-## 创作交接与设计基线
-
-人类调参不能由旧断言自动否决；机制回归和已采纳设计基线分开维护，见 [design-baselines.md](design-baselines.md)。测试预期独立于业务配置，不自动回读业务属性充当期望；基线有意变更必须保留原失败、用户决定、旧/新值与回归影响。
-
-`node --test tools/test-toolchain.mjs tools/test-worktree.mjs tools/test-worktree-runtime.mjs tools/test-human-workspace.mjs` 是工作流验收入口，纳入 CI。工作区测试使用真实临时 Git、隔离的进程观测夹具；真实桌面运行器另记实际进程、阻断/启动结果，不将模拟列表称为真实编辑器关闭。`play.mjs` 日志显示项目绝对路径；资源/交接/同步操作遇到不可观察状态停止。人类手感反馈独立保留。

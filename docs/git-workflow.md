@@ -29,7 +29,3 @@ node tools/with-integration-lock.mjs -- node /private/tmp/astra-integrate-this-t
 CI 的 `macOS / repository-checks` 对最新 head 检查；PR 合并引用中的实际 commit 与 head/base 分别核对，main push 再验实际 merge commit。原始 artifact、有效配置和源码哈希为合并证据，规则见 [ci.md](ci.md) 与 [testing.md](testing.md)。历史 403 说明见 CI 文档，不能因为没有强制分支保护就跳过这些门槛。
 
 历史首版初始化、依赖分支链和一次性交接完整保留在 [git-history.md](git-history.md)；当前已进入 main 的结果见 [status.md](status.md)。
-
-## 创作分支与同步
-
-人类创作分支长期固定，不绑定 AI 身份。保存/关闭、快照交接、精确 Git 提交与冲突审阅见 [human-editing.md](human-editing.md)。原目录/固定人类目录仅通过集成锁内 `workspace.mjs sync` 快进，不自动处理脏目录或历史分歧；未保存内容不能由 Git 状态证明安全。明确要求 draft-only 的单次任务优先于持续合并授权，本轮三项工程修正只交付 draft PR。
