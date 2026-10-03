@@ -1,11 +1,24 @@
 extends GutTest
 
 const ARENA: PackedScene = preload("res://world/training_arena.tscn")
+const BASELINE = preload("res://tests/support/design_baseline.gd")
 
 var _original_scene: Node
+var _design: Dictionary
+var _scale: Dictionary
+var _training: Dictionary
+
+
+func before_all() -> void:
+	_design = BASELINE.load_values()
+	_scale = _design.get("unit_scale", {})
+	_training = _design.get("training", {})
+	print("DESIGN_BASELINE_ID=", _design.get("baseline_id", "missing"))
 
 
 func before_each() -> void:
+	assert_eq(_design.get("schema_version"), 1.0, "DESIGN_BASELINE: readable schema")
+	assert_eq(_design.get("baseline_id"), "prototype-design-v1")
 	_original_scene = get_tree().current_scene
 	_release_keys()
 
@@ -26,22 +39,18 @@ func test_unit_scale_matches_approved_player_and_dummy_collision_dimensions() ->
 		arena.dummy.get_node("DamageReceiver/CollisionShape2D") as CollisionShape2D
 	)
 	for rect in [body, player_hurt, dummy_hurt]:
-		assert_eq(rect.size, Vector2(16.0, 32.0), "User: width 1U, height 2U; 1U = 16 px")
+		assert_eq(rect.size, BASELINE.vector(_scale.body_size_px), "DESIGN_BASELINE: body size")
+	# MECHANISM: shape placement is checked against independently observed feet.
 	assert_almost_eq(body.end.y, arena.player.global_position.y, 0.01, "Body ends at feet")
 	assert_almost_eq(player_hurt.end.y, arena.player.global_position.y, 0.01)
 	assert_almost_eq(dummy_hurt.end.y, arena.dummy.global_position.y, 0.01)
-	assert_almost_eq(arena.player.global_position.y, 440.0, 0.1, "Feet stand on real floor")
-	assert_eq(arena.dummy.global_position, Vector2(544.0, 440.0))
+	assert_almost_eq(arena.player.global_position.y, _training.jump_origin_px[1], 0.1)
+	assert_eq(arena.dummy.global_position, BASELINE.vector(_training.dummy_feet_px))
 
 
 func test_graybox_geometry_matches_approved_32_by_16_unit_envelope() -> void:
 	var arena := _arena()
-	var expected := {
-		"Floor": Rect2(224.0, 440.0, 512.0, 16.0),
-		"Ceiling": Rect2(224.0, 200.0, 512.0, 16.0),
-		"LeftWall": Rect2(224.0, 216.0, 16.0, 224.0),
-		"RightWall": Rect2(720.0, 216.0, 16.0, 224.0),
-	}
+	var expected: Dictionary = _training.solid_rects_px
 	var envelope := Rect2()
 	for solid_name in expected:
 		var solid := arena.get_node("Geometry/" + solid_name) as StaticBody2D
@@ -49,16 +58,27 @@ func test_graybox_geometry_matches_approved_32_by_16_unit_envelope() -> void:
 		var collision := solid.get_child(0) as CollisionShape2D
 		assert_false(collision.disabled)
 		var actual := _collision_rect(collision)
-		assert_eq(actual, expected[solid_name], "Actual collision geometry: %s" % solid_name)
+		assert_eq(
+			actual, BASELINE.rectangle(expected[solid_name]), "DESIGN_BASELINE: %s" % solid_name
+		)
 		envelope = actual if not envelope.has_area() else envelope.merge(actual)
-	assert_eq(envelope, Rect2(224.0, 200.0, 512.0, 256.0), "User: 32U by 16U")
-	arena.player.reset_state(Vector2(252.0, 440.0))
+	assert_eq(envelope, BASELINE.rectangle(_training.envelope_px), "DESIGN_BASELINE: envelope")
+	# MECHANISM: actual body contact must prevent crossing this independent fixture boundary.
+	var left_wall := BASELINE.rectangle(expected.LeftWall)
+	var half_width: float = _scale.body_size_px[0] * 0.5
+	arena.player.reset_state(
+		Vector2(left_wall.end.x + half_width + 4.0, _training.jump_origin_px[1])
+	)
 	arena.player.set_control_input(-1.0)
 	var touched_wall := false
 	for _frame in 40:
 		await get_tree().physics_frame
 		touched_wall = touched_wall or arena.player.is_on_wall()
-	assert_gte(arena.player.global_position.x, 247.9, "16 px body cannot cross left wall")
+	assert_gte(
+		arena.player.global_position.x,
+		left_wall.end.x + half_width - 0.1,
+		"MECHANISM: no wall crossing"
+	)
 	assert_true(touched_wall, "Real wall contact occurs during movement")
 
 
@@ -67,19 +87,35 @@ func test_walk_speed_is_56_pixels_per_second_with_real_displacement() -> void:
 	await wait_physics_frames(6)
 	player.set_control_input(1.0)
 	await wait_physics_frames(20)
-	assert_almost_eq(player.velocity.x, 56.0, 0.01, "User: 3.5U/s = 56 px/s")
+	var expected_speed: float = _scale.walk_speed_px_per_second
+	assert_almost_eq(player.velocity.x, expected_speed, 0.01, "DESIGN_BASELINE: walk speed")
+	var sampled_velocity := player.velocity.x
+	assert_gt(sampled_velocity, 0.0, "MECHANISM: right input produces positive velocity")
 	var start := player.global_position.x
 	var first_frame := Engine.get_physics_frames()
 	for _frame in 60:
 		await get_tree().physics_frame
 	var elapsed_frames := Engine.get_physics_frames() - first_frame
+	assert_gt(player.global_position.x, start, "MECHANISM: right input changes world position")
 	assert_eq(elapsed_frames, 60, "Exactly 60 engine physics frames are sampled")
-	assert_eq(Engine.physics_ticks_per_second, 60, "The one-second interval uses real tick rate")
-	assert_almost_eq(player.global_position.x - start, 56.0, 0.05, "One second moves 3.5U")
-	assert_almost_eq(player.velocity.x, 56.0, 0.01)
+	assert_eq(Engine.physics_ticks_per_second, int(_scale.physics_ticks_per_second))
+	assert_almost_eq(
+		player.global_position.x - start,
+		expected_speed,
+		0.05,
+		"DESIGN_BASELINE: one-second displacement"
+	)
+	assert_almost_eq(
+		player.global_position.x - start,
+		sampled_velocity * elapsed_frames / Engine.physics_ticks_per_second,
+		0.05,
+		"MECHANISM: observed velocity integrates into actual displacement"
+	)
+	assert_almost_eq(player.velocity.x, sampled_velocity, 0.01)
 	player.set_control_input(-1.0)
 	await wait_physics_frames(40)
-	assert_almost_eq(player.velocity.x, -56.0, 0.01)
+	assert_almost_eq(player.velocity.x, -sampled_velocity, 0.01, "MECHANISM: direction symmetry")
+	assert_lt(player.velocity.x, 0.0, "MECHANISM: left input reverses velocity")
 	player.set_control_input(0.0)
 	await wait_physics_frames(16)
 	assert_almost_eq(player.velocity.x, 0.0, 0.01)
@@ -91,8 +127,12 @@ func test_short_medium_and_long_holds_produce_16_to_40_pixel_jumps() -> void:
 	var short_height: float = await _measure_override_jump(player, 0)
 	var medium_height: float = await _measure_override_jump(player, 9)
 	var long_height: float = await _measure_override_jump(player, 72)
-	assert_almost_eq(short_height, 16.0, 0.8, "User: minimum 1U above takeoff feet")
-	assert_almost_eq(long_height, 40.0, 0.8, "User: maximum 2.5U above takeoff feet")
+	assert_almost_eq(
+		short_height, _scale.short_jump_px, _scale.jump_tolerance_px, "DESIGN_BASELINE: short jump"
+	)
+	assert_almost_eq(
+		long_height, _scale.long_jump_px, _scale.jump_tolerance_px, "DESIGN_BASELINE: long jump"
+	)
 	assert_gt(medium_height, short_height + 1.0, "Holding longer produces an intermediate height")
 	assert_lt(medium_height, long_height - 1.0)
 	print("UNIT_SCALE_JUMP_HEIGHTS=", [short_height, medium_height, long_height])
@@ -103,8 +143,15 @@ func test_physical_key_press_release_drives_variable_height_jump() -> void:
 	await wait_physics_frames(6)
 	var short_height: float = await _measure_keyboard_jump(player, 1)
 	var long_height: float = await _measure_keyboard_jump(player, 72)
-	assert_almost_eq(short_height, 16.0, 0.8, "Real Space press for one frame then release")
-	assert_almost_eq(long_height, 40.0, 0.8, "Real Space held through ascent")
+	assert_almost_eq(
+		short_height,
+		_scale.short_jump_px,
+		_scale.jump_tolerance_px,
+		"DESIGN_BASELINE: keyboard short"
+	)
+	assert_almost_eq(
+		long_height, _scale.long_jump_px, _scale.jump_tolerance_px, "DESIGN_BASELINE: keyboard long"
+	)
 	assert_false(Input.is_action_pressed("jump"))
 	print("UNIT_SCALE_KEYBOARD_JUMP_HEIGHTS=", [short_height, long_height])
 
@@ -114,13 +161,15 @@ func test_repress_during_ascent_does_not_restore_long_jump() -> void:
 	await wait_physics_frames(6)
 	var released_height: float = await _measure_override_jump(player, 9)
 	var repressed_height: float = await _measure_override_jump(player, 9, true)
+	var held_height: float = await _measure_override_jump(player, 72)
 	assert_almost_eq(repressed_height, released_height, 0.8, "First release fixes this jump")
-	assert_lt(repressed_height, 39.0, "Repressing cannot recover the 2.5U long jump")
+	assert_lt(repressed_height, held_height - 1.0, "MECHANISM: repress cannot restore held ascent")
 
 
 func test_holding_jump_through_landing_does_not_auto_jump_again() -> void:
 	var player := _arena().player
 	await wait_physics_frames(6)
+	var ground_y := player.global_position.y
 	_press_space(true)
 	var was_on_floor := true
 	var takeoffs := 0
@@ -131,7 +180,7 @@ func test_holding_jump_through_landing_does_not_auto_jump_again() -> void:
 		was_on_floor = player.is_on_floor()
 	assert_eq(takeoffs, 1, "One press must cause only one jump, including after landing")
 	assert_true(player.is_on_floor())
-	assert_almost_eq(player.global_position.y, 440.0, 0.1)
+	assert_almost_eq(player.global_position.y, ground_y, 0.1, "MECHANISM: return to takeoff ground")
 	_press_space(false)
 	await wait_physics_frames(2)
 	_press_space(true)
@@ -145,6 +194,8 @@ func test_training_reset_clears_variable_jump_and_pending_input() -> void:
 	var arena := _arena()
 	var player := arena.player
 	await wait_physics_frames(6)
+	var normal_short_height: float = await _measure_override_jump(player, 0)
+	var ground_y := player.global_position.y
 	player.set_control_input(0.0, true, true)
 	for _frame in 3:
 		await get_tree().physics_frame
@@ -154,16 +205,18 @@ func test_training_reset_clears_variable_jump_and_pending_input() -> void:
 	player.set_control_input(0.0, false, true)
 	await wait_physics_frames(6)
 	assert_true(player.is_on_floor(), "Reset clears pending request and previous held-jump state")
-	assert_almost_eq(player.global_position.y, 440.0, 0.1)
+	assert_almost_eq(player.global_position.y, ground_y, 0.1)
 	assert_almost_eq(player.velocity.y, 0.0, 0.01)
 	var height: float = await _measure_override_jump(player, 0)
-	assert_almost_eq(height, 16.0, 0.8, "A new short jump does not inherit long-jump state")
+	assert_almost_eq(height, normal_short_height, 0.8, "MECHANISM: reset clears jump state")
 
 
 func test_death_and_knockdown_recovery_clear_variable_jump_state() -> void:
 	var arena := _arena()
 	var player := arena.player
 	var health := player.get_combatant()
+	var normal_short_height: float = await _measure_override_jump(player, 0)
+	var ground_y := player.global_position.y
 	for downed in [false, true]:
 		arena.reset_training()
 		await wait_physics_frames(6)
@@ -192,9 +245,9 @@ func test_death_and_knockdown_recovery_clear_variable_jump_state() -> void:
 		player.set_control_input(0.0, false, true)
 		await wait_physics_frames(6)
 		assert_true(player.is_on_floor(), "Recovery cannot replay a request made while inactive")
-		assert_almost_eq(player.global_position.y, 440.0, 0.1)
+		assert_almost_eq(player.global_position.y, ground_y, 0.1)
 		var height: float = await _measure_override_jump(player, 0)
-		assert_almost_eq(height, 16.0, 0.8, "Recovery permits a fresh short jump")
+		assert_almost_eq(height, normal_short_height, 0.8, "MECHANISM: recovery clears jump state")
 
 
 func test_coyote_jump_succeeds_just_after_walking_off_a_real_platform() -> void:
@@ -223,14 +276,17 @@ func test_coyote_jump_expires_after_the_documented_point_one_seconds() -> void:
 
 func test_released_short_jump_buffer_fires_on_landing_at_one_unit_height() -> void:
 	var player := _arena().player
-	player.reset_state(Vector2(272.0, 420.0))
+	var normal_short_height: float = await _measure_override_jump(player, 0)
+	var ground_y := player.global_position.y
+	var falling_origin := BASELINE.vector(_training.jump_origin_px) - Vector2(0.0, 20.0)
+	player.reset_state(falling_origin)
 	player.set_control_input(0.0)
 	for _frame in 30:
 		await get_tree().physics_frame
-		if player.global_position.y > 436.0:
+		if player.global_position.y > ground_y - 4.0:
 			break
 	assert_false(player.is_on_floor(), "Request is made while falling, before landing")
-	assert_gt(player.global_position.y, 436.0)
+	assert_gt(player.global_position.y, ground_y - 4.0)
 	player.set_control_input(0.0, true, false)
 	var minimum_y := player.global_position.y
 	var saw_floor := false
@@ -244,14 +300,20 @@ func test_released_short_jump_buffer_fires_on_landing_at_one_unit_height() -> vo
 		if saw_buffered_ascent and player.is_on_floor():
 			break
 	assert_true(saw_buffered_ascent, "Landing consumes the pending released jump request")
-	assert_almost_eq(440.0 - minimum_y, 16.0, 0.8, "Buffered released press remains a short jump")
+	assert_almost_eq(
+		ground_y - minimum_y, normal_short_height, 0.8, "MECHANISM: buffer retains released press"
+	)
 	assert_true(player.is_on_floor())
 
 
 func test_real_ceiling_collision_stops_a_held_jump_and_returns_to_ground() -> void:
 	var arena := _arena()
 	var player := arena.player
-	arena.add_child(GrayboxSolid.create(Rect2(256.0, 392.0, 32.0, 8.0), Color.WHITE, "TestCeiling"))
+	# Controlled obstacle fixture: independently positioned 8 px above the accepted body.
+	var origin := BASELINE.vector(_training.jump_origin_px)
+	var body_size := BASELINE.vector(_scale.body_size_px)
+	var ceiling := Rect2(origin.x - 16.0, origin.y - body_size.y - 16.0, 32.0, 8.0)
+	arena.add_child(GrayboxSolid.create(ceiling, Color.WHITE, "TestCeiling"))
 	await wait_physics_frames(6)
 	var takeoff_y := player.global_position.y
 	var minimum_y := takeoff_y
@@ -267,16 +329,17 @@ func test_real_ceiling_collision_stops_a_held_jump_and_returns_to_ground() -> vo
 	assert_gt(takeoff_y - minimum_y, 0.0)
 	assert_lte(takeoff_y - minimum_y, 8.2, "32 px body has only 8 px overhead clearance")
 	assert_true(player.is_on_floor())
-	assert_almost_eq(player.global_position.y, 440.0, 0.1)
+	assert_almost_eq(player.global_position.y, takeoff_y, 0.1)
 
 
 func test_release_and_repress_between_physics_samples_still_cuts_the_current_jump() -> void:
 	var player := _arena().player
+	var normal_short_height: float = await _measure_override_jump(player, 0)
 	for use_keyboard in [false, true]:
 		var height: float = await _measure_same_frame_repress(player, use_keyboard)
 		assert_almost_eq(
 			height,
-			16.0,
+			normal_short_height,
 			0.8,
 			"Release is retained even when held again before physics: keyboard=%s" % use_keyboard
 		)
@@ -297,7 +360,7 @@ func _collision_rect(collision: CollisionShape2D) -> Rect2:
 
 
 func _measure_override_jump(player: PlayerCharacter, held_frames: int, repress := false) -> float:
-	player.reset_state(Vector2(272.0, 440.0))
+	player.reset_state(BASELINE.vector(_training.jump_origin_px))
 	player.set_control_input(0.0)
 	await wait_physics_frames(6)
 	var takeoff_y := player.global_position.y
@@ -317,7 +380,7 @@ func _measure_override_jump(player: PlayerCharacter, held_frames: int, repress :
 
 
 func _measure_keyboard_jump(player: PlayerCharacter, held_frames: int) -> float:
-	player.reset_state(Vector2(272.0, 440.0))
+	player.reset_state(BASELINE.vector(_training.jump_origin_px))
 	player.clear_control_override()
 	await wait_physics_frames(6)
 	var takeoff_y := player.global_position.y
@@ -349,8 +412,11 @@ func _press_space(pressed: bool) -> void:
 
 func _walk_off_platform(arena: TrainingArena) -> float:
 	var player := arena.player
-	arena.add_child(GrayboxSolid.create(Rect2(256.0, 360.0, 32.0, 8.0), Color.WHITE, "TestLedge"))
-	player.reset_state(Vector2(288.0, 360.0))
+	# Fixture offsets are test setup, not production map layout expectations.
+	var origin := BASELINE.vector(_training.jump_origin_px)
+	var ledge := Rect2(origin.x - 16.0, origin.y - 80.0, 32.0, 8.0)
+	arena.add_child(GrayboxSolid.create(ledge, Color.WHITE, "TestLedge"))
+	player.reset_state(Vector2(ledge.end.x, ledge.position.y))
 	player.set_control_input(0.0)
 	await wait_physics_frames(6)
 	assert_true(player.is_on_floor(), "Real ledge supports the body before walking off")
@@ -360,12 +426,12 @@ func _walk_off_platform(arena: TrainingArena) -> float:
 		if not player.is_on_floor():
 			break
 	assert_false(player.is_on_floor(), "Body walked past the real ledge edge")
-	return 360.0
+	return ledge.position.y
 
 
 func _measure_same_frame_repress(player: PlayerCharacter, use_keyboard: bool) -> float:
 	_press_space(false)
-	player.reset_state(Vector2(272.0, 440.0))
+	player.reset_state(BASELINE.vector(_training.jump_origin_px))
 	player.set_control_input(0.0)
 	if use_keyboard:
 		player.clear_control_override()
