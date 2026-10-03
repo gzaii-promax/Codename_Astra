@@ -21,7 +21,7 @@ Actions 按物理帧 tick。每阶段的 inertia_scale 只在进入阶段时缩�
 - `request_attack()` / `request_fireball()` 返回动作是否被接受；忙碌或冷却拒绝，不缓存攻击连招。
 - `get_action_controller()` 供界面/测试读取；`get_attack_origin()` 提供脚底上 1U（16 px）、面朝方向前 0.5U（8 px）的释放点。技能攻击框的尺寸和动作时序继续由技能定义维护，不随身体尺寸等比缩放。
 - `get_combatant()` 提供公共生命、阵营、无敌、零血行为和生命周期配置。场景默认 FRIENDLY、3 个心容器且初始 3 心、无敌关闭、零血死亡。DamageReceiver 使用独立 1U × 2U（16 × 32 px）受击区；HealthBar 位于脚底上 82 px，订阅同一 Combatant 并绘制完整、半颗、空心。普攻 0.5 心、火球 1 心；无旧抗性/增减伤。公共规则与默认值见 ../combat/README.md 和 ../docs/heart-health-v5.md。
-- 主角 `_ready()` 从 `CombatConfig.PLAYER_HIT_PROTECTION_SECONDS` 设置 0.5 秒受击保护；心单位与保护共存，暂停冻结、重置清零，参见 ../docs/hit-protection.md。
+- 主角场景的 `Combatant.hit_protection_seconds` 是受击保护的唯一运行配置入口，场景初值显式保存为 0.5 秒，与公共默认基线一致。Inspector 中选择主角的 Combatant 子节点修改并保存；合法零秒、自定义非零值、继承场景的覆盖和入树前代码配置均保留，`_ready()` 不重写。训练重置只清计时，不重置此参数；心单位、暂停冻结与切房保留规则见 ../docs/hit-protection.md。
 - `set_fireball_level(1|2)` 只重绑下一次施法定义，正在执行的动作保持开始时的定义。
 - `set_control_input(horizontal, jump_requested=false, jump_held=false)` 启用外部输入意图；jump_requested 是单次消费的起跳请求，jump_held 是保持到下次调用的持键状态。旧两参数跳跃调用表示短按；长按用 `set_control_input(0.0, true, true)` 起跳，松开时调用 `set_control_input(0.0, false, false)`。真实键盘分别读取 `Input.is_action_just_pressed("jump")` 和 `Input.is_action_pressed("jump")`，走相同跳跃路径。当前上升期间，外部松键提交与真实 `_input` 松键事件都会锁存到下一物理帧，因此同一物理帧间松开后重按仍会截断本次上升；锁存不会带入下一次跳跃。`clear_control_override()` 恢复真实键盘输入并清除输入锁存。测试、后续回放可以通过同一控制路径驱动真实物理。
 - `reset_state(position)` 无条件重置生命/生命周期、动作/冷却、位置与运动状态；外部控制模式保留以方便测试重置，真实训练场使用键盘模式。训练场整体重置同时删除场上效果并恢复敌人。
@@ -36,3 +36,5 @@ Actions 按物理帧 tick。每阶段的 inertia_scale 只在进入阶段时缩�
 ## 验证与限制
 
 统一入口 `node tools/check.mjs --scope game` 检查真实主场景中的移动速度、短/中/长跳峰高、真实键盘按松、跳跃缓冲/土狼时间、碰撞与攻击；实际执行状态以最新测试报告为准。没有正式行走、跳跃或攻击动画；当前程序偏移不等同于动画素材。手感待用户反馈。
+
+配置默认、保存覆盖与运行状态归属遵循 [Inspector 配置契约](../docs/inspector-configuration.md)；设计数值调整与机制回归遵循 [设计基线流程](../docs/design-baselines.md)。

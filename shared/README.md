@@ -2,7 +2,7 @@
 
 ## 公共战斗配置
 
-`combat_config.gd` 提供无状态 `CombatConfig extends RefCounted`，受击保护时长以未暂停的游戏秒数计量：`PLAYER_HIT_PROTECTION_SECONDS=0.5` 是主角初值，`DEFAULT_HIT_PROTECTION_SECONDS=0.0` 是其他生命角色初值。主角初始化时将主角常数赋给自己的 `Combatant.hit_protection_seconds`；其他生命组件直接使用公共默认值。常数不根据阵营选择，主角改变阵营也不改变保护配置。
+`combat_config.gd` 提供无状态 `CombatConfig extends RefCounted`，受击保护时长以未暂停的游戏秒数计量：`PLAYER_HIT_PROTECTION_SECONDS=0.5` 记录主角默认基线，`DEFAULT_HIT_PROTECTION_SECONDS=0.0` 是通用生命组件声明初值。主角场景在 Combatant 子节点显式保存 0.5 秒；实际配置来自该实例的 `hit_protection_seconds`，不在 `_ready()` 用常量覆盖 Inspector / 场景值。修改单个角色直接保存场景属性，零秒也是合法覆盖；改默认基线时同步常量、默认场景和已批准的基线验收。常量不根据阵营选择，主角改变阵营也不改变保护配置。
 
 实际剩余时间属于各自 `Combatant`，不保存在公共配置中。零秒跳过保护判定、不启动保护计时；训练稻草人复用 `Combatant` 的 10 心与 `REFILL` 行为，默认零秒保护。新增角色可显式配置有限且非负的秒数。更改常数或保护规则时同步 combat/player 模块文档，并通过真实受击、暂停、重置与现有战斗回归验证。范围与行为约定见 ../docs/hit-protection.md。
 
@@ -21,3 +21,5 @@ U 统一计量，不强制所有属性按 1 U 或 0.5 U 跳变。地图模块负
 `graybox_solid.gd` 提供 `GrayboxSolid.create(Rect2,Color,name)`，返回世界层 1 的 StaticBody2D；CollisionShape2D 与 Polygon2D 使用同一个矩形尺寸，保证 gray box 可见表面与物理表面一致。业务场景决定如何布局，不在公共工具中硬编码地图。
 
 新增公共工具应服务明确的共同需求并有单一职责；不把主角/技能/目标状态放进全局万能工具。输入与地形由实际主场景测试覆盖，统一入口 `node tools/check.mjs --scope game`。
+
+配置默认、保存覆盖与运行状态归属遵循 [Inspector 配置契约](../docs/inspector-configuration.md)；设计数值调整与机制回归遵循 [设计基线流程](../docs/design-baselines.md)。

@@ -5,6 +5,7 @@ import { cp, mkdir, readdir, readFile, rename, writeFile } from 'node:fs/promise
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { loadToolchain, toolPath, versionMatches } from './toolchain-config.mjs';
+import { classifyGameFailures } from './classify-game-failures.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const sourceDirs = ['shared', 'combat', 'skills', 'player', 'world', 'assets', 'ui', 'localization', 'tests'];
@@ -72,7 +73,8 @@ export async function runGameChecks() {
   const report = { schema_version: 1, run_id: runId, scope: 'game', status: 'blocked', cwd: root,
     channel: 'automated_test', time: { started_at: started.toISOString() }, tool_versions: {},
     code_state: { git: 'unavailable', commit: null, files_sha256: {} },
-    snapshot_path: relative(snapshot), expected_check_ids: [], checks: [] };
+    snapshot_path: relative(snapshot), expected_check_ids: [], checks: [],
+    failure_classification: { status: 'unavailable', reason: 'No readable JUnit evidence yet; inspect failed checks and raw logs.' } };
   await mkdir(logs, { recursive: true });
   const passed = (id) => report.checks.some((item) => item.id === id && item.status === 'pass');
   async function check(id, purpose, expected, command, judge, dependencies = [], timeoutMs = 15000) {
@@ -138,7 +140,7 @@ export async function runGameChecks() {
     await cp(tool('gut'), path.join(snapshot, 'addons/gut'), { recursive: true });
     // Hash the tested snapshot rather than a live file another agent might edit during this run.
     for (const file of sourceFiles) report.code_state.files_sha256[relative(file)] = hash(await readFile(path.join(snapshot, relative(file))));
-    for (const file of ['tools/check.mjs', 'tools/check-game.mjs', 'tools/toolchain-config.mjs', 'tools/bootstrap.mjs', 'tools/test-toolchain.mjs', 'tools/prepare-worktree.mjs', 'tools/test-worktree.mjs', 'tools/test-worktree-runtime.mjs', 'tools/with-integration-lock.mjs', 'tools/play.mjs', 'tools/requirements-gdtoolkit.lock', '.github/workflows/check.yml', 'tools/read-junit.py', 'tools/toolchain.json', 'docs/testing.md', 'docs/worktrees.md', 'AGENTS.md']) report.code_state.files_sha256[file] = hash(await readFile(path.join(root, file)));
+    for (const file of ['tools/check.mjs', 'tools/check-game.mjs', 'tools/classify-game-failures.mjs', 'tools/test-game-failures.mjs', 'tools/toolchain-config.mjs', 'tools/bootstrap.mjs', 'tools/test-toolchain.mjs', 'tools/prepare-worktree.mjs', 'tools/test-worktree.mjs', 'tools/test-worktree-runtime.mjs', 'tools/with-integration-lock.mjs', 'tools/play.mjs', 'tools/requirements-gdtoolkit.lock', '.github/workflows/check.yml', 'tools/read-junit.py', 'tools/toolchain.json', 'docs/testing.md', 'docs/worktrees.md', 'AGENTS.md']) report.code_state.files_sha256[file] = hash(await readFile(path.join(root, file)));
     const git = await execute([tool('git'), 'rev-parse', 'HEAD'], path.join(logs, 'git-state.log'));
     report.code_state.git = clean(git) ? 'repository' : 'no_commit_available';
     report.code_state.commit = clean(git) ? git.stdout.trim() : null;
@@ -153,9 +155,11 @@ export async function runGameChecks() {
   await check('import', 'Headless import actual project and register classes.', { exit_code: 0, engine_errors: 0 }, engine('import', ['--editor', '--import']), (result) => clean(result) && noEngineErrors(result), ['sources', 'version-godot'], 60000);
   const xml = path.join(runDir, 'game.xml');
   await check('gut', 'Execute actual game unit and physics integration tests.', { exit_code: 0, xml_path: relative(xml) }, engine('gut', ['--script', 'res://addons/gut/gut_cmdln.gd', '-gdir=res://tests/game', '-ginclude_subdirs', '-gexit', '-glog=2', `-gjunit_xml_file=${xml}`]), (result) => clean(result) && noEngineErrors(result), ['import'], 150000);
-  await check('junit', 'Independently require every expected test and assertion; reject skips and missing evidence.', { test_names: expectedTests, failures: 0, errors: 0, skipped: 0 }, [tool('python'), path.join(root, 'tools/read-junit.py'), xml], (result) => {
+  await check('junit', 'Independently require every expected test and assertion; reject skips and missing evidence.', { test_names: expectedTests, failures: 0, errors: 0, skipped: 0 }, [tool('python'), path.join(root, 'tools/read-junit.py'), xml], async (result) => {
     if (!clean(result)) return false;
     const evidence = JSON.parse(result.stdout); result.junit = evidence;
+    report.failure_classification = classifyGameFailures(evidence, await readFile(path.join(logs, 'gut.log'), 'utf8'));
+    report.failure_classification.gut_log_path = relative(path.join(logs, 'gut.log'));
     const names = evidence.cases.map((item) => item.name);
     return evidence.tests === expectedTests.length && new Set(names).size === names.length && expectedTests.every((name) => names.includes(name)) && evidence.failures === 0 && evidence.errors === 0 && evidence.skipped === 0;
   }, ['import', 'version-python']);

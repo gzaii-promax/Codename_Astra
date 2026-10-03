@@ -14,7 +14,7 @@
 
 ## 并行验收
 
-写入/运行开发任务按 [worktrees.md](worktrees.md) 使用独立 checkout。工具准备和单测入口为 `node tools/prepare-worktree.mjs --tools-from <同仓库已验证目录>` 与 `node --test tools/test-toolchain.mjs tools/test-worktree.mjs tools/test-worktree-runtime.mjs`；随后运行既有 scope 验收。所有报告、快照、设置和引擎日志留在实际 checkout，交接写明绝对目录与 run_id。不要跨目录读取 latest.json，也不把依赖准备或故意失败 fixture 计为真实游戏通过。共享集成操作另用公共锁。
+写入/运行开发任务按 [worktrees.md](worktrees.md) 使用独立 checkout。工具准备和单测入口为 `node tools/prepare-worktree.mjs --tools-from <同仓库已验证目录>` 与 `node --test tools/test-toolchain.mjs tools/test-worktree.mjs tools/test-worktree-runtime.mjs tools/test-game-failures.mjs`；随后运行既有 scope 验收。所有报告、快照、设置和引擎日志留在实际 checkout，交接写明绝对目录与 run_id。不要跨目录读取 latest.json，也不把依赖准备或故意失败 fixture 计为真实游戏通过。共享集成操作另用公共锁。
 
 ## 执行与交接
 
@@ -36,6 +36,16 @@
 - 哈希覆盖实际源码与受版本控制的工作流、安装脚本、配置读取器、源配置、包锁及测试协议；实际配置另在 `toolchain_config` 记录路径、SHA-256、完整 manifest。CI 派生配置不假装存在于 Git HEAD。
 - PR 验收可能运行 GitHub 的合并引用。以 CI 上下文分别核对 PR head/base、GITHUB_SHA、报告的实际 commit；最新 head 上所有必要检查通过才具备合并证据。
 - 必须核对预期检查是否全部执行；空检查列表、意外跳过、未完成运行不能得到 `pass`。
+
+## 配置保存与设计变更
+
+配置链变更遵循 [inspector-configuration.md](inspector-configuration.md)，覆盖保存、无缓存重载、入树、实际行为与重置。受击保护四项回归与现有默认窗口验证同时保留。
+
+[设计基线流程](design-baselines.md) 将尺度/布局的独立预期保存在 `tests/baselines/design-v1.json`；用户的明确新指令足以授权相应更新，无需重复批准。未认可的新设计先保留失败并澄清，不从被测实现生成期望，不为通过测试回退已认可设计。原失败、基线变更出处和机制回归结果须在交接中可读取。
+
+`report.failure_classification` 读取 `checks[id=junit].actual.junit` 的原始失败消息及 `gut_log_path` 的实际 `[Failed]` 断言（去 ANSI、按 suite/name 对应、排除 summary 重复），以 `DESIGN_BASELINE:` / `MECHANISM:` 标签生成诊断：`counts` 与 `cases` 的类别为 `design_baseline`、`mechanism`、`mixed`、`unclassified`。标签覆盖当前尺度/地图用例；其他未标记用例或引擎错误保留未分类，不能靠名称猜原因。GUT 9.7.1 的 XML 可能只保留同一 case 的首条失败，原始日志补充其余断言；`cases[].evidence_coverage = junit_only` 表示分类可能不完整，不能据此排除机制故障。成功报告 counts 全零；没有可读 XML 时为 `status: unavailable`，须检查失败项与日志，不能视为零失败。
+
+分类不修改原始 JUnit、退出码或验收规则；设计失败也阻止交付，标签本身不代表用户认可或已查明原因。Node 回归涵盖标签、混合/无标签错误、GUT 布尔断言的无冒号 `[Failed]`、跳过、缺失报告和证据不变性，完整引擎仍按相同入口独立执行。
 
 ## 引入测试环境的自检
 

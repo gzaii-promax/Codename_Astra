@@ -1,5 +1,17 @@
 # 当前工程状态
 
+## Inspector 与设计基线修复（2026-10-03）
+
+本轮以远端 main `c3908038490d381543e0b033d26d9844bf171cdb` 为起点，只解决用户重新授权的前两条；没有恢复固定的人类项目/分支方案。主角场景保存默认 0.5 秒保护，启动尊重 Inspector 覆盖；尺度/地图设计预期集中到独立 JSON，机制用例、碰撞与状态边界保留。新约定见 [Inspector 配置归属](inspector-configuration.md)、[设计基线流程](design-baselines.md)、AGENTS 防回归节与各模块 README。
+
+组合源码本地 game `20261003T144553250Z-ee277490`：14/14 检查、138 tests / 2916 assertions，零 failures/errors/skipped；171 项源码/快照哈希、原始 XML、日志和分类结果经主 agent 独立复读。toolchain `20261003T144607860Z-1b39fcf4` 22/22；Node 回归 43/43（含分类器 10 项）。两类失败仍阻止验收，分类补读详细 GUT 日志以避免 XML 首条失败遗漏。
+
+独立基线四阶段的最终检测能力对照为 `20261003T144409Z-f7e2aeb5`：原值通过、只改实验速度失败、手工修改实验期望后通过、破坏实际移动仍失败。正式速度 56 px/s、跳高 16/40 px 与原关卡布局均保留；对照 fixture 的整体 pass 不替代实际 game 验收。恒速夹具碰台阶与 XML 限制的原因/复验见 [公共错误](errors/ERR-20261003-BASELINE-WALK-FIXTURE.md)。
+
+冻结 `121984d…` 的独立 game `20261003T145039751Z-e73b59b3` 亦为14/14、138/2916、零失败/错误/跳过；重新插入旧覆盖后四个新用例全部失败。该故障注入同时发现无冒号 `[Failed]` 的诊断遗漏；原验收仍失败，修复后真实32条失败全部保留，分类器11项/完整Node44项通过，详见 [公共记录](errors/ERR-20261003-GUT-BARE-FAILURE.md)。最终新head需独立完整复验与CI，不用旧head绿灯批准新代码。
+
+以上是提交前组合源码证据，含未提交文件状态，不把它写成最终 PR head 或 main 已通过。冻结 head 的独立测试及 PR/main CI 原始报告需再次核对；实际交付、合并及主目录同步状态保存到主目录 `artifacts/config-baseline-fix-01a10240/`。主目录原有未提交 `project.godot` 保留，不能由 agent 自动 stash/reset 或强行同步。更早下表为各自交付时点；今天的 main/checkout 状态仍按实际提交和报告核实。
+
 ## 已进入 main 的功能
 
 2026-10-02 整理时已核对远端 PR、提交包含关系和原始报告。最近一次游戏行为变更为基础速度调整，main 游戏基线 `da2cb24639a77d7ff9b122600aa1d47c0cc9b22c`；后续文档提交不改变该功能基线。最新 checkout/head 仍须现场读取。

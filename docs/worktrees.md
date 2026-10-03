@@ -35,7 +35,7 @@ git worktree list --porcelain
 
 ```sh
 node tools/prepare-worktree.mjs --tools-from /Users/hanguo/Documents/ChatGPT/Godot-project
-node --test tools/test-toolchain.mjs tools/test-worktree.mjs tools/test-worktree-runtime.mjs
+node --test tools/test-toolchain.mjs tools/test-worktree.mjs tools/test-worktree-runtime.mjs tools/test-game-failures.mjs
 node tools/check.mjs --scope toolchain
 node tools/check.mjs --scope game
 node tools/play.mjs
