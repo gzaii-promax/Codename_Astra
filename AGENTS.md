@@ -54,10 +54,17 @@
 - 首版按已准备的 GDScript 工具链实现，使用 GUT 与 gdtoolkit；具体数值均为待试玩调整的初值。正式素材规格与发布平台尚未确定。
 - `gh` 已按用户授权安装并完成网页登录；CI 已获接入授权，实际运行状态见 docs/status.md。成熟插件按适配性、维护、许可证、依赖与修改成本权衡，避免重复工具。
 
+## 人类创作与 AI 职责
+
+- 人类创作、AI 开发、集成是职责，不绑定特定 agent 或历史会话；任何合规 AI 会话均可接手。规则见 [docs/human-editing.md](docs/human-editing.md)，调参基线见 [docs/design-baselines.md](docs/design-baselines.md)。
+- 固定人类工作区 `Godot-project-human` / `codex/human-editing` 用于调参和关卡；原目录 main 仅集成/试玩。AI 不直接改人类资源；明确冻结交接后可代办精确快照的 Git 元数据提交。未保存、未提交、未知占用不得被同步覆盖。
+- `.tscn/.tres` 同时唯一逻辑写入者；编辑器保守独占全部资源。AI 资源修改用 `tools/workspace.mjs edit`，编辑器用 `play.mjs --editor`；不用原生管理器或直接磁盘写入绕过。纯代码在各自 worktree 可并行。
+- 人类保存/关闭后交接，AI 复核冻结报告、冲突及设计基线后验证接收。同步须通过集成锁内 `workspace.mjs sync`，只快进；脏目录、Godot 进程、未知记录或不可观察状态时停止，禁止 reset/stash/删除绕过。工具不证明未保存内存状态，也不替代人类关闭确认。
+
 ## 多会话开发的强制隔离
 
 - 每个写入开发会话及写文件的子 agent 使用自己的 Git worktree 和唯一 `codex/<任务>-<会话标识>` 分支；禁止在原目录切换功能分支或让多个写入会话共用一个 checkout。详细步骤与验收见 [docs/worktrees.md](docs/worktrees.md)。
-- 原目录保留 main 供用户试玩及串行集成；只读调查可共用。检查工具实际返回的绝对目录，在该目录完成编辑、Godot 启动、验收、提交和普通 push。
+- 固定人类工作区是长期创作例外，不供 AI 源码开发会话共用。原目录保留 main 供用户试玩及串行集成；只读调查可共用。检查工具实际返回的绝对目录，在该目录完成编辑、Godot 启动、验收、提交和普通 push。
 - 忽略的依赖、缓存、设置与报告按该文档准备并隔离；不要软链接整个 .tools/.godot/artifacts，不重装别人正在借用的工具。工具准备后必须验证，不以配置生成当作可运行。
 - Git 分支名、远端 refs、stash 和公共配置仍共享；不强制检出同一分支，不修改其他会话的工作区/refs/认证。明确 base SHA、文件责任和交接接口。
 - PR 合并与主目录同步必须使用 `tools/with-integration-lock.mjs` 公共串行锁包住完整核对/合并/同步序列；锁竞争退出后等待重试，不抢未知锁。主目录脏或有人使用时延期同步，不替用户 stash/reset/switch。

@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "baseline_id": "prototype-design-v1",
+  "recorded_at": "2026-10-03",
+  "source_commit": "a3401f6e62e2c11cb2f4cd30af1836afb32ae4fe",
+  "authority": {
+    "unit_and_jump": "User-selected 1 U = 16 px, body 1 by 2 U, jump 1 to 2.5 U; docs/scale-movement-v4.md",
+    "walk_speed": "User-authorized 3.5 U/s delivered in PR #12; docs/status.md",
+    "room_graph": "User-accepted A <-> B <-> C and C -> A; docs/map-system.md",
+    "sample_coordinates": "Delivered graybox fixture layout, not a user playtest approval; docs/scale-movement-v4.md and docs/map-system.md"
+  },
+  "review_policy": "Manual changes require an explicit user design/tuning instruction and docs/design-baselines.md review record. Never generate expected values from production resources.",
+  "unit_scale": {
+    "unit_px": 16.0,
+    "body_size_px": [16.0, 32.0],
+    "walk_speed_px_per_second": 56.0,
+    "short_jump_px": 16.0,
+    "long_jump_px": 40.0,
+    "jump_tolerance_px": 0.8,
+    "physics_ticks_per_second": 60
+  },
+  "training": {
+    "jump_origin_px": [272.0, 440.0],
+    "dummy_feet_px": [544.0, 440.0],
+    "envelope_px": [224.0, 200.0, 512.0, 256.0],
+    "solid_rects_px": {
+      "Floor": [224.0, 440.0, 512.0, 16.0],
+      "Ceiling": [224.0, 200.0, 512.0, 16.0],
+      "LeftWall": [224.0, 216.0, 16.0, 224.0],
+      "RightWall": [720.0, 216.0, 16.0, 224.0]
+    }
+  },
+  "map": {
+    "initial_room": "room_a",
+    "initial_entrance": "start",
+    "routes": [
+      ["room_a", "east", "room_b", "west"],
+      ["room_b", "west", "room_a", "east"],
+      ["room_b", "east", "room_c", "west"],
+      ["room_c", "west", "room_b", "east"],
+      ["room_c", "return", "room_a", "start"]
+    ],
+    "camera_zoom": [2.0, 2.0],
+    "hud_reserved_height_px": 160.0,
+    "rooms": {
+      "room_a": {
+        "bounds_px": [0.0, 0.0, 512.0, 256.0],
+        "entrances_px": {"start": [80.0, 240.0], "west": [80.0, 240.0], "east": [432.0, 240.0]},
+        "step_sample": {"left_px": 160.0, "top_y_px": 224.0, "clear_x_px": 184.0},
+        "overlay_rects_px": {"floor_left": [0.0, 240.0, 16.0, 16.0], "player_start": [72.0, 208.0, 16.0, 32.0], "east": [472.0, 192.0, 16.0, 48.0], "west": [24.0, 192.0, 16.0, 48.0], "return": [248.0, 192.0, 16.0, 48.0]}
+      },
+      "room_b": {
+        "bounds_px": [0.0, 0.0, 768.0, 256.0],
+        "entrances_px": {"start": [80.0, 240.0], "west": [80.0, 240.0], "east": [688.0, 240.0]},
+        "step_sample": {"left_px": 192.0, "top_y_px": 224.0, "clear_x_px": 216.0},
+        "overlay_rects_px": {"floor_right": [752.0, 240.0, 16.0, 16.0], "player_east": [680.0, 208.0, 16.0, 32.0], "west": [24.0, 192.0, 16.0, 48.0], "east": [728.0, 192.0, 16.0, 48.0]}
+      },
+      "room_c": {
+        "bounds_px": [0.0, 0.0, 512.0, 256.0],
+        "entrances_px": {"start": [80.0, 240.0], "west": [80.0, 240.0], "east": [432.0, 240.0]}
+      }
+    }
+  }
+}

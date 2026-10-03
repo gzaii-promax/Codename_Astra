@@ -7,12 +7,14 @@
 - 最新测试证据通过 `artifacts/test-runs/latest.json` 定位；具体安装与测试状态见最新报告。
 - 同一问题再次出现时追加复现记录并重新打开原记录；仅报错文字相同不能确认同一原因。
 
-## 记录索引（2026-10-02）
+## 记录索引（2026-10-03）
 
 以下状态按各记录正文核对；当前没有开放的技术错误。`MAIN-INTEGRATION` 只关闭缺少代码的技术问题，用户手感仍单独待反馈。resolved 不代表换环境后不会复发。新增、重开或关闭记录时同步本表，原始证据留在各记录中。
 
 | 记录 | 状态 | 问题 |
 | --- | --- | --- |
+| [ERR-20261003-BASELINE-ENTRY-SAMPLING](ERR-20261003-BASELINE-ENTRY-SAMPLING.md) | resolved | 入口地面浮点采样的精度边界 |
+| [ERR-20261003-WORKSPACE-GUARD](ERR-20261003-WORKSPACE-GUARD.md) | resolved | 新工作区守卫的 Git 环境与测试观测边界 |
 | [ENV-0001](ENV-0001.md) | resolved | Xcode 许可阻止系统 Git 和 Python 执行 |
 | [ENV-0002](ENV-0002.md) | resolved | 沙箱网络限制导致官方域名无法解析 |
 | [ENV-0003](ENV-0003.md) | resolved | 沙箱内 Godot 签名检查失败 |
