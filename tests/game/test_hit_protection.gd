@@ -1,6 +1,7 @@
 extends GutTest
 
 const ARENA: PackedScene = preload("res://world/training_arena.tscn")
+const PLAYER: PackedScene = preload("res://player/player_character.tscn")
 const ENEMY_ATTACK: SkillDefinition = preload("res://skills/definitions/enemy_attack.tres")
 
 
@@ -81,6 +82,72 @@ func test_hit_protection_defaults_match_public_config_and_real_actors() -> void:
 	var default_health := Combatant.new()
 	autofree(default_health)
 	assert_eq(default_health.hit_protection_seconds, 0.0)
+
+
+func test_player_saved_zero_protection_override_survives_ready_and_reload() -> void:
+	for attempt in range(2):
+		var player := _saved_player("res://tests/fixtures/hit_protection/player_zero.tscn", 0.0)
+		var health := player.get_combatant()
+		assert_true(_receiver(player).receive_hit(_hit(null, 0.5)))
+		assert_true(_receiver(player).receive_hit(_hit(null, 0.5)))
+		assert_eq(health.current_health, 2.0, "Saved zero accepts consecutive positive hits")
+		assert_eq(health.get_hit_protection_remaining(), 0.0)
+		player.reset_state(Vector2.ZERO)
+		assert_eq(health.hit_protection_seconds, 0.0, "Reset preserves saved configuration")
+		assert_eq(health.current_health, 3.0)
+
+
+func test_player_saved_custom_protection_override_controls_actual_damage_window() -> void:
+	for attempt in range(2):
+		var player := _saved_player("res://tests/fixtures/hit_protection/player_custom.tscn", 0.2)
+		var health := player.get_combatant()
+		assert_true(_receiver(player).receive_hit(_hit(null, 0.5)))
+		assert_eq(health.get_hit_protection_remaining(), 0.2)
+		assert_false(_receiver(player).receive_hit(_hit(null, 0.5)))
+		await _physics_frames(14)
+		assert_eq(
+			health.get_hit_protection_remaining(), 0.0, "Custom 0.2 seconds expire before 0.5"
+		)
+		assert_true(_receiver(player).receive_hit(_hit(null, 0.5)))
+		assert_eq(health.current_health, 2.0)
+		player.reset_state(Vector2.ZERO)
+		assert_eq(health.hit_protection_seconds, 0.2, "Reset preserves saved configuration")
+		assert_eq(health.get_hit_protection_remaining(), 0.0)
+
+
+func test_player_pre_ready_protection_override_survives_initialization() -> void:
+	for duration in [0.0, 0.15]:
+		var player := PLAYER.instantiate() as PlayerCharacter
+		var health := player.get_node("Combatant") as Combatant
+		health.hit_protection_seconds = duration
+		get_tree().root.add_child(player)
+		autofree(player)
+		player.set_control_input(0.0)
+		assert_eq(health.hit_protection_seconds, duration)
+		assert_true(_receiver(player).receive_hit(_hit(null, 0.5)))
+		assert_eq(health.get_hit_protection_remaining(), duration)
+		assert_eq(_receiver(player).receive_hit(_hit(null, 0.5)), duration == 0.0)
+
+
+func test_player_protection_override_round_trips_through_scene_save() -> void:
+	var settings_path := OS.get_environment("ASTRA_SETTINGS_PATH")
+	assert_false(
+		settings_path.is_empty(), "Runner must provide isolated writable evidence directory"
+	)
+	if settings_path.is_empty():
+		return
+	for duration in [0.0, 0.2]:
+		var authored := PLAYER.instantiate() as PlayerCharacter
+		autofree(authored)
+		(authored.get_node("Combatant") as Combatant).hit_protection_seconds = duration
+		var saved := PackedScene.new()
+		assert_eq(saved.pack(authored), OK)
+		var path := settings_path.get_base_dir().path_join("protection-%d.tscn" % (duration * 100))
+		assert_eq(ResourceSaver.save(saved, path), OK)
+		var reloaded := _saved_player(path, duration)
+		assert_true(_receiver(reloaded).receive_hit(_hit(null, 0.5)))
+		assert_eq(reloaded.get_combatant().get_hit_protection_remaining(), duration)
+		assert_eq(_receiver(reloaded).receive_hit(_hit(null, 0.5)), duration == 0.0)
 
 
 func test_zero_protection_bypasses_consecutive_hits_for_enemy_and_dummy() -> void:
@@ -416,6 +483,21 @@ func _arena() -> TrainingArena:
 	arena.enemy.attack_enabled = false
 	arena.player.set_control_input(0.0)
 	return arena
+
+
+func _saved_player(path: String, expected: float) -> PlayerCharacter:
+	var saved := (
+		ResourceLoader.load(path, "PackedScene", ResourceLoader.CACHE_MODE_IGNORE) as PackedScene
+	)
+	assert_not_null(saved)
+	var player := saved.instantiate() as PlayerCharacter
+	assert_eq((player.get_node("Combatant") as Combatant).hit_protection_seconds, expected)
+	get_tree().root.add_child(player)
+	autofree(player)
+	player.set_control_input(0.0)
+	assert_eq(player.get_combatant().hit_protection_seconds, expected)
+	assert_eq(player.get_combatant().validate(), [])
+	return player
 
 
 func _actor(protection: float) -> Node2D:

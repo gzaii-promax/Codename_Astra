@@ -37,7 +37,6 @@ var _jump_origin_y: float = 0.0
 
 func _ready() -> void:
 	InputSetup.ensure_actions()
-	combatant.hit_protection_seconds = CombatConfig.PLAYER_HIT_PROTECTION_SECONDS
 	actions.bind_action(&"basic_attack", BASIC_ATTACK, SkillExecutors.melee)
 	set_fireball_level(1)
 	actions.phase_changed.connect(_on_phase_changed)
