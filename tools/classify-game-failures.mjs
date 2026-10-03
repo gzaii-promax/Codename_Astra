@@ -23,11 +23,11 @@ function gutFailureMessages(rawLog) {
     if (/^= Run Summary/.test(line)) { flush(); break; }
     const suiteMatch = line.match(/^res:\/\/(.+\.gd)\s*$/);
     const testMatch = line.match(/^\* (test_\w+)\s*$/);
-    const failedMatch = line.match(/^\s*\[Failed\]:\s*(.*)$/);
+    const failedMatch = line.match(/^\s*\[Failed\]:?\s*(.*)$/);
     if (suiteMatch) { flush(); suite = suiteMatch[1]; name = null; }
     else if (testMatch) { flush(); name = testMatch[1]; }
     else if (failedMatch) { flush(); pending = [failedMatch[1]]; }
-    else if (/^\s*(?:\[[^\]]+\]:|--- Awaiting)/.test(line) || !line.trim()) flush();
+    else if (/^\s*(?:\[[^\]]+\](?::|\s|$)|--- Awaiting)/.test(line) || !line.trim()) flush();
     else if (pending && /^\s+/.test(line)) pending.push(line.trim());
     else flush();
   }

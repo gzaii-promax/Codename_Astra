@@ -45,7 +45,7 @@
 
 `report.failure_classification` 读取 `checks[id=junit].actual.junit` 的原始失败消息及 `gut_log_path` 的实际 `[Failed]` 断言（去 ANSI、按 suite/name 对应、排除 summary 重复），以 `DESIGN_BASELINE:` / `MECHANISM:` 标签生成诊断：`counts` 与 `cases` 的类别为 `design_baseline`、`mechanism`、`mixed`、`unclassified`。标签覆盖当前尺度/地图用例；其他未标记用例或引擎错误保留未分类，不能靠名称猜原因。GUT 9.7.1 的 XML 可能只保留同一 case 的首条失败，原始日志补充其余断言；`cases[].evidence_coverage = junit_only` 表示分类可能不完整，不能据此排除机制故障。成功报告 counts 全零；没有可读 XML 时为 `status: unavailable`，须检查失败项与日志，不能视为零失败。
 
-分类不修改原始 JUnit、退出码或验收规则；设计失败也阻止交付，标签本身不代表用户认可或已查明原因。Node 回归涵盖标签、混合/无标签错误、跳过、缺失报告和证据不变性，完整引擎仍按相同入口独立执行。
+分类不修改原始 JUnit、退出码或验收规则；设计失败也阻止交付，标签本身不代表用户认可或已查明原因。Node 回归涵盖标签、混合/无标签错误、GUT 布尔断言的无冒号 `[Failed]`、跳过、缺失报告和证据不变性，完整引擎仍按相同入口独立执行。
 
 ## 引入测试环境的自检
 

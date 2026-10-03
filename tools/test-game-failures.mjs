@@ -103,3 +103,16 @@ test('multiline failure labels and unlabeled supplemental assertions retain all 
   assert.equal(result.cases[0].category, 'mixed');
   assert.deepEqual(result.cases[0].labels, ['design_baseline', 'mechanism', 'unclassified']);
 });
+
+
+test('bare GUT boolean failures remain unclassified alongside a labeled first XML failure', () => {
+  const log = 'res://test_contract.gd\n* test_boolean\n    [Failed]: DESIGN_BASELINE: expected size\n'
+    + '      at line 10\n    [Failed] \n      at line 11\n    [Passed] \n'
+    + '      MECHANISM: passing text must not contaminate failure\n= Run Summary\n'
+    + '    [Failed] \n';
+  const result = classifyGameFailures({ cases: [makeCase('test_boolean', ['DESIGN_BASELINE: expected size'])] }, log);
+  assert.equal(result.cases[0].category, 'mixed');
+  assert.deepEqual(result.cases[0].labels, ['design_baseline', 'unclassified']);
+  assert.equal(result.cases[0].gut_log_failed_assertions, 2);
+  assert.equal(result.cases[0].evidence_coverage, 'junit_and_gut_log');
+});

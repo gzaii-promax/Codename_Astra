@@ -13,6 +13,7 @@
 
 | 记录 | 状态 | 问题 |
 | --- | --- | --- |
+| [ERR-20261003-GUT-BARE-FAILURE](ERR-20261003-GUT-BARE-FAILURE.md) | resolved | GUT 无冒号布尔断言漏读；真实日志32条失败复验与Node回归保留 |
 | [ERR-20261003-PROTECTION-INSPECTOR](ERR-20261003-PROTECTION-INSPECTOR.md) | resolved | 主角初始化覆盖 Inspector 保存的保护时间；本轮重新整合并复验 |
 | [ERR-20261003-PROTECTION-FIXTURE](ERR-20261003-PROTECTION-FIXTURE.md) | resolved | 真实配置回归夹具的错误 editable 声明与格式 |
 | [ERR-20261003-BASELINE-WALK-FIXTURE](ERR-20261003-BASELINE-WALK-FIXTURE.md) | resolved | 提速实验撞到恒速采样障碍；JUnit 首条失败不能代表全部断言 |
