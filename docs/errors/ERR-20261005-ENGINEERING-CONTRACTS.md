@@ -32,6 +32,10 @@
 
 - 组合首轮 `20261004T171532120Z-98ff4fe4`：171项中170通过，仅新增键盘 device 匹配断言失败。测试错误地假定 keyboard device=0；固定 Godot 4.7.2 使用 `InputEvent.DEVICE_ID_KEYBOARD=16`（[官方4.7文档](https://docs.godotengine.org/en/4.7/classes/class_inputevent.html#class-inputevent-constant-device-id-keyboard)）。修正测试使用引擎公开键盘常量，保留引擎原生保存的绑定，不为错误预期改变正式配置。
 
+- 冻结 `1c713267…` 的独立171项验收与PR CI均通过，但额外独立探针发现 get_combatant() 返回42时仍产生两条 SCRIPT ERROR，进程退出0且 is_valid=false。这说明退出码/既有绿灯不能覆盖所有错误类型；证据保存在 artifacts/engineering-safety/independent-initial/nonobject-provider.json。进一步反例确认，已释放的 Node/Combatant 引用直接使用 is 判断也会报错；必须先检查 Variant 是对象，再检查实例有效性，最后判断 Combatant 类型并转换，并扩展原有 broken-provider 用例；不新增case名称，不减少原断言。新head再次独立完整复验及CI，不能沿用旧head绿灯。
+
+provider 补修子分支 game `20261004T172817678Z-f96af722` 为14/14、148 tests / 3014 assertions，零失败/错误/跳过；同一既有case新增25条边界断言，原数字/释放引用探针复跑均 stderr 空。补修仅涉及HitData和该case；组合后仍171个case，最终head的完整证据单独核对。
+
 ## 结果与证据入口
 
 组合 game `20261004T171802796Z-b961eb71`：14/14 checks，171 tests / 3150 assertions，零 failures/errors/skipped；179项哈希中178项与当前文件一致，之后仅 tests/README.md 更新旧计数文字，业务/测试源码保持一致。原始 GUT/import/startup 日志无脚本/引擎错误。toolchain `20261004T170045565Z-80a78159` 为22/22，Node44/44；实际 worktree 正常编辑器 headless import 退出0，无引擎错误。冻结提交增加引擎生成的 design_baseline.gd.uid，最终完整文件集合由独立复验和CI核对。
