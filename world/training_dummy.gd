@@ -16,7 +16,7 @@ var _damage_labels: Array[Dictionary] = []
 
 
 func _ready() -> void:
-	receiver.hit_received.connect(_on_hit_received)
+	receiver.hit_resolved.connect(_on_hit_resolved)
 
 
 func _process(delta: float) -> void:
@@ -54,8 +54,7 @@ func get_damage_label_texts() -> Array[String]:
 	return texts
 
 
-func _on_hit_received(hit: HitData) -> void:
-	var final_damage := receiver.last_damage
+func _on_hit_resolved(hit: HitData, final_damage: float) -> void:
 	total_damage += final_damage
 	hit_count += 1
 	last_hit = hit

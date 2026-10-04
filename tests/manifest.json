@@ -139,6 +139,16 @@
     "test_map_prepare_keeps_target_off_tree_disabled_without_activating_or_marking_visit",
     "test_map_player_jumps_onto_and_crosses_actual_corridor_and_hall_steps",
     "test_map_queued_old_exit_cannot_travel_after_reset_to_same_room_identity",
-    "test_map_f6_overlay_tracks_real_collision_geometry_and_active_room_routes"
+    "test_map_f6_overlay_tracks_real_collision_geometry_and_active_room_routes",
+    "test_combat_source_provider_survives_nested_and_renamed_components",
+    "test_combat_missing_or_wrong_receiver_binding_rejects_contact",
+    "test_combat_outer_result_survives_rejection_in_hit_listener",
+    "test_combat_dummy_statistics_do_not_depend_on_listener_order",
+    "test_combat_healthless_contact_requires_explicit_mode",
+    "test_combat_unknown_or_broken_source_is_rejected_with_diagnostics",
+    "test_combat_direct_component_self_identity_survives_nested_ownership",
+    "test_combat_resolved_amount_survives_accepted_hit_in_earlier_listener",
+    "test_combat_receiver_paths_and_explicit_mode_survive_scene_round_trip",
+    "test_combat_resolved_amount_survives_rejected_hit_in_earlier_listener"
   ]
 }

@@ -522,7 +522,12 @@ func _hit(
 	source: Node, damage: float, policy: HitData.TargetPolicy = HitData.TargetPolicy.ALL
 ) -> HitData:
 	var hit := HitData.new()
-	hit.set_source(source)
+	if source == null:
+		hit.set_environment()
+	elif source is Combatant or source.has_method("get_combatant"):
+		hit.set_source(source)
+	else:
+		hit.set_source(source.get_node("Combatant") as Combatant)
 	hit.damage = damage
 	hit.target_policy = policy
 	return hit

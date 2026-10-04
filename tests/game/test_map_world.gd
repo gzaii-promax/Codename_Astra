@@ -343,6 +343,7 @@ func test_map_transition_preserves_player_identity_health_level_cooldown_and_pro
 	player.set_fireball_level(2)
 	assert_true(player.request_fireball(), "MECHANISM: assert_true")
 	var hit := HitData.new()
+	hit.set_environment()
 	hit.damage = 0.5
 	assert_true(player.get_combatant().apply_damage(hit, 0.5), "MECHANISM: assert_true")
 	var actions := player.get_action_controller()
@@ -419,6 +420,7 @@ func test_map_pause_and_inactive_player_cannot_travel() -> void:
 	var combatant := world.player.get_combatant()
 	combatant.zero_health_behavior = Combatant.ZeroHealthBehavior.KNOCKDOWN
 	var hit := HitData.new()
+	hit.set_environment()
 	hit.damage = 3.0
 	assert_true(combatant.apply_damage(hit, 3.0), "MECHANISM: assert_true")
 	assert_eq(combatant.life_state, Combatant.LifeState.DOWNED, "MECHANISM: assert_eq")

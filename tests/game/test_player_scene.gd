@@ -251,6 +251,7 @@ func _projectile_count(arena: TrainingArena) -> int:
 
 func _outside_receiver(arena: TrainingArena, at: Vector2) -> void:
 	var receiver := DamageReceiver.new()
+	receiver.healthless_target = true
 	receiver.position = at
 	var collision := CollisionShape2D.new()
 	var shape := RectangleShape2D.new()
