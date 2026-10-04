@@ -13,7 +13,7 @@
 
 | 记录 | 状态 | 问题 |
 | --- | --- | --- |
-| [ERR-20261005-ENGINEERING-CONTRACTS](ERR-20261005-ENGINEERING-CONTRACTS.md) | investigating | 输入配置、隐式依赖、效果归属、signal 再入与有限值边界；组合验收进行中 |
+| [ERR-20261005-ENGINEERING-CONTRACTS](ERR-20261005-ENGINEERING-CONTRACTS.md) | resolved | 输入配置、隐式依赖、效果归属、signal 再入与有限值边界；171项组合回归通过，交付证据另核对 |
 | [ERR-20261003-GUT-BARE-FAILURE](ERR-20261003-GUT-BARE-FAILURE.md) | resolved | GUT 无冒号布尔断言漏读；真实日志32条失败复验与Node回归保留 |
 | [ERR-20261003-PROTECTION-INSPECTOR](ERR-20261003-PROTECTION-INSPECTOR.md) | resolved | 主角初始化覆盖 Inspector 保存的保护时间；本轮重新整合并复验 |
 | [ERR-20261003-PROTECTION-FIXTURE](ERR-20261003-PROTECTION-FIXTURE.md) | resolved | 真实配置回归夹具的错误 editable 声明与格式 |

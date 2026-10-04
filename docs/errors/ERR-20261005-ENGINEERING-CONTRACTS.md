@@ -1,6 +1,6 @@
 # ERR-20261005-ENGINEERING-CONTRACTS — 配置、依赖与同步事件边界
 
-- 状态：investigating（组合/冻结完整验收进行中）
+- 状态：resolved（本地组合完整回归通过；冻结/CI 交付证据另核对）
 - channel：user_feedback / automated_test
 - 日期：2026-10-05（报告 run_id 按 UTC 为 2026-10-04）
 - 起点：main `037e076ac1faabaa9c3c7e27ecb369cb3090bcb7`
@@ -33,5 +33,7 @@
 - 组合首轮 `20261004T171532120Z-98ff4fe4`：171项中170通过，仅新增键盘 device 匹配断言失败。测试错误地假定 keyboard device=0；固定 Godot 4.7.2 使用 `InputEvent.DEVICE_ID_KEYBOARD=16`（[官方4.7文档](https://docs.godotengine.org/en/4.7/classes/class_inputevent.html#class-inputevent-constant-device-id-keyboard)）。修正测试使用引擎公开键盘常量，保留引擎原生保存的绑定，不为错误预期改变正式配置。
 
 ## 结果与证据入口
+
+组合 game `20261004T171802796Z-b961eb71`：14/14 checks，171 tests / 3150 assertions，零 failures/errors/skipped；179项哈希中178项与当前文件一致，之后仅 tests/README.md 更新旧计数文字，业务/测试源码保持一致。原始 GUT/import/startup 日志无脚本/引擎错误。toolchain `20261004T170045565Z-80a78159` 为22/22，Node44/44；实际 worktree 正常编辑器 headless import 退出0，无引擎错误。冻结提交增加引擎生成的 design_baseline.gd.uid，最终完整文件集合由独立复验和CI核对。
 
 组合源码、冻结独立验证与最终 PR/main CI 报告在本轮 `artifacts/engineering-safety/` 交接中记录；尚未完成的验证不能写成通过。临时 HUD 的可编辑性/职责集中仍是 [ui/README.md](../../ui/README.md) 工程债，用户手感保持独立待验收。
