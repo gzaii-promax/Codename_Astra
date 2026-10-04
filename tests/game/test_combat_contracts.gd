@@ -10,6 +10,15 @@ class NestedActor:
 		return health
 
 
+class InvalidProvider:
+	extends Node
+
+	var candidate: Variant
+
+	func get_combatant() -> Variant:
+		return candidate
+
+
 func test_combat_source_provider_survives_nested_and_renamed_components() -> void:
 	var actor := _nested_actor(Combatant.Faction.ENEMY)
 	var hit := _hit(actor)
@@ -102,6 +111,36 @@ func test_combat_unknown_or_broken_source_is_rejected_with_diagnostics() -> void
 	hit.set_source(unknown)
 	assert_false(hit.is_valid())
 	assert_false(receiver.receive_hit(hit))
+	var provider := InvalidProvider.new()
+	get_tree().root.add_child(provider)
+	autofree(provider)
+	for invalid in [42, "not a component", null, RefCounted.new(), {}]:
+		provider.candidate = invalid
+		hit.set_source(provider)
+		assert_false(
+			hit.is_valid(), "MECHANISM: Invalid provider returns reject without cast errors"
+		)
+		assert_false(receiver.receive_hit(hit))
+		assert_true(receiver.last_error.contains("source"))
+	provider.candidate = actor.health
+	hit.set_source(provider)
+	assert_true(hit.is_valid())
+	provider.candidate = 42
+	assert_false(
+		hit.is_valid(), "MECHANISM: Live broken providers cannot reuse valid cached identity"
+	)
+	assert_false(receiver.receive_hit(hit))
+	for component in [Node.new(), Combatant.new()]:
+		provider.candidate = component
+		hit.set_source(provider)
+		component.free()
+		assert_false(
+			hit.is_valid(), "MECHANISM: Freed provider results reject without engine errors"
+		)
+		assert_false(receiver.receive_hit(hit))
+		hit.set_source(provider)
+		assert_false(hit.is_valid())
+	assert_eq(actor.health.current_health, 3.0)
 	hit.set_source(actor)
 	assert_true(hit.is_valid())
 	actor.health = null

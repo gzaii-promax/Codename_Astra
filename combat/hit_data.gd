@@ -115,5 +115,11 @@ func _resolve_combatant(node: Node) -> Combatant:
 	if node is Combatant:
 		return node as Combatant
 	if node.has_method("get_combatant"):
-		return node.call("get_combatant") as Combatant
+		var candidate: Variant = node.call("get_combatant")
+		if (
+			typeof(candidate) == TYPE_OBJECT
+			and is_instance_valid(candidate)
+			and candidate is Combatant
+		):
+			return candidate as Combatant
 	return null
