@@ -14,6 +14,8 @@
 
 ## 并行验收
 
+可维护性改动同时执行 [工程评审](engineering-practices.md) 的配置、依赖、生命周期和同步再入反例；原失败必须可读，不能只增加证明现有实现的正向测试。临时 HUD 保留原回归并标注债务，不据当前 UI 测试通过宣称正式架构完成。
+
 写入/运行开发任务按 [worktrees.md](worktrees.md) 使用独立 checkout。工具准备和单测入口为 `node tools/prepare-worktree.mjs --tools-from <同仓库已验证目录>` 与 `node --test tools/test-toolchain.mjs tools/test-worktree.mjs tools/test-worktree-runtime.mjs tools/test-game-failures.mjs`；随后运行既有 scope 验收。所有报告、快照、设置和引擎日志留在实际 checkout，交接写明绝对目录与 run_id。不要跨目录读取 latest.json，也不把依赖准备或故意失败 fixture 计为真实游戏通过。共享集成操作另用公共锁。
 
 ## 执行与交接

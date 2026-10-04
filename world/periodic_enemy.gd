@@ -83,10 +83,10 @@ func _get_interval() -> float:
 
 func _stop_attack() -> void:
 	actions.reset_state()
-	_clear_melee_windows()
+	_cancel_source_effects()
 
 
-func _clear_melee_windows() -> void:
+func _cancel_source_effects() -> void:
 	AttackEffectLifecycle.cancel_source(self)
 
 
@@ -99,7 +99,7 @@ func _on_state_changed(state: int) -> void:
 
 func _on_damaged(_hit: HitData, amount: float) -> void:
 	if amount > 0.0 and actions.cancel(&"hit"):
-		_clear_melee_windows()
+		_cancel_source_effects()
 	_flash_remaining = 0.15
 	queue_redraw()
 

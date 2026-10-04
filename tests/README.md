@@ -1,10 +1,14 @@
 # 首版自动验收模块
 
+## 工程契约回归（2026-10-05）
+
+`test_engineering_safety.gd` 验证输入保存后新引擎进程加载、合法零值/非法配置、正式 Player 场景无缓存保存往返及物理/reset、同名动作同步重启。`test_combat_contracts.gd` 验证来源 provider、严格绑定、显式无生命模式、稳定结算事件及保存配置；效果生命周期测试验证嵌套/reparent、离树、世界/来源隔离及命中回调同帧取消。原失败与最终完整报告见 [工程契约记录](../docs/errors/ERR-20261005-ENGINEERING-CONTRACTS.md)。这些用例不把临时 HUD 视为正式可复用架构。
+
 ## Agent 开始与结束步骤
 
 1. 读取 `AGENTS.md`、`docs/testing.md`、`tests/manifest.json` 和 `docs/errors/README.md`，再检查最新报告的 scope 与代码 hash。
 2. 项目根目录执行 `node tools/check.mjs --scope game`；本机按 ENV-0004 使用获准的沙箱外环境。新建或修改测试流程后立即执行。
-3. 读取 stdout JSON 的 `report_path`，核对 `expected_check_ids` 全部执行、`tests/manifest.json` 的全部预期测试均出现，且 JUnit 没有失败/错误/跳过；核对源码 hash、原始日志、Git 状态和报告时间。本轮完整保留既有 112 项动作、物理、多语言、生命、尺度/可变跳跃、心容器及受击保护回归，新增 22 项地图系统验收，共 134 项。完整用例名册以 `manifest.json` 为准；数量仅表示契约，是否实际通过以本轮报告为准。
+3. 读取 stdout JSON 的 `report_path`，核对 `expected_check_ids` 全部执行、`tests/manifest.json` 的全部预期测试均出现，且 JUnit 没有失败/错误/跳过；核对源码 hash、原始日志、Git 状态和报告时间。本轮完整保留既有 138 项动作、物理、多语言、生命、尺度/可变跳跃、心容器、受击保护、配置和地图回归，新增 33 项工程契约回归，共 171 项。完整用例名册以 `manifest.json` 为准；数量仅表示契约，是否实际通过以本轮报告为准。
 4. 失败先查公共错误目录，分类依赖/环境/配置/代码/测试问题；记录假设与修复证据，再复跑。交接提供 `run_id`、状态、报告路径、原始日志与开放错误。
 
 ## 职责与接口

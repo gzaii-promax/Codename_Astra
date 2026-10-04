@@ -16,7 +16,7 @@ U 统一计量，不强制所有属性按 1 U 或 0.5 U 跳变。地图模块负
 
 ## 输入与地形辅助
 
-`input_setup.gd` 提供幂等 `InputSetup.ensure_actions()`：按物理键注册 move_left/right、jump、basic_attack、fireball、reset_training、toggle_fireball_level，重复调用不添加重复事件。角色键盘路径与场景事件路径共享这些映射；不承担动作时序或伤害。
+默认物理键保存在 Project Settings → Input Map（project.godot 的 input 节）。`input_setup.gd` 提供幂等 `InputSetup.ensure_actions()`，只补完全缺失的 move_left/right、jump、basic_attack、fireball、reset_training、toggle_fireball_level action；已有绑定、deadzone 和有意清空的 events 保持不变。日常调试在编辑器修改并保存，不在启动时强制补回默认键。角色键盘路径与场景事件路径共享这些映射；不承担动作时序或伤害。
 
 `graybox_solid.gd` 提供 `GrayboxSolid.create(Rect2,Color,name)`，返回世界层 1 的 StaticBody2D；CollisionShape2D 与 Polygon2D 使用同一个矩形尺寸，保证 gray box 可见表面与物理表面一致。业务场景决定如何布局，不在公共工具中硬编码地图。
 

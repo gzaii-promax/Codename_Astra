@@ -12,6 +12,8 @@
 
 coyote_seconds 与 jump_buffer_seconds 均 0.1 s。土狼时间允许短暂离开平台后跳跃，跳跃缓冲允许落地前的短暂输入；缓冲输入在落地前已松键时仍产生短跳。两者不提供无限空中跳跃。
 
+所有移动参数必须有限；move_speed、acceleration、deceleration、coyote_seconds、jump_buffer_seconds 允许零，gravity、跳高及 max_fall_speed 必须大于零，min_jump_height 不得高于 max_jump_height。零速度表示禁用水平移动；零 grace 时长只关闭离地宽限/提前缓冲，地面上的新跳跃请求仍有效。`validate_movement()` 返回配置问题，`configuration_error` 保存启动/物理帧诊断；非法配置保持原值，停止移动并拒绝新攻击，不隐式恢复默认。参数每物理帧读取，reset 只清状态。
+
 Actions 按物理帧 tick。每阶段的 inertia_scale 只在进入阶段时缩放水平惯性，control_scale 缩放玩家目标移动速度，skill_velocity 的 x 按面朝方向转换；can_jump 决定该阶段能否起跳。角色不根据具体技能名称硬编码动作运动。前摇期间可以转向；进入执行阶段后直到后摇结束，朝向锁定，但仍可按策略向左右移动，保证近战视觉、释放点与实际命中方向一致。
 
 主动取消与受击中断为 ActionController 的独立策略/API。当前未绑定主动取消按键；主角现接入 DamageReceiver 和 Combatant，正伤害调用受击中断，仍遵循各阶段 can_interrupt_hit；成功中断撤销本角色近战窗口，保留冷却。允许跳跃只是允许在动作中起跳，不自动取消动作。死亡/击倒无条件结束动作并撤销本角色已打开的近战窗口，停止输入和新攻击，重力继续使角色落地；独立已发射投射物继续存在。
@@ -32,6 +34,8 @@ Actions 按物理帧 tick。每阶段的 inertia_scale 只在进入阶段时缩�
 ## 替换角色素材
 
 静态图通过 Visual 的 texture、texture_region、display_height 配置替换；当前 region=Rect2(348,46,578,1173)，显示高度 2U（32 px）。保留脚底原点和独立碰撞；施法提示与当前释放点对齐。后续 AnimatedSprite2D 可替换 Visual 实现，保留 `update_state(actor,delta)`，无需改伤害逻辑。素材来源和实际限制见 assets/README.md。
+
+`validate_visual()` / `configuration_error` 检查纹理、有限区域、正尺寸和正显示高度；启动无效时不创建 Sprite，运行时发现无效配置时隐藏已有 Sprite。move_speed=0 不参与倾斜除法。纹理和区域/缩放在 `_ready()` 建立，修改后重新运行场景；本轮没有实现编辑器预览或完整热重建，启动配置修正后需重建实例。
 
 ## 验证与限制
 

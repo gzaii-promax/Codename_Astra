@@ -2,6 +2,8 @@
 
 ## 职责与依赖
 
+`TrainingHUD` 是临时测试 HUD。2026-10-05 用户确认当前版足够测试，后续完全重做；本轮保留实现，不改 UI 行为。运行时创建全部控件、父场景/Player 路径依赖、菜单与读数集中、逐帧刷新均作为工程债记录，不作为正式 HUD 或新模块的复用标准。正式重做时重新划分展示/菜单/数据接口，审查可编辑场景及 signal 数据绑定；本记录不是已完成重构或正式 UI 设计。流程入口见 [engineering-practices.md](../docs/engineering-practices.md)。
+
 `training_hud.gd` 提供 `TrainingHUD extends CanvasLayer`。读数读取 Player 的有效火球定义、动作阶段和剩余冷却；训练模式另读取 TrainingDummy 的累计伤害/命中次数，地图模式显示当前房间与本次探索数量。菜单负责暂停/恢复、调用当前模式的重置接口、切换训练场／地图样例，以及显示语言选择和帮助；不修改技能数值、不保存成长。
 
 依赖 autoload `Localization`、主角动作控制器以及当前场景的读数／重置接口。地图模式以父节点提供 `reset_world()` 判断；不强类型引用 MapWorld，避免与地图根场景产生加载循环。`TrainingDummy` 使用 `get_node_or_null()`，地图不依赖它；地图读数使用 `get_room_title()`、`get_visited_rooms()` 和 `registry.rooms.size()`，房间总数不写死。文本全部通过 `Localization.text(key, args)`，字体通过 `Localization.get_font()` 写入共享 Theme；语言选项动态读取 `available_languages()` 的 locale/name，不在 UI 写死语言数量或 locale。收到 `language_changed` 后立即刷新 HUD、菜单、手册和字体。技能名称/描述取 `get_definition(action_id)` 返回的 `name_key/description_key`。公共头顶心容器 `health_bar.gd` 另读取同角色的 Combatant，不依赖角色控制方式。

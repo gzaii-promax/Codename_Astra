@@ -72,9 +72,13 @@
 
 可读取 `phase`（`Phase.IDLE/WINDUP/ACTIVE/RECOVERY`）、`phase_remaining`、`active_definition`、`active_action_id`；通过 `get_definition(action_id)`、`get_cooldown_remaining(action_id)` 查看绑定后的最终属性和冷却。这些运行对象视为只读，不用于写回基础资源。
 
+signal 默认同步执行。控制器为每次启动/结束维护独立动作代次，phase_changed、activated 或 completed 回调中 reset/cancel/重启同名动作后，旧调用栈停止推进，不重复调用新执行器，也不把旧 tick 剩余时间用于新动作。completed 的 ID/cancelled 描述刚结束的动作；其他回调可能已经启动下一次动作，不能据同名 ID 判断仍是旧动作。
+
+执行器通过 `AttackEffectLifecycle.find_world(caster)` 查找显式标记的最近世界祖先，发布前 `register(effect, world, caster, cancel_with_source)`。近战为 true，火球为 false；新效果使用同一登记契约，世界/来源清理无需增加类型分支。角色命中中断调用 `cancel_source`，地图和训练重置调用 `clear_world`；重新挂载保留原归属，跨世界迁移需重新 register。公共接口见 [shared/README.md](../shared/README.md)。
+
 事件为 `phase_changed(phase)`、`activated(action_id, definition, caster)`、`completed(action_id, cancelled)`。执行器只在进入 `ACTIVE` 时调用一次。控制器 `cancel` 自身只结束角色动作，不负责清理世界效果；已接入受击的 Player 和 PeriodicEnemy 在成功执行 `cancel(&"hit")` 时撤销本人已生成近战窗口，死亡/击倒时也撤销窗口。受击中断保留已有冷却，独立的已发射火球继续存在；其他尚未取消的窗口按自身 `active_seconds` 清理。
 
-`SkillExecutors.melee/fireball` 只要求发动者为已进入场景树的 `Node2D`、提供 `facing_direction`（负值向左）与 `get_attack_origin() -> Vector2`。实体加入 `current_scene`，测试没有当前场景时加入发动者父节点。火球期望出生点为攻击点向前偏移 18 像素，但生成前会从角色中心 X、攻击点 Y 组成的内部锚点向该位置扫掠场景实体。若有墙阻挡，就从内部锚点发射，由火球后续的物理扫掠撞墙销毁，不能越过薄墙出生。近战位置随攻击点移动，方向在启动时固定。
+`SkillExecutors.melee/fireball` 要求发动者为已进入场景树的 `Node2D`，战斗来源为 Combatant 或提供 get_combatant()；面向/攻击点使用 facing_direction 与 get_attack_origin()。实体加入显式标记的最近世界祖先，无世界边界的独立测试 rig 才回退 current_scene/发动者父节点。火球期望出生点为攻击点向前偏移 18 像素，但生成前会从角色中心 X、攻击点 Y 组成的内部锚点向该位置扫掠场景实体。若有墙阻挡，就从内部锚点发射，由火球后续的物理扫掠撞墙销毁，不能越过薄墙出生。近战位置随攻击点移动，方向在启动时固定；每个命中回调之后检查是否已取消，停止扫描其余缓存 contacts。
 
 `Fireball` 默认碰撞 layer `8`、mask `5`（场景 `1` 加受击区 `4`）。每物理帧对移动线段做真实物理 ray query，遇到第一个场景实体/受击区即消失；受击区调用统一 `receive_hit`。投射物不穿透，无论是否接收伤害都在接触时销毁。`spent` 防止重复命中；首版碰撞使用中心线，视觉外缘不是额外命中半径。火球和近战窗口在已经进入删除队列时不再处理物理帧，避免训练场重置后出现延迟伤害。
 

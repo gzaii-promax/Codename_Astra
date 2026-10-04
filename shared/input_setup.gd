@@ -15,8 +15,10 @@ const ACTION_KEYS: Dictionary = {
 
 static func ensure_actions() -> void:
 	for action: StringName in ACTION_KEYS:
-		if not InputMap.has_action(action):
-			InputMap.add_action(action)
+		# Existing actions, including deliberately empty bindings, belong to the editor.
+		if InputMap.has_action(action):
+			continue
+		InputMap.add_action(action)
 		for physical_key: int in ACTION_KEYS[action]:
 			var event := InputEventKey.new()
 			event.physical_keycode = physical_key as Key

@@ -21,6 +21,7 @@
 
 | 工作 | 入口 |
 | --- | --- |
+| 编辑器工作流、职责/依赖、signal 再入和效果归属评审 | [engineering-practices.md](engineering-practices.md) |
 | 开发隔离、工具借用、编辑器、集成锁、归档 | [worktrees.md](worktrees.md) |
 | Commit、PR、合并与 main 同步 | [git-workflow.md](git-workflow.md) |
 | 运行验收、读取报告、失败复跑与证据边界 | [testing.md](testing.md)、[tests/README.md](../tests/README.md) |

@@ -1,6 +1,6 @@
 class_name SkillExecutors
 extends RefCounted
-## The only actor requirements are facing_direction and get_attack_origin().
+## Actors provide combat ownership; world boundaries own explicitly registered effects.
 
 
 static func melee(caster: Node, definition: SkillDefinition) -> void:

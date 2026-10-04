@@ -17,6 +17,7 @@ var _bindings: Dictionary = {}
 var _cooldowns: Dictionary = {}
 var _caster: Node
 var _executor: Callable
+var _action_generation: int = 0
 
 
 func bind_action(
@@ -37,12 +38,14 @@ func request_action(action_id: StringName, caster: Node) -> bool:
 	if definition == null or not definition.resolution_errors.is_empty() or not executor.is_valid():
 		return false
 	active_definition = definition
+	_action_generation += 1
+	var generation := _action_generation
 	active_action_id = action_id
 	_caster = caster
 	_executor = executor
 	_cooldowns[action_id] = definition.cooldown_seconds
 	_enter_phase(Phase.WINDUP, definition.windup_seconds)
-	_advance_zero_duration_phases()
+	_advance_zero_duration_phases(generation)
 	return true
 
 
@@ -57,14 +60,15 @@ func tick(delta: float) -> void:
 		_finish(true)
 		return
 	var remaining := delta
-	while phase != Phase.IDLE:
+	var generation := _action_generation
+	while phase != Phase.IDLE and generation == _action_generation:
 		if phase_remaining > remaining:
 			phase_remaining -= remaining
 			break
 		remaining -= phase_remaining
 		_advance_phase()
 		if remaining <= 0.0:
-			_advance_zero_duration_phases()
+			_advance_zero_duration_phases(generation)
 			break
 
 
@@ -88,6 +92,7 @@ func reset_state() -> void:
 	if phase != Phase.IDLE:
 		_finish(true)
 	else:
+		_action_generation += 1
 		active_definition = null
 		active_action_id = &""
 		phase_remaining = 0.0
@@ -130,16 +135,24 @@ func _get_phase_policy() -> PhasePolicy:
 
 
 func _enter_phase(next_phase: Phase, duration: float) -> void:
+	var generation := _action_generation
 	phase = next_phase
 	phase_remaining = duration
 	phase_changed.emit(phase)
-	if phase == Phase.ACTIVE:
+	if generation != _action_generation or phase != next_phase:
+		return
+	if next_phase == Phase.ACTIVE:
 		var action_id := active_action_id
 		var definition := active_definition
 		var caster := _caster
 		var executor := _executor
 		activated.emit(action_id, definition, caster)
-		if phase == Phase.ACTIVE and active_action_id == action_id:
+		if generation != _action_generation or phase != Phase.ACTIVE:
+			return
+		if not is_instance_valid(caster):
+			_finish(true)
+			return
+		if executor.is_valid():
 			executor.call(caster, definition)
 
 
@@ -153,13 +166,14 @@ func _advance_phase() -> void:
 			_finish(false)
 
 
-func _advance_zero_duration_phases() -> void:
-	while phase != Phase.IDLE and phase_remaining <= 0.0:
+func _advance_zero_duration_phases(generation: int) -> void:
+	while generation == _action_generation and phase != Phase.IDLE and phase_remaining <= 0.0:
 		_advance_phase()
 
 
 func _finish(cancelled: bool) -> void:
 	var finished_id := active_action_id
+	_action_generation += 1
 	phase = Phase.IDLE
 	phase_remaining = 0.0
 	active_definition = null
