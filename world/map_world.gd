@@ -18,6 +18,10 @@ var _room_generation: int = 0
 @onready var collision_debug: MapCollisionOverlay = $CollisionDebug
 
 
+func _enter_tree() -> void:
+	AttackEffectLifecycle.register_world(self)
+
+
 func _ready() -> void:
 	InputSetup.ensure_actions()
 	if registry == null:
@@ -198,10 +202,7 @@ func _travel_if_current(exit_id: StringName, source_room_id: StringName, generat
 
 
 func _clear_effects() -> void:
-	for child in get_children():
-		if child is Fireball or child is MeleeStrike:
-			child.set_physics_process(false)
-			child.queue_free()
+	AttackEffectLifecycle.clear_world(self)
 
 
 func _update_camera() -> void:

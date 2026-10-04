@@ -44,6 +44,9 @@ func _physics_process(delta: float) -> void:
 	query.collide_with_bodies = false
 	var contacts := get_world_2d().direct_space_state.intersect_shape(query, 32)
 	for contact in contacts:
+		# A receive/receiver_hit callback may reset the world or cancel this source.
+		if is_queued_for_deletion():
+			return
 		var receiver := contact["collider"] as Node
 		if receiver == null or not receiver.has_method("receive_hit"):
 			continue

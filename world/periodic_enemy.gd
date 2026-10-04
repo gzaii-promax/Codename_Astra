@@ -87,16 +87,7 @@ func _stop_attack() -> void:
 
 
 func _clear_melee_windows() -> void:
-	if not is_inside_tree():
-		return
-	var spawn_parent := get_tree().current_scene
-	if spawn_parent == null:
-		spawn_parent = get_parent()
-	if spawn_parent != null:
-		for strike in spawn_parent.get_children():
-			if strike is MeleeStrike and strike.hit != null and strike.hit.source == self:
-				strike.set_physics_process(false)
-				strike.queue_free()
+	AttackEffectLifecycle.cancel_source(self)
 
 
 func _on_state_changed(state: int) -> void:

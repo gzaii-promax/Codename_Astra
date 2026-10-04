@@ -16,6 +16,7 @@ const ENEMY_SPAWN := ARENA_ORIGIN + Vector2(27.0, 15.0) * UNIT
 
 
 func _enter_tree() -> void:
+	AttackEffectLifecycle.register_world(self)
 	InputSetup.ensure_actions()
 
 
@@ -55,10 +56,7 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 func reset_training() -> void:
-	for child in get_children():
-		if child is Fireball or child is MeleeStrike:
-			child.set_physics_process(false)
-			child.queue_free()
+	AttackEffectLifecycle.clear_world(self)
 	player.reset_state(PLAYER_SPAWN)
 	enemy.reset_state(ENEMY_SPAWN)
 	dummy.reset_stats()

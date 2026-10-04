@@ -8,7 +8,9 @@ static func melee(caster: Node, definition: SkillDefinition) -> void:
 		return
 	var strike := MeleeStrike.new()
 	strike.setup(caster as Node2D, definition, _make_hit(caster, definition), _get_facing(caster))
-	_get_spawn_parent(caster).add_child(strike)
+	var world := _get_spawn_parent(caster)
+	AttackEffectLifecycle.register(strike, world, caster, true)
+	world.add_child(strike)
 	strike.global_position = _get_origin(caster)
 
 
@@ -24,7 +26,9 @@ static func fireball(caster: Node, definition: SkillDefinition) -> void:
 		definition.projectile_lifetime,
 		definition.projectile_range
 	)
-	_get_spawn_parent(caster).add_child(projectile)
+	var world := _get_spawn_parent(caster)
+	AttackEffectLifecycle.register(projectile, world, caster, false)
+	world.add_child(projectile)
 	projectile.global_position = _get_projectile_spawn(caster as Node2D, hit.direction)
 
 
@@ -67,6 +71,10 @@ static func _get_projectile_spawn(caster: Node2D, direction: Vector2) -> Vector2
 
 
 static func _get_spawn_parent(caster: Node) -> Node:
+	var world := AttackEffectLifecycle.find_world(caster)
+	if world != null:
+		return world
+	# Standalone test rigs may omit the explicit world boundary.
 	if caster.get_tree().current_scene != null:
 		return caster.get_tree().current_scene
 	return caster.get_parent()
