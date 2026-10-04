@@ -5,6 +5,10 @@ class FixtureCaster:
 	extends Node2D
 
 	var facing_direction: float = 1.0
+	var combatant: Combatant
+
+	func get_combatant() -> Combatant:
+		return combatant
 
 	func get_attack_origin() -> Vector2:
 		return global_position
@@ -121,8 +125,10 @@ func test_receiver_rejects_disabled_invalid_and_own_hits() -> void:
 	assert_false(receiver.receive_hit(hit))
 	hit.damage = 0.5
 	hit.source = receiver
-	assert_false(receiver.receive_hit(hit))
+	assert_false(receiver.receive_hit(hit), "A healthless target is not a valid attack source")
 	hit.source = caster
+	var own_receiver := _receiver(caster, Vector2.ZERO, &"own")
+	assert_false(own_receiver.receive_hit(hit), "Caster ownership rejects its own descendant")
 	assert_true(receiver.receive_hit(hit))
 	assert_eq(_hit_ids, [&"target"])
 
@@ -136,12 +142,16 @@ func _rig() -> Node2D:
 
 func _caster(rig: Node2D) -> FixtureCaster:
 	var caster := FixtureCaster.new()
+	caster.combatant = Combatant.new()
+	caster.combatant.faction = Combatant.Faction.FRIENDLY
+	caster.add_child(caster.combatant)
 	rig.add_child(caster)
 	return caster
 
 
 func _receiver(rig: Node2D, at: Vector2, tag: StringName) -> DamageReceiver:
 	var receiver := DamageReceiver.new()
+	receiver.healthless_target = true
 	receiver.position = at
 	_add_rectangle(receiver, Vector2(26.0, 50.0))
 	receiver.hit_received.connect(func(_hit_data: HitData): _hit_ids.append(tag))

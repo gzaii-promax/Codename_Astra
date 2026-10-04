@@ -83,20 +83,11 @@ func _get_interval() -> float:
 
 func _stop_attack() -> void:
 	actions.reset_state()
-	_clear_melee_windows()
+	_cancel_source_effects()
 
 
-func _clear_melee_windows() -> void:
-	if not is_inside_tree():
-		return
-	var spawn_parent := get_tree().current_scene
-	if spawn_parent == null:
-		spawn_parent = get_parent()
-	if spawn_parent != null:
-		for strike in spawn_parent.get_children():
-			if strike is MeleeStrike and strike.hit != null and strike.hit.source == self:
-				strike.set_physics_process(false)
-				strike.queue_free()
+func _cancel_source_effects() -> void:
+	AttackEffectLifecycle.cancel_source(self)
 
 
 func _on_state_changed(state: int) -> void:
@@ -108,7 +99,7 @@ func _on_state_changed(state: int) -> void:
 
 func _on_damaged(_hit: HitData, amount: float) -> void:
 	if amount > 0.0 and actions.cancel(&"hit"):
-		_clear_melee_windows()
+		_cancel_source_effects()
 	_flash_remaining = 0.15
 	queue_redraw()
 

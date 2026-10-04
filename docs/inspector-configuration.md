@@ -10,6 +10,12 @@
 - 技能等级解析先创建独立运行副本，再应用等级覆盖，不修改基础 `.tres`。运行中修改配置、升级或显式角色映射须由对应 API 和模块契约规定，不能偷偷恢复默认值。
 - 保存配置生效指重新加载并启动实例后的行为。运行中是否热更新、缓存何时重新绑定，由所属模块说明，不承诺所有属性自动热更新。
 
+## 输入、移动与视觉配置
+
+输入配置使用 Project Settings → Input Map，七个游戏 action 的默认绑定保存在 project.godot。`InputSetup.ensure_actions()` 只创建完全缺失的 action；已有 events（包括有意清空）及 deadzone 均由保存配置决定。配置写入后用新引擎进程验证 InputMap 加载，避免只将 ConfigFile 值手工装回内存来充当恢复证据。
+
+主角移动允许合法零速度与零跳跃宽限/缓冲；非法/非有限参数保持原值并返回可读校验，拒绝相关行为。视觉区域分母必须为正且派生比例有限。保存、入树、实际物理与 reset 的测试见 `test_engineering_safety.gd`；具体属性范围和运行读取时机见 [player/README.md](../player/README.md)。
+
 ## 主角受击保护的唯一配置来源
 
 `player/player_character.tscn` 的 Combatant 保存主角默认 `hit_protection_seconds = 0.5` 秒。它是可调整的场景默认值，不是 Player 启动时强制值；通用 Combatant 声明默认仍是 `0.0`。

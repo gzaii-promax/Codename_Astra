@@ -14,8 +14,8 @@
 
 ## 文件与接口
 
-- `hit_data.gd`：`HitData extends RefCounted`，一次命中的数据。`source` 是唯一当前伤害归属者；`set_source(actor)` 更换归属，直接赋值 `source` 也调用相同身份缓存逻辑。`skill_id` 默认空；`damage` 默认 `0` 心；`damage_type` 默认 `physical`，仅分类，不改变扣心；`origin` 默认 `(0, 0)`；`direction` 默认右；`knockback` 默认 `0`，单位为像素/秒。伤害按上述半心规则校验，击退须有限且非负，位置与方向须为有限向量，伤害类型不可为空。`is_valid_damage(amount)` 是伤害/恢复与技能共用的严格半心校验入口。
-- `damage_receiver.gd`：`DamageReceiver extends Area2D`。目标提供 `CollisionShape2D`。`enabled` 默认 `true`，`combatant_path` 默认 `../Combatant`；`get_combatant()` 解析此路径。`receive_hit(hit) -> bool` 表示是否接受本次命中，只有通过许可、状态检查和扣心后才发 `hit_received(hit)`。接受时 `last_damage = hit.damage`，拒绝时为 `0`；`hit_received` 中的 `HitData.damage` 保持完整攻击值。
+- `hit_data.gd`：`HitData extends RefCounted`，一次命中的数据。`source` 是唯一当前伤害归属者；`set_source(actor)` 更换归属，直接赋值 `source` 也调用相同身份缓存逻辑。来源须为 `Combatant` 或提供 `get_combatant() -> Combatant` 的角色；不会按直属节点名称寻找组件，组件重命名/移入子场景后由角色接口维护连接。`validate()` 提供来源及数值错误，`is_valid()` 为统一拒绝入口。`skill_id` 默认空；`damage` 默认 `0` 心；`damage_type` 默认 `physical`，仅分类，不改变扣心；`origin` 默认 `(0, 0)`；`direction` 默认右；`knockback` 默认 `0`，单位为像素/秒。伤害按上述半心规则校验，击退须有限且非负，位置与方向须为有限向量，伤害类型不可为空。`is_valid_damage(amount)` 是伤害/恢复与技能共用的严格半心校验入口。
+- `damage_receiver.gd`：`DamageReceiver extends Area2D`。目标提供 `CollisionShape2D`。`enabled` 默认 `true`，`combatant_path` 默认 `../Combatant`；`get_combatant()` 解析此路径。默认要求路径正确绑定 `Combatant`，`validate()`、编辑器节点配置警告和 `last_error` 给出绑定诊断；错误/缺失绑定拒绝命中。`healthless_target` 默认 `false`，仅显式无生命接触目标才设为 `true`；该模式不读取生命路径，使用中立目标阵营。`receive_hit(hit) -> bool` 表示是否接受本次命中，只有通过许可、状态检查和扣心后才发兼容的 `hit_received(hit)`，随后发 `hit_resolved(hit, amount)`。`amount` 是本笔结算的完整心伤害，统计直接消费此参数；同步回调接受/拒绝另一笔命中不会改变它。接受调用返回时 `last_damage` 恢复本笔完整伤害，拒绝时为 `0`；该诊断字段不作为事件结果来源。
 - `combatant.gd`：`Combatant extends Node`，通常作为 actor 的 `Combatant` 子节点。事件为 `health_changed(current, maximum)`、`state_changed(state)`、`faction_changed(faction)`、`damaged(hit, amount)`。`damaged.amount` 与 receiver 的 `last_damage` 均记录完整接受伤害，包括过量伤害；生命最低为零，不因统计量产生负生命。UI 只响应事件，不自行修改生命。
 
 碰撞位约定：场景实体 `1`，主角 `2`，受击区域 `4`，火球 `8`；稻草人实体可使用 `16`。这些数字是 bitmask 值。Receiver 默认 `collision_layer = 4`、`collision_mask = 0`、`monitoring = false`、`monitorable = true`；由攻击查询接触目标，不使用 receiver 的主动监测。
@@ -34,7 +34,7 @@
 
 所有允许目标直接承受相同完整心伤害，不因自己/友方或伤害分类减伤。规则 2 判本人优先于判同阵营。`ALL` 适合无主环境和需要伤害所有单位的攻击；中立身份本身不会替攻击改规则。`set_environment()` 显式清空来源、设置 `is_environment = true` 与 `ALL`；有环境标识但非 `ALL` 是无效配置。普通角色放置的陷阱继续用角色归属。删除旧减伤枚举后 `ALL` 枚举值为 `2`；不得继续使用旧规则值 `3` 或旧减伤属性。
 
-兼容没有 `Combatant` 的物理 fixture：receiver 视为 `NEUTRAL`，仅报告命中与完整伤害；没有 `Combatant` 的发动者以及未填写来源的旧手造数据默认归属 `FRIENDLY`。此兼容路径不将未知来源视为 `ALL`。正式可战斗角色提供 `Combatant` 并显式指定阵营；训练稻草人也已接入生命与回满规则。
+无生命物理 fixture 必须显式设置 receiver 的 `healthless_target=true`，仅报告命中与完整伤害；测试攻击来源仍提供真实 `Combatant`/角色接口，或通过 `set_environment()` 明确表达环境伤害。未知、缺失或错误来源一律拒绝，不自动分配友方阵营。来源仍存活而其接口失效时拒绝；已合法绑定的来源被释放后，已发射命中保留最后捕获的阵营与组件身份。自伤以 `Combatant` 身份比较，避免把生命组件的直接父节点误认为角色。正式可战斗角色提供 `Combatant` 并显式指定阵营；训练稻草人也已接入生命与回满规则。
 
 反弹的归属入口是 `hit.set_source(reflector)`，后续阵营与自伤全部按反弹者计算，不保留另一套原始来源。更换归属不会重新计算攻击值或叠加反弹者攻击属性；正式反弹接触行为不在本轮实现。
 
@@ -57,7 +57,7 @@
 
 `Combatant.hit_protection_seconds` 须有限非负，`get_hit_protection_remaining()` 返回未暂停游戏秒数；零秒直接跳过判定，运行时设零清除已有计时。正心伤害后仍处于 `ACTIVE` 的单位在同步信号前启动保护，包括 `REFILL` 回满；零伤害不启动。稻草人默认零秒，连续命中与回满统计保持原规则。
 
-保护期间拒绝普通伤害，`last_damage=0`，不重复触发受伤、命中或动作中断，不延长计时。`DamageReceiver` 在同步生命回调返回后恢复外层成功命中的完整心伤害，避免被回调中的拒绝覆盖。保护使用物理帧递减，暂停冻结；死亡、击倒、恢复、训练重置和剧情死亡清零，恢复计时独立。近战窗口仅记成功命中，窗口跨到期时允许首次命中；火球触及受保护目标仍消耗。没有恢复旧减伤公式，也没有增加保护视觉效果。
+保护期间拒绝普通伤害，`last_damage=0`，不重复触发受伤、命中或动作中断，不延长计时。`DamageReceiver` 在同步生命及命中回调返回后恢复外层成功命中的完整心伤害，避免被回调中的拒绝覆盖。保护使用物理帧递减，暂停冻结；死亡、击倒、恢复、训练重置和剧情死亡清零，恢复计时独立。近战窗口仅记成功命中，窗口跨到期时允许首次命中；火球触及受保护目标仍消耗。没有恢复旧减伤公式，也没有增加保护视觉效果。
 
 - `reset_state()`：训练重置取消恢复与保护计时，恢复最大生命与正常状态；保留阵营、无敌和零血配置。
 - `force_death()`：剧情死亡入口，绕过无敌与零血行为（包括 `REFILL`），清零生命、取消恢复与保护计时；已死亡时不重复发事件。
@@ -67,7 +67,7 @@
 
 ## 扩展方法
 
-新增角色时添加 `Combatant`、receiver 和碰撞形状，配置整数心容器上限与零血行为，并连接生命/状态/受伤事件。统一生命只由 `Combatant` 更新，不能在 `hit_received` 回调重复扣心；统计使用 receiver 的 `last_damage`。强化攻击通过合法半心伤害值表达；新机制不得恢复旧百分比减伤公式。新增命中字段须明确默认值、单位、校验和接收者，修改此文档并回归已有攻击。
+新增角色时添加 `Combatant`、receiver 和碰撞形状，配置整数心容器上限与零血行为，并连接生命/状态/受伤事件。统一生命只由 `Combatant` 更新，不能在 `hit_received` 回调重复扣心；统计消费 `hit_resolved(hit, amount)` 的 `amount`，不从共享 `last_damage` 推导本笔事件。路径拆分时在 Inspector 更新 `combatant_path`；来源由角色 `get_combatant()` 暴露同一组件，不增加目录/节点名猜测。保存路径后验证无缓存重载、入树、实际命中与重置；新增监听器验证同步再入的接受和拒绝场景。强化攻击通过合法半心伤害值表达；新机制不得恢复旧百分比减伤公式。新增命中字段须明确默认值、单位、校验和接收者，修改此文档并回归已有攻击。
 
 ## 验证与当前状态
 

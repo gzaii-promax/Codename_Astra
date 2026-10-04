@@ -1,5 +1,17 @@
 # 当前工程状态
 
+## 工程契约修复（2026-10-05）
+
+本轮从 main `037e076ac1faabaa9c3c7e27ecb369cb3090bcb7` 修复调查确认的优先问题：输入保存覆盖、战斗 provider/严格受击绑定、稳定命中结算事件、世界/来源效果归属、动作同步再入及非法移动/视觉配置。游戏数值与地图结构保留；HUD 代码不动，按用户意见登记为临时测试实现与后续完全重做债务。
+
+开发评审约定已纳入 [engineering-practices.md](engineering-practices.md)、AGENTS 与模块 README，包含编辑器入口、职责/依赖、signal 同步再入、生命周期、保存重载/reset 和拆分反例。旧问题与中间测试/实现错误及修复证据见 [工程契约记录](errors/ERR-20261005-ENGINEERING-CONTRACTS.md)。
+
+本地组合 game `20261004T171802796Z-b961eb71` 为14/14 checks、171 tests / 3150 assertions，零失败/错误/跳过；原有138项保留，新增33项。主 agent 复读原始日志并核对源码；之后只补计数文档与引擎生成的测试支持UID，最终文件集合须核对冻结证据。toolchain `20261004T170045565Z-80a78159` 为22/22、Node44/44，实际 worktree 的正常编辑器 headless import 也无错误。上述数字证明对应组合源码，冻结独立复验、实际 PR head 和 main CI 的最终结果以本轮 `artifacts/engineering-safety/` 的交接证据为准。
+
+独立旧head复验通过后，额外provider探针发现非对象/已释放返回值会产生脚本错误；补修已在独立子分支验证安全拒绝，并补25条同名用例边界断言。最终组合head须重新核对独立完整复验及CI，旧head绿灯不作为新代码批准证据。
+
+原用户 main 目录仍有未提交 project.godot；同步不得 stash/reset/覆盖该文件。本轮交接会单独记录远端合并与主目录同步状态。自动通过不替代用户手感验收；编辑器完整视觉预览、正式 HUD/素材及其他原型扩展债务仍保留。
+
 ## Inspector 与设计基线修复（2026-10-03）
 
 本轮以远端 main `c3908038490d381543e0b033d26d9844bf171cdb` 为起点，只解决用户重新授权的前两条；没有恢复固定的人类项目/分支方案。主角场景保存默认 0.5 秒保护，启动尊重 Inspector 覆盖；尺度/地图设计预期集中到独立 JSON，机制用例、碰撞与状态边界保留。新约定见 [Inspector 配置归属](inspector-configuration.md)、[设计基线流程](design-baselines.md)、AGENTS 防回归节与各模块 README。

@@ -28,7 +28,7 @@ project.godot
 | world | MapWorld 拥有房间身份、实例、探索和房间代次；TrainingArena 负责训练重置，稻草人保存统计，敌人保存攻击周期 | [world/README.md](world/README.md) |
 | ui | 读取角色、动作、生命和世界信息；显示心容器/HUD、管理菜单与暂停；不计算伤害 | [ui/README.md](ui/README.md) |
 | localization | 语言清单、Translation、字体、回退与 ConfigFile 偏好；通过 language_changed 通知界面 | [localization/README.md](localization/README.md) |
-| shared | 无状态单位/战斗常量、输入映射和矩形地形辅助；不保存角色或世界状态 | [shared/README.md](shared/README.md) |
+| shared | 单位/战斗常量、缺失输入回退、矩形地形辅助及效果生命周期接口；效果归属以实例弱登记保存，无全局游戏状态 | [shared/README.md](shared/README.md) |
 | assets | 占位角色、灰盒素材和字体及来源/许可 | [assets/README.md](assets/README.md) |
 | tests / tools | 测试契约、实际工程快照、原始报告、依赖准备、运行入口与集成锁 | [tests/README.md](tests/README.md)、[tools/README.md](tools/README.md) |
 
@@ -38,13 +38,13 @@ project.godot
 
 ### 输入、动作与技能
 
-输入映射由 [InputSetup](shared/input_setup.gd) 幂等注册。Player 将输入交给 `request_attack()` / `request_fireball()`，再由 [ActionController](skills/action_controller.gd) 检查绑定、当前动作和冷却。`bind_action()` 解析等级后的独立定义；角色每物理帧显式调用 `tick(delta)`，推进前摇、执行、后摇。
+输入默认保存在 Project Settings 的 Input Map，启动读取保存配置；[InputSetup](shared/input_setup.gd) 仅幂等补充完全缺失的 action。Player 将输入交给 `request_attack()` / `request_fireball()`，再由 [ActionController](skills/action_controller.gd) 检查绑定、当前动作和冷却。`bind_action()` 解析等级后的独立定义；角色每物理帧显式调用 `tick(delta)`，推进前摇、执行、后摇。
 
-进入 ACTIVE 时只调用一次 [SkillExecutors](skills/skill_executors.gd)，生成 [MeleeStrike](skills/melee_strike.gd) 或 [Fireball](skills/fireball.gd)。角色从阶段策略读取控制/惯性/跳跃/技能位移，执行器负责攻击行为。配置、运行状态和技能树分工独立；当前没有完整技能树。
+进入 ACTIVE 时只调用一次 [SkillExecutors](skills/skill_executors.gd)，生成 [MeleeStrike](skills/melee_strike.gd) 或 [Fireball](skills/fireball.gd)。角色从阶段策略读取控制/惯性/跳跃/技能位移，执行器负责攻击行为。效果发布时显式登记世界、来源和中断策略，切房/重置按归属清理，角色中断只撤销相应来源效果。配置、运行状态和技能树分工独立；当前没有完整技能树。
 
 ### 碰撞、扣心与反馈
 
-攻击携带 [HitData](combat/hit_data.gd)，真实物理查询调用 [DamageReceiver.receive_hit()](combat/damage_receiver.gd)。接收器与 [Combatant](combat/combatant.gd) 校验数据、当前归属/阵营许可、生命状态、无敌与保护，再结算心伤害并发送事件。角色响应受伤进行允许的动作中断；HealthBar 读取生命重绘；稻草人根据成功命中记录完整伤害与次数。
+攻击携带 [HitData](combat/hit_data.gd)，真实物理查询调用 [DamageReceiver.receive_hit()](combat/damage_receiver.gd)。来源通过组件/provider 解析，正式受击绑定失效时拒绝；接收器与 [Combatant](combat/combatant.gd) 校验数据、当前归属/阵营许可、生命状态、无敌与保护，再结算心伤害并发送事件。角色响应受伤进行允许的动作中断；HealthBar 读取生命重绘；稻草人消费 hit_resolved(hit, amount) 的本次伤害参数记录完整伤害与次数，不读取共享 last_damage 拼接事件。
 
 生命内部用整数半心保存，对外接口和统计用心。稻草人与主角/敌人复用 Combatant；稻草人采用 REFILL，主角/敌人默认死亡。具体容器、保护和零伤害语义见 [心规则](docs/heart-health-v5.md) 与 [受击保护](docs/hit-protection.md)，不沿用旧百分比减伤。
 

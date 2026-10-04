@@ -9,7 +9,9 @@ var source: Node:
 		source = actor
 		is_environment = false
 		_source_actor_id = 0
-		_source_faction = Combatant.Faction.FRIENDLY
+		_source_combatant_id = 0
+		_source_valid = false
+		_source_faction = Combatant.Faction.NEUTRAL
 		_capture_source()
 var skill_id: StringName = &""
 var damage: float = 0.0
@@ -21,7 +23,9 @@ var target_policy: TargetPolicy = TargetPolicy.OTHER_FACTIONS
 var is_environment: bool = false
 
 var _source_actor_id: int = 0
-var _source_faction: Combatant.Faction = Combatant.Faction.FRIENDLY
+var _source_combatant_id: int = 0
+var _source_valid: bool = false
+var _source_faction: Combatant.Faction = Combatant.Faction.NEUTRAL
 
 
 func set_source(actor: Node) -> void:
@@ -42,11 +46,12 @@ func get_source_faction() -> Combatant.Faction:
 func is_self(target: Node) -> bool:
 	if not is_instance_valid(target):
 		return false
+	_capture_source()
+	var target_combatant := _resolve_combatant(target)
+	if is_instance_valid(target_combatant) and _source_combatant_id != 0:
+		return target_combatant.get_instance_id() == _source_combatant_id
 	if is_instance_valid(source):
-		var actor := source.get_parent() if source is Combatant else source
-		if not is_instance_valid(actor):
-			return source == target
-		return actor == target or actor.is_ancestor_of(target)
+		return source == target or source.is_ancestor_of(target)
 	return _source_actor_id != 0 and target.get_instance_id() == _source_actor_id
 
 
@@ -64,16 +69,30 @@ func permits_target(target: Node, target_faction: Combatant.Faction) -> bool:
 
 
 func is_valid() -> bool:
-	return (
-		is_valid_damage(damage)
-		and is_finite(knockback)
-		and knockback >= 0.0
-		and origin.is_finite()
-		and direction.is_finite()
-		and not damage_type.is_empty()
-		and target_policy in TargetPolicy.values()
-		and (not is_environment or target_policy == TargetPolicy.ALL)
-	)
+	return validate().is_empty()
+
+
+func validate() -> Array[String]:
+	_capture_source()
+	var errors: Array[String] = []
+	if not is_valid_damage(damage):
+		errors.append("damage must be a finite nonnegative multiple of 0.5 hearts")
+	if not is_finite(knockback) or knockback < 0.0:
+		errors.append("knockback must be finite and nonnegative")
+	if not origin.is_finite() or not direction.is_finite():
+		errors.append("origin and direction must be finite vectors")
+	if damage_type.is_empty():
+		errors.append("damage_type must not be empty")
+	if target_policy not in TargetPolicy.values():
+		errors.append("target_policy must be a declared TargetPolicy")
+	if is_environment:
+		if is_instance_valid(source) or target_policy != TargetPolicy.ALL:
+			errors.append("environment damage must have no source and use ALL")
+	elif not _source_valid:
+		errors.append(
+			"source must be a Combatant or provide get_combatant(); use set_environment()"
+		)
+	return errors
 
 
 static func is_valid_damage(amount: float) -> bool:
@@ -83,11 +102,24 @@ static func is_valid_damage(amount: float) -> bool:
 func _capture_source() -> void:
 	if not is_instance_valid(source):
 		return
-	var actor := source.get_parent() if source is Combatant else source
-	if is_instance_valid(actor):
-		_source_actor_id = actor.get_instance_id()
-	var combatant := source as Combatant
-	if combatant == null:
-		combatant = source.get_node_or_null("Combatant") as Combatant
-	if combatant != null:
+	_source_valid = false
+	var combatant := _resolve_combatant(source)
+	if is_instance_valid(combatant) and combatant.faction in Combatant.Faction.values():
+		_source_actor_id = source.get_instance_id()
+		_source_combatant_id = combatant.get_instance_id()
 		_source_faction = combatant.faction
+		_source_valid = true
+
+
+func _resolve_combatant(node: Node) -> Combatant:
+	if node is Combatant:
+		return node as Combatant
+	if node.has_method("get_combatant"):
+		var candidate: Variant = node.call("get_combatant")
+		if (
+			typeof(candidate) == TYPE_OBJECT
+			and is_instance_valid(candidate)
+			and candidate is Combatant
+		):
+			return candidate as Combatant
+	return null
