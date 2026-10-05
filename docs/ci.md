@@ -16,9 +16,11 @@ CI 已通过 PR #5 进入 main。上述接入时点的功能草稿例外已由�
 
 ## 同一验收入口
 
-顺序执行 `node --test tools/test-toolchain.mjs tools/test-worktree.mjs tools/test-worktree-runtime.mjs tools/test-game-failures.mjs`、`node tools/check.mjs --scope toolchain`、`node tools/check.mjs --scope game`。工具自检含预期失败与超时；它们只在检测结果符合预期时通过。普通 game 验收中的失败、跳过、缺失或超时仍判不通过。工作流不以 continue-on-error 隐藏失败。设计/机制标签只提供 report.failure_classification 诊断；设计基线失败仍是失败，CI 不自动更新或接受基线。
+本地由 agent 按 [检查分级](testing.md#按影响选择检查) 判断实际影响；CI 采用保守路径白名单。仅当完整 diff 非空、所有改动仅涉及 `docs/status.md`、`docs/status-history.md`、`docs/git-history.md`、`docs/index.md` 时，CI 执行 `node tools/check.mjs --scope docs`。其他路径（包括 AGENTS、测试/配置规则、模块 README、工具、CI、代码、资源和场景），以及无法取得 base/diff 或零改动时，保持完整路径：docs、Node 工具回归、`node tools/check.mjs --scope toolchain`、`node tools/check.mjs --scope game`。README 的纯文案可在本地只做 docs，CI 仍保守执行完整检查。若白名单页面实际改变授权或验收含义，仍按公共契约改动处理，不能借路径免除本地必要验证。
 
-新安装验证通过后，即使先前检查失败也尝试执行 game，保留独立证据；安装失败则由安装报告定位环境问题。所有正常结束的失败运行仍尝试上传 `artifacts/bootstrap/`、`artifacts/test-runs/`、CI 上下文与实际配置，保留 7 天。CI 上下文在准备 Node/Python 前生成，使运行时准备失败也能留下最小证据。artifact 保存成功只证明可取回证据，不代表验收通过。
+工具自检含预期失败与超时；它们只在检测结果符合预期时通过。普通 game 验收中的失败、跳过、缺失或超时仍判不通过。工作流不以 continue-on-error 隐藏失败。设计/机制标签只提供 report.failure_classification 诊断；设计基线失败仍是失败，CI 不自动更新或接受基线。
+
+新安装验证通过后，即使先前检查失败也尝试执行 game，保留独立证据；安装失败则由安装报告定位环境问题。所有正常结束的失败运行仍尝试上传 `artifacts/bootstrap/`、`artifacts/test-runs/`、CI 上下文与实际配置，保留 90 天；重要失败/修复的精简长期证据按 [测试协议](testing.md#关键证据的长期归档) 随源码保存。CI 上下文在准备 Node/Python 前生成，使运行时准备失败也能留下最小证据。artifact 保存成功只证明可取回证据，不代表验收通过。
 
 ## 对应源码与判断
 
