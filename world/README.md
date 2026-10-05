@@ -14,15 +14,23 @@ MapWorld 与 TrainingArena 在入树时向 `AttackEffectLifecycle` 声明各自�
 
 Camera2D zoom=2，地图区域从逻辑屏幕 y=160 起，避开顶部 HUD；相机跟随玩家并按房间 bounds 夹取地图区域，短于可见范围的轴居中。房间坐标与 HUD 屏幕坐标分别维护，不沿用旧训练场放在视口中央的绝对偏移。
 
-操作：正常移动/跳跃进入蓝色出口；C 中央黄色出口单向回 A。R 重置地图、F2 调试火球等级；F3/F4/F5 跳至 A/B/C 的 start，F6 切换碰撞调试。调试跳房也保留生命与冷却，失活角色用 R 恢复。探索仅本次地图会话；没有磁盘存档、敌人 AI、正式美术、攀爬、转场效果或预加载。
+操作：正常移动/跳跃进入蓝色出口；C 中央黄色出口单向回 A。R 重置地图；场景子节点 `DebugInput` 处理 F2 调试火球等级、F3/F4/F5 跳至 A/B/C 的 start、F6 切换碰撞调试。调试跳房也保留生命与冷却，失活角色用 R 恢复。探索仅本次地图会话；没有磁盘存档、敌人 AI、正式美术、攀爬、转场效果或预加载。
 
 ## 职责
 
-`training_arena.tscn` 是保留的训练场景，包含 Player、TrainingDummy、PeriodicEnemy、HUD。`training_arena.gd` 创建 gray box 几何、输入配置、R 重置与 F2 等级调试；`training_dummy.gd/.tscn` 提供 10 心归零自动回满的受击目标；`periodic_enemy.gd/.tscn` 提供固定周期近战敌人。公共矩形地形创建在 shared/graybox_solid.gd。
+`training_arena.tscn` 是保留的训练场景，包含 Player、TrainingDummy、PeriodicEnemy、HUD，并保存可编辑 gray box 几何与出生标记。`training_arena.gd` 初始化位置、补缺失输入配置并处理 R 重置，F2 等级调试由场景子节点 `DebugInput` 处理；`training_dummy.gd/.tscn` 提供 10 心归零自动回满的受击目标；`periodic_enemy.gd/.tscn` 提供固定周期近战敌人。shared/graybox_solid.gd 的公共矩形生成辅助仍供测试 fixture 使用，训练场运行不再调用。
 
-当前采用 shared/GameUnits 的 1 U=16 px。gray box 世界外框 32 × 16 U（512 × 256 px），包含厚 1 U 的墙、顶和地板，位于 Rect2(224,200,512,256)。逻辑画布仍为 960 × 540，它与地图大小分别维护。地板上沿 y=440，主角/稻草人/敌人脚底初始分别为 (272,440)/(544,440)/(656,440)。`TrainingArena` 暴露 ARENA_ORIGIN、ARENA_WIDTH/HEIGHT、FLOOR_Y 与三个 SPAWN 常数，场景资源保存同样的初始位置，运行与重置复用这些位置。
+当前采用 shared/GameUnits 的 1 U=16 px。gray box 世界外框 32 × 16 U（512 × 256 px），包含厚 1 U 的墙、顶和地板，位于 Rect2(224,200,512,256)。逻辑画布仍为 960 × 540，它与地图大小分别维护。地板上沿 y=440，主角/稻草人/敌人脚底初始分别为 (272,440)/(544,440)/(656,440)。`Geometry` 下的 6 个 `StaticBody2D` 保存实际碰撞与可见多边形，可在编辑器直接移动父节点；调整尺寸时同步 CollisionShape2D 的 RectangleShape2D 与 Polygon2D，运行不重建地形。
+
+`Spawns` 下的 3 个 Marker2D 是初始脚底位置入口；TrainingArena 根的 `player_spawn_path`、`dummy_spawn_path`、`enemy_spawn_path` 显式绑定标记，允许重命名/嵌套后重新绑定。启动读取 3 个标记的 global_position，主角与敌人重置继续读取各自标记；稻草人重置只清状态与统计，保持原先不重定位的语义。`validate_spawns()` 检查 Marker2D 类型及有限 transform，`last_error` 提供诊断；绑定错误时启动不替代位置，重置先拒绝，不清生命/动作/统计。ARENA_ORIGIN、ARENA_WIDTH/HEIGHT、FLOOR_Y 与 3 个 SPAWN 常数保留原样作灰盒背景/兼容基线，不参与运行时角色位置覆盖。
 
 低台阶 Rect2(352,424,64,8) 比地面高 1 U，高平台 Rect2(432,408,48,8) 高 2 U；都是普通实心碰撞，没有单向平台或下落穿透机制。网格间隔 1 U。公共地形几何与显示仍使用同一矩形，灰盒背景先于地形和角色绘制，确保墙/地板可见。灰色几何与网格用于测试，尚无正式地图美术。用户采纳的尺寸与边界见 ../docs/scale-movement-v4.md。
+
+## 局部调试输入
+
+`WorldDebugInput` 是 world 内的场景子节点，没有 autoload 或共享全局状态。Inspector 的 `player_path` 显式绑定 PlayerCharacter；地图另配置 `world_path`（提供 `debug_enter_room`）、`collision_overlay_path` 和 `room_shortcuts`（物理 Key 整数 → room_id），当前场景保存 F3/F4/F5 的 A/B/C 映射，`collision_key` 初值 F6。训练场只绑定玩家，F2 继续读取 Input Map 的 `toggle_fireball_level` action。移动/战斗与 R 重置仍归原所属模块，新增房间不修改 MapWorld 按键分支。
+
+`enabled=false` 关闭该节点的调试命令；暂停时所有调试命令拒绝。`validate_bindings()` 和 `last_error` 检查存在性、类型、房间命令接口及键冲突，错误绑定不猜父节点名字或自动回退；修复绑定后下一次事件重新校验。跨房间仍调用世界公开入口，生命、冷却、探索、无效 ID 和暂停规则由 MapWorld 保持。F2 只改变下次施法定义，正在执行动作不被重置。
 
 ## 稻草人与接口
 
