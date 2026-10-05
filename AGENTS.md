@@ -66,7 +66,8 @@
 
 ## 多会话开发的强制隔离
 
-- 每个写入开发会话及写文件的子 agent 使用自己的 Git worktree 和唯一 `codex/<任务>-<会话标识>` 分支；禁止在原目录切换功能分支或让多个写入会话共用一个 checkout。详细步骤与验收见 [docs/worktrees.md](docs/worktrees.md)。
+- 每个写入开发会话及写文件的子 agent 使用自己的 Git worktree 和唯一功能分支（Codex 用 `codex/<任务>-<会话标识>`，Claude 用 `claude/<任务>-<会话标识>`）；禁止在原目录切换功能分支或让多个写入会话共用一个 checkout。详细步骤与验收见 [docs/worktrees.md](docs/worktrees.md)。
+- Claude 与 Codex 共同维护本文件，它是唯一规则源，不另设 `CLAUDE.md`。两者协作通过 GitHub Issue / PR / label 异步交接：任务认领、交接字段、审阅与小修正规则见 [docs/agent-collaboration.md](docs/agent-collaboration.md)；用户已授权 agent 在该范围内更新协作 label 与评论，不扩大合并、功能或架构授权。
 - 原目录保留 main 供用户试玩及串行集成；只读调查可共用。检查工具实际返回的绝对目录，在该目录完成编辑、Godot 启动、验收、提交和普通 push。
 - 忽略的依赖、缓存、设置与报告按该文档准备并隔离；不要软链接整个 .tools/.godot/artifacts，不重装别人正在借用的工具。工具准备后必须验证，不以配置生成当作可运行。
 - Git 分支名、远端 refs、stash 和公共配置仍共享；不强制检出同一分支，不修改其他会话的工作区/refs/认证。明确 base SHA、文件责任和交接接口。

@@ -1,6 +1,6 @@
-# 多 agent 协作（Claude / Codex）— 草稿（决策已采纳）
+# 多 agent 协作（Claude / Codex）
 
-> 状态：**方案 A 与下列四项决策已由用户采纳**（见文末“已决定”）。本文仍是草稿：尚未接入 `docs/index.md`，未改动 AGENTS.md、`git-workflow.md`、`worktrees.md`，未创建 label 或模板。按文末“落地清单”分步执行。
+> 状态：方案 A 与文末四项决策已由用户采纳并落地（2026-10-05）。已创建 label、`.github` 模板，AGENTS.md / `git-workflow.md` / `worktrees.md` 的分支前缀已同步，入口在 `docs/index.md`。首轮真实任务试跑后再据摩擦点修订。
 
 ## 目标与范围
 
@@ -119,7 +119,7 @@ Issue（范围 + 验收条件）
 2. 在自己的 checkout（或已冻结快照）上复验，不在对方 worktree 里写入。
 3. 评论按“阻塞 / 建议 / 疑问”分级，引用文件:行。
 4. **审阅方可直接推送小修正**（用户已同意），限定为：拼写/文档措辞、明显的 lint/格式问题、不改变行为的小重构。须在自己的 worktree 修改，先 fetch 并核对对方 head SHA，普通 push、不 force、不改写对方提交；推送后立刻在 PR 评论写明新提交 SHA 与改动，并把 `needs-review` 的复验以新 head 为准重做。行为变化、新功能、设计取舍不属于小修正，只评论，由写入方修改或经换手处理。
-4. 复验结论写明运行的 scope 和 run_id，没有跑的明确写“未验证”。
+5. 复验结论写明运行的 scope 和 run_id，没有跑的明确写“未验证”。
 
 **换手**：评论写明原因、已完成与未完成部分、最新 head SHA；改 `owner:*`；新写入方先 fetch 并核对 SHA，再决定是否在原分支继续（须在其自己的 worktree 检出）或另开分支。
 
@@ -141,13 +141,13 @@ Issue（范围 + 验收条件）
 | label 与实际状态不一致 | 合并/关闭时清理 `owner:*`、`needs-review`；用户可随时纠正 |
 | 规则分叉 | 只维护 AGENTS.md 一份规则源；本文是它的补充，不重复其条文 |
 
-## 落地清单（采纳后分步执行，需用户逐步确认）
+## 落地清单
 
-1. 创建 label：`owner:claude`、`owner:codex`、`needs-review`、`needs-user`、`blocked`（GitHub 写操作，属已授权的协作状态更新）。
-2. 新增 `.github/pull_request_template.md` 和 `.github/ISSUE_TEMPLATE/task.md`（内容见上）。
-3. `AGENTS.md`（双方共同维护的唯一规则源）：把“唯一 `codex/<任务>-<会话标识>` 分支”放宽为 `codex/` 或 `claude/` 前缀，并链接本文。
-4. `docs/git-workflow.md`、`docs/worktrees.md`：同步分支前缀措辞；`docs/index.md` 增加入口。
-5. 先用一个真实的小任务试跑一轮完整交接，再据实际摩擦点修订本文。
+1. [已完成] 创建 label：`owner:claude`、`owner:codex`、`needs-review`、`needs-user`、`blocked`（GitHub 写操作，属已授权的协作状态更新）。
+2. [已完成] 新增 `.github/pull_request_template.md` 和 `.github/ISSUE_TEMPLATE/task.md`（内容与上文模板一致，以文件为准）。
+3. [已完成] `AGENTS.md`（双方共同维护的唯一规则源）：把“唯一 `codex/<任务>-<会话标识>` 分支”放宽为 `codex/` 或 `claude/` 前缀，并链接本文。
+4. [已完成] `docs/git-workflow.md`、`docs/worktrees.md`：同步分支前缀措辞；`docs/index.md` 增加入口。
+5. [待办] 先用一个真实的小任务试跑一轮完整交接，再据实际摩擦点修订本文。
 
 ## 已决定（用户，2026-10-05）
 
