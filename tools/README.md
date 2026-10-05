@@ -8,13 +8,15 @@
 4. 核对 `expected_check_ids`、`summary.missing`、每项检查的 `status` 和证据。失败时读取该项 `log_path`，查公共错误记录，再定位原因并复跑同一入口。
 5. 交接时给出 `run_id`、`status`、`report_path`、开放错误及未完成项。无需依赖上一个 agent 的聊天上下文。
 
+纯文案/导航修改可执行 `node tools/check.mjs --scope docs`，无需 Godot 或 GUT。它核对非空 Markdown、仓库内文件和标题链接，保存同样位置的 JSON 报告、日志、源码哈希与 `scope=docs` 指针；不核实正文事实、外部 URL 或游戏行为。范围选择见 [测试协议](../docs/testing.md)，规则/配置/实现变化不能凭文档检查交付。
+
 ## Worktree 开发
 
 先按 [多会话开发](../docs/worktrees.md) 建立独立 checkout，再运行 `node tools/prepare-worktree.mjs --tools-from <同仓库已验证目录>`。本目录派生配置默认优先加载；显式 ASTRA_TOOLCHAIN_CONFIG 优先且错误不回退。只读借用固定版本工具，缓存、报告、设置留在自己的 checkout；版本升级用自己目录的 bootstrap。准备后执行工具与相应游戏验收。
 
 `node tools/play.mjs [--editor]` 共用配置读取器，linked checkout 默认隔离试玩设置，每次日志独立；主目录保留用户默认设置。合并/同步完整序列使用 `node tools/with-integration-lock.mjs -- <集成脚本命令>`；竞争退出 73，失败传播，未知遗留锁人工核实，不抢占。
 
-新增 Node 回归执行 `node --test tools/test-toolchain.mjs tools/test-worktree.mjs tools/test-worktree-runtime.mjs tools/test-game-failures.mjs`，覆盖依赖准备、配置失败、Git 工作区隔离、公共锁及 launcher argv/environment。真实引擎和完整 game 验收独立执行。
+新增 Node 回归执行 `node --test tools/test-toolchain.mjs tools/test-worktree.mjs tools/test-worktree-runtime.mjs tools/test-game-failures.mjs tools/test-docs.mjs tools/test-change-scope.mjs`，覆盖依赖准备、配置失败、Git 工作区隔离、公共锁、launcher argv/environment、文档失败报告及保守 CI 分类。真实引擎和完整 game 验收独立执行。
 
 ## 文件与边界
 
@@ -26,7 +28,9 @@
 - `toolchain-config.mjs`：本机和 CI 共用配置选择、路径解析与版本规则。`ASTRA_TOOLCHAIN_CONFIG` 指向实际配置；报告保留源配置与派生配置各自证据。
 - `test-toolchain.mjs`：安装与配置机制的 Node 自动用例，覆盖正常/错误配置、版本拒绝、归档校验和受控超时。不是游戏验收替代品。
 - `../.github/workflows/check.yml`：在 GitHub 上准备环境、执行同一验收入口并保存原始证据，规则见 [docs/ci.md](../docs/ci.md)。
-- `check.mjs`：唯一公共测试入口，支持 `--scope toolchain|game`，拒绝未知范围或参数。
+- `check.mjs`：唯一公共测试入口，支持 `--scope toolchain|game|docs`，拒绝未知范围或参数。
+- `check-docs.mjs` / `test-docs.mjs`：轻量本地链接检查及真实坏链接失败、修复与报告保留回归；不启动引擎。
+- `change-scope.mjs` / `test-change-scope.mjs`：CI 仅对状态/历史/索引四个明确路径减负；规则、代码、未知或缺少 diff 的情况保守走完整流程。
 - `check-game.mjs`：game 范围实现，复制真实工程和固定 GUT 到独立快照，校验 tests/manifest.json，执行格式/lint/导入/真实测试/JUnit 读取/启动。测试名必须完整且唯一，不能用空执行得到通过。
 - game 的 GUT 进程上限为 150 秒；地图版新增真实通行、台阶、切房状态和三语菜单后，首轮 90 秒真实超时且没有 XML，失败证据见 docs/errors/ERR-20261002-MAP-VALIDATION.md。为完整套件保留有限执行预算，其他进程上限沿用原配置；不删用例、不更改断言、不接受超时为通过。
 - game 范围还在两个实际引擎进程中验证语言设置写入及重启恢复。所有引擎进程用 `ASTRA_SETTINGS_PATH` 隔离本轮设置文件，并在日志/报告记录路径；不改 HOME，不碰玩家配置。检查数量以 expected_check_ids 为准，不硬编码历史的 12 项。
