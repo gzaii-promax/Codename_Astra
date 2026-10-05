@@ -10,6 +10,13 @@ const PLAYER_SPAWN := ARENA_ORIGIN + Vector2(3.0, 15.0) * UNIT
 const DUMMY_SPAWN := ARENA_ORIGIN + Vector2(20.0, 15.0) * UNIT
 const ENEMY_SPAWN := ARENA_ORIGIN + Vector2(27.0, 15.0) * UNIT
 
+@export_group("Spawn markers")
+@export_node_path("Marker2D") var player_spawn_path: NodePath = ^"Spawns/Player"
+@export_node_path("Marker2D") var dummy_spawn_path: NodePath = ^"Spawns/TrainingDummy"
+@export_node_path("Marker2D") var enemy_spawn_path: NodePath = ^"Spawns/PeriodicEnemy"
+
+var last_error: String = ""
+
 @onready var player: PlayerCharacter = $Player
 @onready var dummy: TrainingDummy = $TrainingDummy
 @onready var enemy: PeriodicEnemy = $PeriodicEnemy
@@ -22,25 +29,11 @@ func _enter_tree() -> void:
 
 func _ready() -> void:
 	Localization.language_changed.connect(_on_language_changed)
-	var geometry := Node2D.new()
-	geometry.name = "Geometry"
-	add_child(geometry)
-	move_child(geometry, 0)
-	player.position = PLAYER_SPAWN
-	dummy.position = DUMMY_SPAWN
-	enemy.position = ENEMY_SPAWN
-	var solids := [
-		[Rect2(0, 15, 32, 1), Color("3e4652"), "Floor"],
-		[Rect2(0, 1, 1, 14), Color("3e4652"), "LeftWall"],
-		[Rect2(31, 1, 1, 14), Color("3e4652"), "RightWall"],
-		[Rect2(0, 0, 32, 1), Color("3e4652"), "Ceiling"],
-		[Rect2(8, 14, 4, 0.5), Color("56606c"), "Step"],
-		[Rect2(13, 13, 3, 0.5), Color("56606c"), "Platform"],
-	]
-	for solid in solids:
-		var unit_rect: Rect2 = solid[0]
-		var pixel_rect := Rect2(ARENA_ORIGIN + unit_rect.position * UNIT, unit_rect.size * UNIT)
-		geometry.add_child(GrayboxSolid.create(pixel_rect, solid[1], solid[2]))
+	if not _check_spawns():
+		return
+	player.global_position = _spawn(player_spawn_path).global_position
+	dummy.global_position = _spawn(dummy_spawn_path).global_position
+	enemy.global_position = _spawn(enemy_spawn_path).global_position
 	queue_redraw()
 
 
@@ -49,17 +42,44 @@ func _on_language_changed(_locale: String) -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
+	if get_tree().paused:
+		return
 	if event.is_action_pressed("reset_training"):
 		reset_training()
-	elif event.is_action_pressed("toggle_fireball_level"):
-		player.set_fireball_level(2 if player.fireball_level == 1 else 1)
 
 
 func reset_training() -> void:
+	if not _check_spawns():
+		return
+	# Capture configured positions before synchronous health/reset callbacks run.
+	var player_spawn := _spawn(player_spawn_path).global_position
+	var enemy_spawn := _spawn(enemy_spawn_path).global_position
 	AttackEffectLifecycle.clear_world(self)
-	player.reset_state(PLAYER_SPAWN)
-	enemy.reset_state(ENEMY_SPAWN)
+	player.reset_state(player_spawn)
+	enemy.reset_state(enemy_spawn)
 	dummy.reset_stats()
+	queue_redraw()
+
+
+func validate_spawns() -> Array[String]:
+	var errors: Array[String] = []
+	for property in ["player_spawn_path", "dummy_spawn_path", "enemy_spawn_path"]:
+		var path: NodePath = get(property)
+		var marker := _spawn(path)
+		if marker == null:
+			errors.append("%s '%s' must point to a Marker2D" % [property, path])
+		elif not marker.global_transform.is_finite():
+			errors.append("%s marker must have a finite transform" % property)
+	return errors
+
+
+func _check_spawns() -> bool:
+	last_error = "\n".join(validate_spawns())
+	return last_error.is_empty()
+
+
+func _spawn(path: NodePath) -> Marker2D:
+	return get_node_or_null(path) as Marker2D if not path.is_empty() else null
 
 
 func _draw() -> void:
@@ -82,7 +102,15 @@ func _draw() -> void:
 		Color("8392a2"),
 		2.0
 	)
-	draw_line(DUMMY_SPAWN - Vector2(UNIT, 0), DUMMY_SPAWN + Vector2(UNIT, 0), Color("d1aa6a"), 3.0)
+	var dummy_spawn := _spawn(dummy_spawn_path)
+	var enemy_spawn := _spawn(enemy_spawn_path)
+	if dummy_spawn == null or enemy_spawn == null or not validate_spawns().is_empty():
+		return
+	var dummy_anchor := to_local(dummy_spawn.global_position)
+	var enemy_anchor := to_local(enemy_spawn.global_position)
+	draw_line(
+		dummy_anchor - Vector2(UNIT, 0), dummy_anchor + Vector2(UNIT, 0), Color("d1aa6a"), 3.0
+	)
 	var font := Localization.get_font()
 	draw_string(
 		font,
@@ -95,7 +123,7 @@ func _draw() -> void:
 	)
 	draw_string(
 		font,
-		DUMMY_SPAWN + Vector2(-48, 36),
+		dummy_anchor + Vector2(-48, 36),
 		Localization.text("arena.target"),
 		HORIZONTAL_ALIGNMENT_CENTER,
 		96,
@@ -104,7 +132,7 @@ func _draw() -> void:
 	)
 	draw_string(
 		font,
-		ENEMY_SPAWN + Vector2(-48, 36),
+		enemy_anchor + Vector2(-48, 36),
 		Localization.text("arena.enemy"),
 		HORIZONTAL_ALIGNMENT_CENTER,
 		96,

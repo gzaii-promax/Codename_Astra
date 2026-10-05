@@ -13,10 +13,11 @@ project.godot
    ├─ Player → Actions / Visual / Combatant / DamageReceiver / HealthBar
    ├─ 动态 MapRoom → Terrain / Entrances / Exits
    ├─ Camera / CollisionDebug
+   ├─ DebugInput → 显式玩家/世界/覆盖层绑定与样例按键映射
    └─ HUD → 暂停菜单 / 帮助 / 语言选择 / 场景切换
 ```
 
-菜单模式按钮通过 `change_scene_to_file()` 往返地图与 [training_arena.tscn](world/training_arena.tscn)。训练场组合 Player、TrainingDummy、PeriodicEnemy、HUD，并由脚本生成矩形灰盒地形。两个场景重新创建自己的运行状态；正常地图切房则保留同一个 Player。
+菜单模式按钮通过 `change_scene_to_file()` 往返地图与 [training_arena.tscn](world/training_arena.tscn)。训练场组合 Player、TrainingDummy、PeriodicEnemy、HUD，场景保存 Geometry 的矩形灰盒地形、Spawns 出生标记与显式绑定的 DebugInput。训练位置由标记读取，常数只保留基线；调试映射在场景编辑，R 仍由各自世界实现。两个场景重新创建自己的运行状态；正常地图切房则保留同一个 Player。
 
 ## 模块与状态归属
 

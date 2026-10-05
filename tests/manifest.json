@@ -172,6 +172,12 @@
     "test_reparented_effect_keeps_world_ownership_until_explicit_reregistration",
     "test_world_clear_in_melee_callback_stops_remaining_contacts_this_frame",
     "test_effect_cleanup_while_detached_prevents_reentry_after_reset",
-    "test_effect_can_bind_and_cancel_before_world_enters_tree"
+    "test_effect_can_bind_and_cancel_before_world_enters_tree",
+    "test_training_scene_contains_saved_geometry_and_spawn_markers_before_tree_entry",
+    "test_saved_training_spawns_and_floor_drive_start_physics_and_reset",
+    "test_training_missing_wrong_and_nonfinite_spawn_bindings_reject_reset_atomically",
+    "test_debug_child_handles_f2_in_both_scenes_and_freezes_while_paused",
+    "test_debug_paths_and_custom_room_key_survive_saved_nested_configuration",
+    "test_debug_missing_wrong_and_disabled_bindings_reject_commands_with_diagnostics"
   ]
 }

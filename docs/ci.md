@@ -11,14 +11,16 @@ CI 已通过 PR #5 进入 main。上述接入时点的功能草稿例外已由�
 - `.github/workflows/check.yml`：工作流 `Repository checks`，检查名 `macOS / repository-checks`。所有目标分支的 PR 创建、更新、重开、转 ready、编辑均触发；main push 与手动触发也执行。草稿 PR 同样验收，不只过滤 main 目标。
 - runner 固定 `macos-15` ARM64。官方 Actions 固定完整 commit SHA，不依赖漂移 tag；权限为 contents:read，checkout 不保存 Git 凭据。同一 PR 新提交取消旧运行，每次 job 限时 15 分钟。
 - `tools/bootstrap.mjs`：Node 由固定官方 setup action 准备；Python 默认从固定 Astral python-build-standalone 归档准备，并按源配置 SHA-256 与精确版本验证；独立安装 Python、固定 Godot、GUT 和带 SHA-256 的 pip 锁到 `.tools/ci/`。失败保留安装报告与日志，不能以目录存在代替校验，也不覆盖本机已安装工具。
-- `tools/toolchain-config.mjs`：两个 scope 共用配置读取与版本判定。默认优先读取本 worktree 已准备的 `.tools/worktree/toolchain.json`，否则读取本机 `tools/toolchain.json`；显式 `ASTRA_TOOLCHAIN_CONFIG` 优先，可选择 CI 生成的 `.tools/ci/toolchain.json`，错误配置不悄悄回退。公共命令参数仍只有 `--scope toolchain|game`。
+- `tools/toolchain-config.mjs`：game/toolchain 共用配置读取与版本判定。默认优先读取本 worktree 已准备的 `.tools/worktree/toolchain.json`，否则读取本机 `tools/toolchain.json`；显式 `ASTRA_TOOLCHAIN_CONFIG` 优先，可选择 CI 生成的 `.tools/ci/toolchain.json`，错误配置不悄悄回退。公共入口支持 `--scope docs|toolchain|game`；docs 不读取引擎工具配置。
 - Godot、GUT、Python、Node、gdlint、gdformat 精确版本不变。Git 在 CI 只用于源码/提交元数据，采用明确最低版本 2.39.0 并记录实际版本；本机继续精确校验已有版本。CI 配置不要求 gh 或登录凭据。
 
 ## 同一验收入口
 
-顺序执行 `node --test tools/test-toolchain.mjs tools/test-worktree.mjs tools/test-worktree-runtime.mjs tools/test-game-failures.mjs`、`node tools/check.mjs --scope toolchain`、`node tools/check.mjs --scope game`。工具自检含预期失败与超时；它们只在检测结果符合预期时通过。普通 game 验收中的失败、跳过、缺失或超时仍判不通过。工作流不以 continue-on-error 隐藏失败。设计/机制标签只提供 report.failure_classification 诊断；设计基线失败仍是失败，CI 不自动更新或接受基线。
+本地由 agent 按 [检查分级](testing.md#按影响选择检查) 判断实际影响；CI 采用保守路径白名单。仅当完整 diff 非空、所有改动仅涉及 `docs/status.md`、`docs/status-history.md`、`docs/git-history.md`、`docs/index.md` 时，CI 执行 `node tools/check.mjs --scope docs`。其他路径（包括 AGENTS、测试/配置规则、模块 README、工具、CI、代码、资源和场景），以及无法取得 base/diff 或零改动时，保持完整路径：docs、Node 工具回归、`node tools/check.mjs --scope toolchain`、`node tools/check.mjs --scope game`。README 的纯文案可在本地只做 docs，CI 仍保守执行完整检查。若白名单页面实际改变授权或验收含义，仍按公共契约改动处理，不能借路径免除本地必要验证。
 
-新安装验证通过后，即使先前检查失败也尝试执行 game，保留独立证据；安装失败则由安装报告定位环境问题。所有正常结束的失败运行仍尝试上传 `artifacts/bootstrap/`、`artifacts/test-runs/`、CI 上下文与实际配置，保留 7 天。CI 上下文在准备 Node/Python 前生成，使运行时准备失败也能留下最小证据。artifact 保存成功只证明可取回证据，不代表验收通过。
+工具自检含预期失败与超时；它们只在检测结果符合预期时通过。普通 game 验收中的失败、跳过、缺失或超时仍判不通过。工作流不以 continue-on-error 隐藏失败。设计/机制标签只提供 report.failure_classification 诊断；设计基线失败仍是失败，CI 不自动更新或接受基线。
+
+新安装验证通过后，即使先前检查失败也尝试执行 game，保留独立证据；安装失败则由安装报告定位环境问题。所有正常结束的失败运行仍尝试上传 `artifacts/bootstrap/`、`artifacts/test-runs/`、CI 上下文与实际配置，保留 90 天；重要失败/修复的精简长期证据按 [测试协议](testing.md#关键证据的长期归档) 随源码保存。CI 上下文在准备 Node/Python 前生成，使运行时准备失败也能留下最小证据。artifact 保存成功只证明可取回证据，不代表验收通过。
 
 ## 对应源码与判断
 

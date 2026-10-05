@@ -28,9 +28,9 @@ Player 不重新赋值该属性。保存为零秒时连续有效命中不受计�
 | --- | --- |
 | `MapExit.enabled` 与可见性 | MapWorld 挂载房间时按 `MapRegistry.connections` 的有向连接重新设置。模板中保存的 enabled 不是世界实例的路由开关；增删连接编辑世界注册资源。 |
 | `MapExit` 碰撞层与掩码 | `_enter_tree()` 按专用角色检测契约设置；自定义检测规则应修改所属节点契约与回归。 |
-| 训练场角色初始 `position` | TrainingArena 启动用 `PLAYER_SPAWN`、`DUMMY_SPAWN`、`ENEMY_SPAWN`，主角与敌人重置也使用相应常量。训练布局调整修改这些入口及设计基线；仅改场景 position 会在启动时被覆盖。 |
+| 训练场角色初始 `position` | TrainingArena 根的 3 个 `*_spawn_path` 显式绑定场景 Marker2D，启动读取其 global_position；主角/敌人重置再读取对应标记，稻草人 reset 只清状态/统计。布局调整移动标记并保存场景；SPAWN 常数只保留兼容基线，启动不重注入常量。仅改角色 position 仍会由已声明的标记入口覆盖。 |
 
-这些是已有程序管理契约，不是任意覆盖 Inspector 的许可，也不是本次新增玩法。房间入口的位置与朝向仍读取房间场景保存值。新增或修改程序管理属性时，同次提交在模块 README 标明真正入口、覆盖时机及原因。
+这些是程序管理契约，不是任意覆盖 Inspector 的许可，也不是新增玩法。房间入口的位置与朝向仍读取房间场景保存值。训练场 Geometry 已保存于场景，不由启动脚本生成；DebugInput 的显式路径、按键映射与 enabled 也读取保存配置，程序不注入样例房间 ID。新增或修改程序管理属性时，同次提交在模块 README 标明真正入口、覆盖时机及原因。
 
 ## 每次变更的验证与交接
 

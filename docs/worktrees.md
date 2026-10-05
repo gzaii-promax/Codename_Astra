@@ -42,7 +42,7 @@ node tools/play.mjs
 node tools/play.mjs --editor
 ```
 
-准备器仅适用于同一 Git 仓库的 linked checkout，检查双方版本契约与工具路径存在，生成本目录忽略的 `.tools/worktree/toolchain.json` 和唯一 `artifacts/worktree-setup/<run_id>/report.json`。工具路径转为绝对路径；检查入口和 launcher 默认加载该派生配置。显式 `ASTRA_TOOLCHAIN_CONFIG` 优先；配置存在但损坏或显式路径无效会失败，不悄悄回退。准备不等于工具可执行/版本已验证，随后必须运行 toolchain 检查。
+准备器仅适用于同一 Git 仓库的 linked checkout，检查双方版本契约与工具路径存在，生成本目录忽略的 `.tools/worktree/toolchain.json` 和唯一 `artifacts/worktree-setup/<run_id>/report.json`。工具路径转为绝对路径；检查入口和 launcher 默认加载该派生配置。显式 `ASTRA_TOOLCHAIN_CONFIG` 优先；配置存在但损坏或显式路径无效会失败，不悄悄回退。准备不等于工具可执行/版本已验证；首次用于引擎/工具验收前必须运行 toolchain 检查。纯文案任务按 [检查分级](testing.md#按影响选择检查) 运行 docs，不为文案重复准备 Godot。
 
 相同准备可幂等复用；不同内容不可覆盖旧配置。变更前停止本 checkout 的引擎/测试，保存原配置与报告，再移走本 checkout 的派生配置，重新准备并验收。借用期间提供方工具必须保持稳定，不能重装、删改或移动；需要升级、提供方不可用或全新机器时，在自己的 worktree 独立安装：
 
@@ -57,7 +57,7 @@ bootstrap 始终从 tracked `tools/toolchain.json` 固定版本安装到当前 c
 
 launcher 在 linked checkout 自动使用 `.tools/play/settings.cfg`，编辑器入口继承同一环境；每次日志位于本目录唯一 `artifacts/play/<run_id>/godot.log`。显式 ASTRA_SETTINGS_PATH 优先。主目录试玩沿用原 user:// 设置；同一 worktree 同时试玩/编辑会共享该 checkout 的试玩设置，需要同时启动时为每进程显式给不同路径。原生项目管理器直接打开不会自动获得此环境，开发请使用 launcher。
 
-现有验收每轮生成独立快照、UUID 报告和 ASTRA_SETTINGS_PATH。交接必须写 **checkout 绝对路径、commit/源码哈希、scope、run_id、report_path**；latest.json 只代表该 checkout 最后结束的一次运行，不能拿另一目录或旧轮次的绿灯作本轮证据。运行引擎保留 HOME，不改全局用户配置。
+game/toolchain 验收每轮生成独立快照和 UUID 报告，game 显式提供本轮隔离的 ASTRA_SETTINGS_PATH；docs 只生成文档检查报告与对应源码身份，不启动引擎。交接必须写 **checkout 绝对路径、commit/源码哈希、scope、run_id、report_path**；latest.json 只代表该 checkout 最后结束的一次运行，不能拿另一目录或旧轮次的绿灯作本轮证据。运行引擎保留 HOME，不改全局用户配置。
 
 ## 合并与共享状态
 
@@ -77,6 +77,6 @@ node tools/with-integration-lock.mjs -- node /private/tmp/astra-integrate-this-t
 
 ## 结束与接续
 
-PR 合并、远端结果和安全同步核实后，保存需要交接的忽略报告/设置到保留位置。Managed worktree 使用 Codex archive_worktree 归档并保留可恢复快照；原生 worktree 使用 Git remove 前核查清洁状态和忽略文件。归档/删除可能不保留 ignored 文件，必须先复制必要证据。只清理当前任务自己创建且已无用途的目录，不清理历史 worktree、未知 stash 或未推送内容，不强制删除分支。
+PR 合并、远端结果和安全同步核实后，按 [关键证据归档规则](testing.md#关键证据的长期归档) 保存需要交接的报告/设置。Managed worktree 使用 Codex archive_worktree 归档并保留可恢复快照；原生 worktree 使用 Git remove 前核查清洁状态和忽略文件。归档/删除可能不保留 ignored 文件，必须先复制必要证据。只清理当前任务自己创建且已无用途的目录，不清理历史 worktree、未知 stash 或未推送内容，不强制删除分支。
 
 后续会话仍需读取 AGENTS、相关模块和最新状态，文档承载决策，聊天不会因为共享 Git 自动继承。当前机制的实际验证、PR 与本地同步记录见 [status.md](status.md)。

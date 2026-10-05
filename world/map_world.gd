@@ -43,18 +43,6 @@ func _unhandled_input(event: InputEvent) -> void:
 		return
 	if event.is_action_pressed("reset_training"):
 		reset_world()
-	elif event.is_action_pressed("toggle_fireball_level"):
-		player.set_fireball_level(2 if player.fireball_level == 1 else 1)
-	elif event is InputEventKey and event.pressed and not event.echo:
-		match event.physical_keycode:
-			KEY_F3:
-				debug_enter_room(&"room_a")
-			KEY_F4:
-				debug_enter_room(&"room_b")
-			KEY_F5:
-				debug_enter_room(&"room_c")
-			KEY_F6:
-				set_collision_debug(not collision_debug.visible)
 
 
 func set_collision_debug(enabled: bool) -> void:

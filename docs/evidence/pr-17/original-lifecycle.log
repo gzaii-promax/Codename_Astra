@@ -1,0 +1,39 @@
+res://tests/game/test_effect_lifecycle.gd
+[0m* test_training_reset_clears_attacks_reparented_into_effects_container
+[31m    [Failed]:  [0mMECHANISM: removal stops physics this frame
+      at line 24
+[31m    [Failed]:  [0mMECHANISM: removal queues every owned effect
+      at line 24
+[31m    [Failed]:  [0mMECHANISM: removal stops physics this frame
+      at line 24
+[31m    [Failed]:  [0mMECHANISM: removal queues every owned effect
+      at line 24
+[31m    [Failed]:  [0mMECHANISM: reset frees nested attacks
+      at line 27
+[31m    [Failed]:  [0mMECHANISM: reset frees nested attacks
+      at line 27
+[32m    [Passed]:  [0m[0] expected to equal [0]:  MECHANISM: reset statistics remain clear
+* test_room_transition_clears_attacks_reparented_into_effects_container
+[32m    [Passed]:  [0mMECHANISM: normal room transition succeeds
+[31m    [Failed]:  [0mMECHANISM: removal stops physics this frame
+      at line 35
+[31m    [Failed]:  [0mMECHANISM: removal queues every owned effect
+      at line 35
+[31m    [Failed]:  [0mMECHANISM: removal stops physics this frame
+      at line 35
+[31m    [Failed]:  [0mMECHANISM: removal queues every owned effect
+      at line 35
+[31m    [Failed]:  [0mMECHANISM: transition frees nested attacks
+      at line 38
+[31m    [Failed]:  [0mMECHANISM: transition frees nested attacks
+      at line 38
+* test_enemy_interrupt_clears_nested_melee_and_preserves_launched_fireball
+[31m    [Failed]:  [0mMECHANISM: removal stops physics this frame
+      at line 47
+[31m    [Failed]:  [0mMECHANISM: removal queues every owned effect
+      at line 47
+[32m    [Passed]:  [0mMECHANISM: launched fireball is independent
+[32m    [Passed]:  [0mMECHANISM: launched fireball keeps moving
+[1m0/3 passed.
+[0m[4m
+

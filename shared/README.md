@@ -20,6 +20,8 @@ U 统一计量，不强制所有属性按 1 U 或 0.5 U 跳变。地图模块负
 
 `graybox_solid.gd` 提供 `GrayboxSolid.create(Rect2,Color,name)`，返回世界层 1 的 StaticBody2D；CollisionShape2D 与 Polygon2D 使用同一个矩形尺寸，保证 gray box 可见表面与物理表面一致。业务场景决定如何布局，不在公共工具中硬编码地图。
 
+正式训练场的地形已保存于 `world/training_arena.tscn`，在编辑器编辑 Geometry 与出生标记，启动不再调用此生成器；本辅助继续供独立物理 fixture 使用。场景的显式出生绑定和局部 DebugInput 属于 world 模块，见 [world/README.md](../world/README.md)。
+
 新增公共工具应服务明确的共同需求并有单一职责；不把主角/技能/目标状态放进全局万能工具。输入与地形由实际主场景测试覆盖，统一入口 `node tools/check.mjs --scope game`。
 
 ## 攻击效果生命周期
