@@ -10,7 +10,7 @@
 
 ## 启动一个会话
 
-推荐在 Codex 新会话选择 **Worktree**，起点选择最新 `main`；或让 agent 创建并附加 managed worktree。以工具实际返回的绝对目录为准，所有编辑、Godot 编辑器、测试、commit/push 都在那里执行。默认可能为 detached HEAD，开发前在该目录创建唯一 `codex/<任务>-<短会话标识>` 分支。已附加且适合当前任务的 worktree 优先复用。不要仅新开 Local 会话后继续写原目录，也不要让两个写入会话共用永久 worktree。操作入口依据：[OpenAI 官方 Worktrees 文档](https://learn.chatgpt.com/docs/environments/git-worktrees)。
+推荐在 Codex 新会话选择 **Worktree**，起点选择最新 `main`；或让 agent 创建并附加 managed worktree。以工具实际返回的绝对目录为准，所有编辑、Godot 编辑器、测试、commit/push 都在那里执行。默认可能为 detached HEAD，开发前在该目录创建唯一功能分支：Codex 用 `codex/<任务>-<短会话标识>`，Claude 用 `claude/<任务>-<短会话标识>`。已附加且适合当前任务的 worktree 优先复用。不要仅新开 Local 会话后继续写原目录，也不要让两个写入会话共用永久 worktree。操作入口依据：[OpenAI 官方 Worktrees 文档](https://learn.chatgpt.com/docs/environments/git-worktrees)。
 
 CLI 也可使用原生 Git（示例目录和分支须替换为本会话自己的唯一值）：
 

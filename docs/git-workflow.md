@@ -9,7 +9,7 @@
 ## 每轮固定流程
 
 1. 读取 AGENTS、近期提交、相关模块、[当前状态](status.md)、最新报告与开放错误；核对当前 checkout、分支、base SHA、origin 和工作树。
-2. 所有写入任务使用自己的 worktree 和唯一 `codex/<任务>-<会话标识>` 分支，原目录保留 main。准备工具、运行设置与验收隔离按 [worktrees.md](worktrees.md)；续做自己的已有 checkout 不重复创建。
+2. 所有写入任务使用自己的 worktree 和唯一功能分支（`codex/` 或 `claude/` 前缀，见 [agent-collaboration.md](agent-collaboration.md)），原目录保留 main。准备工具、运行设置与验收隔离按 [worktrees.md](worktrees.md)；续做自己的已有 checkout 不重复创建。
 3. 从 `tools/toolchain.json` 或实际派生配置读取 gh 路径；按需核实登录和 repo 权限。沿用现有 keyring/credential helper，不显示完整 token、不修改公共认证配置。
 4. 完成授权范围并同步模块文档，按 [检查分级](testing.md#按影响选择检查) 执行必要检查并复读相应报告/原始证据。纯文案用 docs；需要 game 时核对 JUnit、日志与源码身份。用户手感单列为待验收，不把自动通过当作试玩通过。
 5. Commit 写明最终变化、原因、验证和遗留事项；普通 push 自己的功能分支，不 force。首次 push 明确 `-u origin <自己的分支>`，不误推 main。

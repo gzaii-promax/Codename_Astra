@@ -24,6 +24,7 @@
 | 编辑器工作流、职责/依赖、signal 再入和效果归属评审 | [engineering-practices.md](engineering-practices.md) |
 | 开发隔离、工具借用、编辑器、集成锁、归档 | [worktrees.md](worktrees.md) |
 | Commit、PR、合并与 main 同步 | [git-workflow.md](git-workflow.md) |
+| Claude / Codex 协作：Issue、label、交接与审阅 | [agent-collaboration.md](agent-collaboration.md) |
 | 检查分级、运行验收、失败复跑与长期证据 | [testing.md](testing.md)、[tests/README.md](../tests/README.md) |
 | 设计数值变更与独立机制回归 | [design-baselines.md](design-baselines.md)、[tests/baselines/README.md](../tests/baselines/README.md) |
 | 安装、检查入口和工具职责 | [tools/README.md](../tools/README.md)、[tools/toolchain.json](../tools/toolchain.json) |
