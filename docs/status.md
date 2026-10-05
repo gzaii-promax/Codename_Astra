@@ -2,7 +2,7 @@
 
 ## 当前已交付基准
 
-2026-10-05 本轮整理以 `main` 合并提交 `6fe34926c12464df6dfc83ec03a9e2a52af40715`（[PR #17](https://github.com/gzaii-promax/Codename_Astra/pull/17)）为基准。以下结果对应这个提交；本轮流程与编辑入口修改的最终结果须由其实际 PR、CI 与本轮报告确认，不沿用旧绿灯。
+2026-10-05 本轮整理以 `main` 合并提交 `6fe34926c12464df6dfc83ec03a9e2a52af40715`（[PR #17](https://github.com/gzaii-promax/Codename_Astra/pull/17)）为基准。下表对应这个提交；本轮编辑入口与流程改进另见下一节，最终交付须核对实际 PR、CI 与本轮报告，不沿用旧绿灯。
 
 | 已交付内容 | 当前规则 / 入口 |
 | --- | --- |
@@ -13,6 +13,15 @@
 | 工程契约修复 | 尊重保存输入和 Inspector 配置；显式战斗绑定；稳定命中结果；世界/来源效果归属；动作同步再入和有限值校验。见 [工程评审](engineering-practices.md)、[原问题记录](errors/ERR-20261005-ENGINEERING-CONTRACTS.md) |
 
 架构与配置入口见 [ARCHITECTURE](../ARCHITECTURE.md) 和 [文档索引](index.md)。历史依赖分支的 MERGED 状态不能代替 main 提交包含关系核对。
+
+## 本轮编辑入口与流程改进
+
+- [训练场场景](../world/training_arena.tscn) 的地形保存为 `Geometry` 下六个可编辑 StaticBody2D，出生位置保存为 `Spawns` 下三个 Marker2D。根节点通过显式路径读取出生位置；保存、重载、入树与重置不再重新注入固定坐标。默认地形和动作数值沿用原独立基线。
+- 两个世界各自持有 `DebugInput` 子节点，统一 F2 等调试命令；玩家、世界、碰撞显示路径及房间快捷键可配置，保存的 `enabled=false` 生效。错误绑定拒绝命令并保留诊断，暂停时不执行。编辑入口与限制见 [world](../world/README.md)。
+- `node tools/check.mjs --scope docs` 提供无需引擎的本地 Markdown 结构检查与报告。CI 只有状态、历史、索引四个明确路径可走轻量分支；规则、代码、配置、工具、未知或不可核对的 diff 仍完整验收。范围及证据边界统一见 [测试协议](testing.md#按影响选择检查)。
+- 当前状态与历史快照分开；关键原失败证据进入版本控制，普通运行快照留在忽略目录。CI 报告请求保留 90 天，仍受仓库/组织策略上限约束。
+
+新增六个真实引擎用例先在原代码复现六项失败，再验证保存的地形/出生点、错误绑定、暂停、嵌套调试节点及自定义按键。组合后的独立 game、Node、docs、工具自检及 PR/main CI 仍以对应本轮原始报告为准；保存位置为本任务 checkout 的 `artifacts/review-improvements/`。这些实现不代表用户已认可试玩效果。
 
 ## 基准提交的已核对证据
 
