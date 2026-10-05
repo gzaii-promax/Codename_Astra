@@ -2,21 +2,37 @@
 
 ## 范围与入口
 
-- 范围由命令参数确定：`toolchain` 验证测试工具自身；`game` 验证当前真实项目及既有回归，均不能证明手感已获用户认可。
+- 范围由命令参数确定：`docs` 验证 Markdown 文件与本地链接；`toolchain` 验证测试工具自身；`game` 验证真实项目及既有回归。各范围的 pass 只证明自己的检查完成，不能证明用户已认可手感。
 - 工作目录：项目根目录，即 `AGENTS.md` 所在目录；尚未建立 Git 仓库时同样适用。
-- 单一入口：`node tools/check.mjs --scope toolchain` 或 `node tools/check.mjs --scope game`。未知范围和参数必须拒绝。
+- 单一入口：`node tools/check.mjs --scope docs|toolchain|game`（执行时选择一个范围）。未知范围和参数必须拒绝。
 - 路径、固定版本、来源：`tools/toolchain.json`。工具本体在 `.tools/`，不提交。
-- 新机器/CI 先执行 `node tools/bootstrap.mjs`；按输出配置路径设置 `ASTRA_TOOLCHAIN_CONFIG`。安装与验收分开，两个 scope 共用 `tools/toolchain-config.mjs`。CI 具体触发、证据与合并门槛见 [ci.md](ci.md)。
+- 新机器/CI 需要 game/toolchain 验收时先执行 `node tools/bootstrap.mjs`；按输出配置路径设置 `ASTRA_TOOLCHAIN_CONFIG`。安装与验收分开，game/toolchain 共用 `tools/toolchain-config.mjs`；docs 只需 Node 与 Git，不安装引擎依赖。CI 具体触发、证据与合并门槛见 [ci.md](ci.md)。
 - 具体安装与测试状态：见最新报告；未执行或报告缺失时为未验证。
 - 新建或修改测试流程后立即执行；每次准备验收前执行本轮必要检查。
 - 地图版完整 GUT 进程预算为 150 秒。新增真实物理用例使原 90 秒首轮真实超时，证据保留在 ERR-20261002-MAP-VALIDATION.md；提高有限预算不改变检查集合、断言、超时失败和原始 XML 要求。
 - 本机已验证的执行方式：在获准的沙箱外环境运行相同入口。沙箱内 Godot 用户缓存与 Python fixture 文件访问曾失败，见 [ENV-0004](errors/ENV-0004.md)。新 agent 应先读取该记录；权限失败时先核对执行环境，保持测试预期及 `HOME` 不变。
 
+## 按影响选择检查
+
+本地验收开始时由 agent 按实际 diff 选择下表；混合改动执行所有适用项。分类写在 PR/交接的验证说明即可，不新增分级模板。修改授权、验收规则或测试入口不属于纯文案；不得仅按 `.md` 后缀判轻量。CI 使用更保守的路径白名单，见 [ci.md](ci.md)。
+
+| 改动 | 必要检查 | 独立验证与证据 |
+| --- | --- | --- |
+| 纯文案、排版或导航；不改变游戏、配置、工具/CI、验收契约或授权边界 | `node tools/check.mjs --scope docs`，阅读对应报告与链接错误 | 无需独立 Godot 复验；不能把 docs pass 写成 game pass |
+| 已认可的配置/场景调整，或局部游戏行为修改 | docs；相关配置的真实保存、重新加载、入树、行为与 reset；原失败项/受影响机制；最终完整 `--scope game` | 保留独立设计期望、机制和原失败。同一源码已经完整验收后，不为无变化的文字收尾重复 game |
+| 公共依赖、动作/效果生命周期、signal 再入，或测试工具/CI/验收契约修改 | docs；相关 Node 回归；工具/环境契约变化时 toolchain；原失败项/受影响机制；完整 game | 公共契约和检测能力须有真实针对性反例，交付前对冻结源码独立验证；不得把故意失败 fixture 当游戏通过 |
+
+新 worktree 的工具准备仍须证明环境可用；相同已验证工具/配置可按 [worktrees.md](worktrees.md) 复用，不因每次改文案重复引擎自检。配置或依赖身份改变、先前检查失败、引入新改动或有未解决疑点时，重新执行相应检查。
+
+组合源码完成一次本轮必要 game 检查后，仅文案收尾执行 docs 并核对游戏/测试源码身份；不重复未变化的完整游戏验证。文字若影响验收/工具契约则按第三行处理。最终 PR head 的适用 CI、原始报告、实际配置和哈希仍要核对，main push 再验证实际合并提交；不能把旧报告改写成新 head 的报告。
+
+本次不新增调参探索模式，也不改变 [设计基线](design-baselines.md) 的正式验收流程。新的明确用户指令可以批准基线变更；长跳大于短跳等机制关系不能代替已采纳的具体尺度/数值约束。
+
 ## 并行验收
 
 可维护性改动同时执行 [工程评审](engineering-practices.md) 的配置、依赖、生命周期和同步再入反例；原失败必须可读，不能只增加证明现有实现的正向测试。临时 HUD 保留原回归并标注债务，不据当前 UI 测试通过宣称正式架构完成。
 
-写入/运行开发任务按 [worktrees.md](worktrees.md) 使用独立 checkout。工具准备和单测入口为 `node tools/prepare-worktree.mjs --tools-from <同仓库已验证目录>` 与 `node --test tools/test-toolchain.mjs tools/test-worktree.mjs tools/test-worktree-runtime.mjs tools/test-game-failures.mjs`；随后运行既有 scope 验收。所有报告、快照、设置和引擎日志留在实际 checkout，交接写明绝对目录与 run_id。不要跨目录读取 latest.json，也不把依赖准备或故意失败 fixture 计为真实游戏通过。共享集成操作另用公共锁。
+写入/运行开发任务按 [worktrees.md](worktrees.md) 使用独立 checkout。需要引擎或工具验证时，工具准备和单测入口为 `node tools/prepare-worktree.mjs --tools-from <同仓库已验证目录>` 与 `node --test tools/test-toolchain.mjs tools/test-worktree.mjs tools/test-worktree-runtime.mjs tools/test-game-failures.mjs`；随后运行既有 scope 验收。所有报告、快照、设置和引擎日志留在实际 checkout，交接写明绝对目录与 run_id。不要跨目录读取 latest.json，也不把依赖准备或故意失败 fixture 计为真实游戏通过。共享集成操作另用公共锁。
 
 ## 执行与交接
 
@@ -34,10 +50,18 @@
 - 报告至少含协议版本、`run_id`、范围、工作目录、开始时间、耗时、工具路径与版本、执行命令、总体状态及检查列表。
 - 每项检查至少含稳定标识、目的、预期结果、实际结果、状态、退出码、日志路径及失败上下文。未启动的检查退出码可为空，但必须记录原因。
 - 失败上下文应定位到检查、报错及触发条件，必要时关联错误编号、代码版本、重试与上一轮运行。没有 Git 信息时明确标为不可用。
-- 原始日志与结构化结果一同保留，日志路径须能从报告定位。报告缺字段、无法解析或找不到关键证据不得算通过。
-- 哈希覆盖实际源码与受版本控制的工作流、安装脚本、配置读取器、源配置、包锁及测试协议；实际配置另在 `toolchain_config` 记录路径、SHA-256、完整 manifest。CI 派生配置不假装存在于 Git HEAD。
-- PR 验收可能运行 GitHub 的合并引用。以 CI 上下文分别核对 PR head/base、GITHUB_SHA、报告的实际 commit；最新 head 上所有必要检查通过才具备合并证据。
+- 原始日志与结构化结果一同保留，日志路径须能从报告定位。报告缺字段、无法解析或找不到关键证据不得算通过。历史长期归档与本轮完整报告职责见下节；摘要不能冒充原始报告。
+- game/toolchain 哈希覆盖实际源码与受版本控制的工作流、安装脚本、配置读取器、源配置、包锁及测试协议；实际配置另在 `toolchain_config` 记录路径、SHA-256、完整 manifest。CI 派生配置不假装存在于 Git HEAD。docs 哈希覆盖当前 Markdown 与文档检查入口、实现和回归脚本，记录 Node 版本，不要求 Godot/Python 配置。
+- PR 验收可能运行 GitHub 的合并引用。以 CI 上下文分别核对 PR head/base、GITHUB_SHA、报告的实际 commit；最新 head 上所有适用检查通过才具备合并证据。
 - 必须核对预期检查是否全部执行；空检查列表、意外跳过、未完成运行不能得到 `pass`。
+
+## 关键证据的长期归档
+
+CI 原始 artifacts 请求保留 90 天，实际期限受仓库/组织策略上限约束；期限内可下载完整报告、日志、配置和源码快照。可从 Git 和固定工具重新运行，与能够取回当时的原始失败证据，是两个结论。
+
+重要公共契约缺陷、测试检测能力缺陷及其修复，将精简证据归档到受版本控制的 `docs/evidence/<问题或PR>/`：至少说明原失败与修复/交付的源码身份、运行入口、具体反例和结果，保留必要原始日志或明确标为摘录的片段及原文件 SHA-256/行号，并提供对应 CI 链接。报告摘要必须标明摘要、原报告 SHA-256 和保留范围，不称为完整原报告。摘要里的通过结果不能代替本轮完整验收。
+
+普通运行继续在本任务 ignored artifacts 保存完整报告/快照，收尾由任务所有者确认需要保留的失败、配置与交接证据后整理；长期归档不要求提交每轮完整 game-project 或 vendor。只归档/整理当前任务自己的文件，不删除其他会话的 worktree、报告、未提交文件或未知 stash。现行目录与原始报告协议不变。
 
 ## 配置保存与设计变更
 
@@ -73,7 +97,7 @@
 - JUnit 判读要求每个预期 case 都有断言，且 failures/errors/skipped 为 0；执行失败仍尝试读取现有 XML，保留实际失败上下文。缺文件、空测试、跳过或名称缺失不算通过。
 - 行为覆盖与独立限制见 [tests/README.md](../tests/README.md)。第一版技术数值是暂定验收基线，玩法调整时必须说明为什么改变预期，而不能仅按实现自动改测试。
 - `latest.json` 可能指向工具链或游戏范围。报告 `scope` 不等于 `game` 时，不可据此声明首版已通过；也不能将工具 fixture 结果计为游戏测试。
-- 测试子 agent 负责实际执行与首次判读；主 agent 必须读取完整报告、JUnit 与失败日志，承担交付结论。用户主动反馈仍是独立渠道。
+- game 验收优先由测试子 agent 执行与首次判读；主 agent 必须读取完整报告、JUnit 与失败日志，承担交付结论。docs 的独立验证边界按上面的检查分级执行；用户主动反馈仍是独立渠道。
 
 ## 失败、修复与反馈
 

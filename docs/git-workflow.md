@@ -11,12 +11,12 @@
 1. 读取 AGENTS、近期提交、相关模块、[当前状态](status.md)、最新报告与开放错误；核对当前 checkout、分支、base SHA、origin 和工作树。
 2. 所有写入任务使用自己的 worktree 和唯一功能分支（`codex/` 或 `claude/` 前缀，见 [agent-collaboration.md](agent-collaboration.md)），原目录保留 main。准备工具、运行设置与验收隔离按 [worktrees.md](worktrees.md)；续做自己的已有 checkout 不重复创建。
 3. 从 `tools/toolchain.json` 或实际派生配置读取 gh 路径；按需核实登录和 repo 权限。沿用现有 keyring/credential helper，不显示完整 token、不修改公共认证配置。
-4. 完成授权范围并同步模块文档。按改动范围执行必要检查，复读原报告/JUnit/日志和源码哈希。用户手感单列为待验收，不把自动通过当作试玩通过。
+4. 完成授权范围并同步模块文档，按 [检查分级](testing.md#按影响选择检查) 执行必要检查并复读相应报告/原始证据。纯文案用 docs；需要 game 时核对 JUnit、日志与源码身份。用户手感单列为待验收，不把自动通过当作试玩通过。
 5. Commit 写明最终变化、原因、验证和遗留事项；普通 push 自己的功能分支，不 force。首次 push 明确 `-u origin <自己的分支>`，不误推 main。
 6. 同一目标已有未合并 PR 时更新原 PR；独立改动创建新 PR。描述最终问题/行为、验证和审核重点，gh 多行正文用 `--body-file`。成功创建或继续处理实际 PR 后调用 Codex `attach_artifact`；读回 URL、base/head、head SHA 与状态。
 7. 进入公共集成锁后重新核对最新 base/head、对应 CI 检查/原始 artifact/源码哈希与冲突状态。base 改变使验证组合改变时先更新/复验；证据未完成不能合并。条件齐备再转 ready，使用 Merge commit 和 `--match-head-commit <已验收SHA>`。
 8. 在同一锁内读取实际合并提交、fetch、核对 main 包含关系与 tree；主目录仍为 main、干净且无人编辑/运行时 `git merge --ff-only origin/main`。不代替用户 stash/reset/switch；不能同步时保留远端结果并明确报告。
-9. 核对 main push 的实际合并提交、检查和原始证据，保存本轮 checkout/base/head/merge、scope/run_id/report_path 与审核结论；结束时只归档自己创建且已无用途的 worktree，先保存 ignored 证据，不自动删功能分支。
+9. 核对 main push 的实际合并提交、适用检查和原始证据，保存本轮 checkout/base/head/merge、scope/run_id/report_path 与审核结论；关键失败/修复按测试协议长期归档。结束时只归档自己创建且已无用途的 worktree，先保存必要 ignored 证据，不自动删功能分支。
 
 ## 公共锁与 CI 门槛
 

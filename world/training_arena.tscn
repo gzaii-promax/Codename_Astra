@@ -1,4 +1,4 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=13 format=3]
 
 [ext_resource type="Script" path="res://world/training_arena.gd" id="1_arena"]
 [ext_resource type="PackedScene" path="res://player/player_character.tscn" id="2_player"]
@@ -6,8 +6,110 @@
 [ext_resource type="Script" path="res://ui/training_hud.gd" id="4_hud"]
 [ext_resource type="PackedScene" path="res://world/periodic_enemy.tscn" id="5_enemy"]
 
+[ext_resource type="Script" path="res://world/world_debug_input.gd" id="6_debug"]
+
+[sub_resource type="RectangleShape2D" id="Shape_Floor"]
+size = Vector2(512, 16)
+
+[sub_resource type="RectangleShape2D" id="Shape_LeftWall"]
+size = Vector2(16, 224)
+
+[sub_resource type="RectangleShape2D" id="Shape_RightWall"]
+size = Vector2(16, 224)
+
+[sub_resource type="RectangleShape2D" id="Shape_Ceiling"]
+size = Vector2(512, 16)
+
+[sub_resource type="RectangleShape2D" id="Shape_Step"]
+size = Vector2(64, 8)
+
+[sub_resource type="RectangleShape2D" id="Shape_Platform"]
+size = Vector2(48, 8)
+
 [node name="TrainingArena" type="Node2D"]
 script = ExtResource("1_arena")
+player_spawn_path = NodePath("Spawns/Player")
+dummy_spawn_path = NodePath("Spawns/TrainingDummy")
+enemy_spawn_path = NodePath("Spawns/PeriodicEnemy")
+
+[node name="Geometry" type="Node2D" parent="."]
+
+[node name="Floor" type="StaticBody2D" parent="Geometry"]
+position = Vector2(480, 448)
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Geometry/Floor"]
+shape = SubResource("Shape_Floor")
+
+[node name="Polygon2D" type="Polygon2D" parent="Geometry/Floor"]
+polygon = PackedVector2Array(-256, -8, 256, -8, 256, 8, -256, 8)
+color = Color(0.243137255, 0.274509804, 0.321568627, 1)
+
+[node name="LeftWall" type="StaticBody2D" parent="Geometry"]
+position = Vector2(232, 328)
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Geometry/LeftWall"]
+shape = SubResource("Shape_LeftWall")
+
+[node name="Polygon2D" type="Polygon2D" parent="Geometry/LeftWall"]
+polygon = PackedVector2Array(-8, -112, 8, -112, 8, 112, -8, 112)
+color = Color(0.243137255, 0.274509804, 0.321568627, 1)
+
+[node name="RightWall" type="StaticBody2D" parent="Geometry"]
+position = Vector2(728, 328)
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Geometry/RightWall"]
+shape = SubResource("Shape_RightWall")
+
+[node name="Polygon2D" type="Polygon2D" parent="Geometry/RightWall"]
+polygon = PackedVector2Array(-8, -112, 8, -112, 8, 112, -8, 112)
+color = Color(0.243137255, 0.274509804, 0.321568627, 1)
+
+[node name="Ceiling" type="StaticBody2D" parent="Geometry"]
+position = Vector2(480, 208)
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Geometry/Ceiling"]
+shape = SubResource("Shape_Ceiling")
+
+[node name="Polygon2D" type="Polygon2D" parent="Geometry/Ceiling"]
+polygon = PackedVector2Array(-256, -8, 256, -8, 256, 8, -256, 8)
+color = Color(0.243137255, 0.274509804, 0.321568627, 1)
+
+[node name="Step" type="StaticBody2D" parent="Geometry"]
+position = Vector2(384, 428)
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Geometry/Step"]
+shape = SubResource("Shape_Step")
+
+[node name="Polygon2D" type="Polygon2D" parent="Geometry/Step"]
+polygon = PackedVector2Array(-32, -4, 32, -4, 32, 4, -32, 4)
+color = Color(0.337254902, 0.376470588, 0.423529412, 1)
+
+[node name="Platform" type="StaticBody2D" parent="Geometry"]
+position = Vector2(456, 412)
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Geometry/Platform"]
+shape = SubResource("Shape_Platform")
+
+[node name="Polygon2D" type="Polygon2D" parent="Geometry/Platform"]
+polygon = PackedVector2Array(-24, -4, 24, -4, 24, 4, -24, 4)
+color = Color(0.337254902, 0.376470588, 0.423529412, 1)
+
+[node name="Spawns" type="Node2D" parent="."]
+
+[node name="Player" type="Marker2D" parent="Spawns"]
+position = Vector2(272, 440)
+
+[node name="TrainingDummy" type="Marker2D" parent="Spawns"]
+position = Vector2(544, 440)
+
+[node name="PeriodicEnemy" type="Marker2D" parent="Spawns"]
+position = Vector2(656, 440)
 
 [node name="Player" parent="." instance=ExtResource("2_player")]
 position = Vector2(272, 440)
@@ -20,3 +122,7 @@ script = ExtResource("4_hud")
 
 [node name="PeriodicEnemy" parent="." instance=ExtResource("5_enemy")]
 position = Vector2(656, 440)
+
+[node name="DebugInput" type="Node" parent="."]
+script = ExtResource("6_debug")
+player_path = NodePath("../Player")

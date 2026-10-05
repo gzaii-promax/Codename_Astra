@@ -1,0 +1,373 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="GutTests" failures="0" tests="171" >
+  <testsuite name="tests/game/test_actions.gd" tests="12" failures="0" skipped="0" time="0.004067" >
+      <testcase name="test_fireball_level_changes_timing_without_mutating_base" assertions="7" status="pass" classname="tests/game/test_actions.gd" time="0.000572" >
+      </testcase>
+      <testcase name="test_invalid_skill_and_override_are_rejected" assertions="4" status="pass" classname="tests/game/test_actions.gd" time="0.000328" >
+      </testcase>
+      <testcase name="test_duplicate_upgrade_levels_are_rejected" assertions="1" status="pass" classname="tests/game/test_actions.gd" time="0.000123" >
+      </testcase>
+      <testcase name="test_windup_executes_once_then_active_and_recovery_complete" assertions="8" status="pass" classname="tests/game/test_actions.gd" time="0.000535" >
+      </testcase>
+      <testcase name="test_large_tick_carries_time_through_all_phases" assertions="4" status="pass" classname="tests/game/test_actions.gd" time="0.000245" >
+      </testcase>
+      <testcase name="test_zero_duration_phases_execute_once_without_stalling" assertions="4" status="pass" classname="tests/game/test_actions.gd" time="0.000246" >
+      </testcase>
+      <testcase name="test_active_action_and_cooldown_reject_repeated_requests" assertions="5" status="pass" classname="tests/game/test_actions.gd" time="0.000216" >
+      </testcase>
+      <testcase name="test_player_cancel_and_hit_interrupt_have_separate_rules" assertions="7" status="pass" classname="tests/game/test_actions.gd" time="0.000499" >
+      </testcase>
+      <testcase name="test_recovery_policy_can_allow_cancel_after_locked_windup" assertions="5" status="pass" classname="tests/game/test_actions.gd" time="0.000365" >
+      </testcase>
+      <testcase name="test_new_skill_uses_same_controller_and_independent_binding" assertions="5" status="pass" classname="tests/game/test_actions.gd" time="0.000364" >
+      </testcase>
+      <testcase name="test_reset_clears_action_and_cooldown_but_keeps_skill_bindings" assertions="5" status="pass" classname="tests/game/test_actions.gd" time="0.00032" >
+      </testcase>
+      <testcase name="test_nonfinite_or_negative_tick_cannot_advance_action" assertions="4" status="pass" classname="tests/game/test_actions.gd" time="0.000254" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/game/test_combat_contracts.gd" tests="10" failures="0" skipped="0" time="0.007283" >
+      <testcase name="test_combat_source_provider_survives_nested_and_renamed_components" assertions="2" status="pass" classname="tests/game/test_combat_contracts.gd" time="0.000208" >
+      </testcase>
+      <testcase name="test_combat_missing_or_wrong_receiver_binding_rejects_contact" assertions="7" status="pass" classname="tests/game/test_combat_contracts.gd" time="0.000793" >
+      </testcase>
+      <testcase name="test_combat_outer_result_survives_rejection_in_hit_listener" assertions="2" status="pass" classname="tests/game/test_combat_contracts.gd" time="0.000195" >
+      </testcase>
+      <testcase name="test_combat_dummy_statistics_do_not_depend_on_listener_order" assertions="4" status="pass" classname="tests/game/test_combat_contracts.gd" time="0.000421" >
+      </testcase>
+      <testcase name="test_combat_healthless_contact_requires_explicit_mode" assertions="8" status="pass" classname="tests/game/test_combat_contracts.gd" time="0.000691" >
+      </testcase>
+      <testcase name="test_combat_unknown_or_broken_source_is_rejected_with_diagnostics" assertions="35" status="pass" classname="tests/game/test_combat_contracts.gd" time="0.001129" >
+      </testcase>
+      <testcase name="test_combat_direct_component_self_identity_survives_nested_ownership" assertions="6" status="pass" classname="tests/game/test_combat_contracts.gd" time="0.000341" >
+      </testcase>
+      <testcase name="test_combat_resolved_amount_survives_accepted_hit_in_earlier_listener" assertions="5" status="pass" classname="tests/game/test_combat_contracts.gd" time="0.000508" >
+      </testcase>
+      <testcase name="test_combat_resolved_amount_survives_rejected_hit_in_earlier_listener" assertions="6" status="pass" classname="tests/game/test_combat_contracts.gd" time="0.000512" >
+      </testcase>
+      <testcase name="test_combat_receiver_paths_and_explicit_mode_survive_scene_round_trip" assertions="22" status="pass" classname="tests/game/test_combat_contracts.gd" time="0.002485" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/game/test_combat_physics.gd" tests="8" failures="0" skipped="0" time="1.974785" >
+      <testcase name="test_fireball_sweeps_fast_movement_and_hits_only_once" assertions="2" status="pass" classname="tests/game/test_combat_physics.gd" time="0.095956" >
+      </testcase>
+      <testcase name="test_fireball_facing_left_does_not_hit_target_on_right" assertions="1" status="pass" classname="tests/game/test_combat_physics.gd" time="0.326008" >
+      </testcase>
+      <testcase name="test_wall_blocks_fireball_before_target" assertions="2" status="pass" classname="tests/game/test_combat_physics.gd" time="0.333874" >
+      </testcase>
+      <testcase name="test_fireball_lifetime_and_range_remove_unspent_projectiles" assertions="3" status="pass" classname="tests/game/test_combat_physics.gd" time="0.273929" >
+      </testcase>
+      <testcase name="test_fireball_executor_uses_caster_origin_facing_and_definition" assertions="5" status="pass" classname="tests/game/test_combat_physics.gd" time="0.00055" >
+      </testcase>
+      <testcase name="test_melee_hits_forward_target_once_per_swing" assertions="2" status="pass" classname="tests/game/test_combat_physics.gd" time="0.621883" >
+      </testcase>
+      <testcase name="test_melee_does_not_hit_behind_or_outside_reach" assertions="1" status="pass" classname="tests/game/test_combat_physics.gd" time="0.321962" >
+      </testcase>
+      <testcase name="test_receiver_rejects_disabled_invalid_and_own_hits" assertions="6" status="pass" classname="tests/game/test_combat_physics.gd" time="0.000623" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/game/test_effect_lifecycle.gd" tests="11" failures="0" skipped="0" time="1.027058" >
+      <testcase name="test_training_reset_clears_attacks_reparented_into_effects_container" assertions="7" status="pass" classname="tests/game/test_effect_lifecycle.gd" time="0.165653" >
+      </testcase>
+      <testcase name="test_room_transition_clears_attacks_reparented_into_effects_container" assertions="7" status="pass" classname="tests/game/test_effect_lifecycle.gd" time="0.079183" >
+      </testcase>
+      <testcase name="test_enemy_interrupt_clears_nested_melee_and_preserves_launched_fireball" assertions="4" status="pass" classname="tests/game/test_effect_lifecycle.gd" time="0.083162" >
+      </testcase>
+      <testcase name="test_effect_world_boundary_is_independent_of_current_scene" assertions="12" status="pass" classname="tests/game/test_effect_lifecycle.gd" time="0.032776" >
+      </testcase>
+      <testcase name="test_world_reset_clears_new_effect_type_without_clearing_unregistered_content" assertions="8" status="pass" classname="tests/game/test_effect_lifecycle.gd" time="0.113704" >
+      </testcase>
+      <testcase name="test_effect_reparent_keeps_explicit_world_source_and_interruption_policy" assertions="12" status="pass" classname="tests/game/test_effect_lifecycle.gd" time="0.037014" >
+      </testcase>
+      <testcase name="test_effect_registration_survives_detach_and_source_release" assertions="6" status="pass" classname="tests/game/test_effect_lifecycle.gd" time="0.072186" >
+      </testcase>
+      <testcase name="test_reparented_effect_keeps_world_ownership_until_explicit_reregistration" assertions="7" status="pass" classname="tests/game/test_effect_lifecycle.gd" time="0.039472" >
+      </testcase>
+      <testcase name="test_world_clear_in_melee_callback_stops_remaining_contacts_this_frame" assertions="2" status="pass" classname="tests/game/test_effect_lifecycle.gd" time="0.181241" >
+      </testcase>
+      <testcase name="test_effect_cleanup_while_detached_prevents_reentry_after_reset" assertions="18" status="pass" classname="tests/game/test_effect_lifecycle.gd" time="0.102637" >
+      </testcase>
+      <testcase name="test_effect_can_bind_and_cancel_before_world_enters_tree" assertions="5" status="pass" classname="tests/game/test_effect_lifecycle.gd" time="0.12003" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/game/test_engineering_safety.gd" tests="12" failures="0" skipped="0" time="1.078202" >
+      <testcase name="test_input_initialization_preserves_custom_and_empty_editor_bindings" assertions="3" status="pass" classname="tests/game/test_engineering_safety.gd" time="0.000279" >
+      </testcase>
+      <testcase name="test_input_saved_project_setting_survives_reload_and_initialization" assertions="11" status="pass" classname="tests/game/test_engineering_safety.gd" time="0.259116" >
+      </testcase>
+      <testcase name="test_missing_input_action_gets_defaults_once" assertions="3" status="pass" classname="tests/game/test_engineering_safety.gd" time="0.000311" >
+      </testcase>
+      <testcase name="test_activated_restart_of_same_action_executes_only_replacement_instance" assertions="3" status="pass" classname="tests/game/test_engineering_safety.gd" time="0.00037" >
+      </testcase>
+      <testcase name="test_phase_callback_restart_of_same_action_executes_only_replacement_instance" assertions="3" status="pass" classname="tests/game/test_engineering_safety.gd" time="0.00026" >
+      </testcase>
+      <testcase name="test_completion_restart_does_not_consume_previous_tick_remainder" assertions="4" status="pass" classname="tests/game/test_engineering_safety.gd" time="0.000303" >
+      </testcase>
+      <testcase name="test_invalid_jump_calculation_never_produces_nonfinite_velocity" assertions="2" status="pass" classname="tests/game/test_engineering_safety.gd" time="0.000146" >
+      </testcase>
+      <testcase name="test_saved_movement_overrides_drive_physics_and_survive_reset" assertions="9" status="pass" classname="tests/game/test_engineering_safety.gd" time="0.488535" >
+      </testcase>
+      <testcase name="test_saved_zero_speed_stays_stationary_with_finite_visual_after_reset" assertions="8" status="pass" classname="tests/game/test_engineering_safety.gd" time="0.245653" >
+      </testcase>
+      <testcase name="test_invalid_saved_movement_fails_closed_without_replacing_configuration" assertions="13" status="pass" classname="tests/game/test_engineering_safety.gd" time="0.07974" >
+      </testcase>
+      <testcase name="test_invalid_visual_geometry_has_readable_errors_and_no_invalid_sprite" assertions="10" status="pass" classname="tests/game/test_engineering_safety.gd" time="0.002108" >
+      </testcase>
+      <testcase name="test_idle_phase_restart_keeps_replacement_tick_budget" assertions="4" status="pass" classname="tests/game/test_engineering_safety.gd" time="0.001381" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/game/test_health_combat.gd" tests="18" failures="0" skipped="0" time="0.8948" >
+      <testcase name="test_health_and_damage_target_defaults_match_approved_rules" assertions="21" status="pass" classname="tests/game/test_health_combat.gd" time="0.003856" >
+      </testcase>
+      <testcase name="test_three_target_policies_cover_self_same_and_all_three_factions" assertions="72" status="pass" classname="tests/game/test_health_combat.gd" time="0.013233" >
+      </testcase>
+      <testcase name="test_self_fire_damage_uses_full_heart_damage_without_reduction" assertions="4" status="pass" classname="tests/game/test_health_combat.gd" time="0.000792" >
+      </testcase>
+      <testcase name="test_same_faction_damage_uses_full_heart_damage_without_reduction" assertions="3" status="pass" classname="tests/game/test_health_combat.gd" time="0.000537" >
+      </testcase>
+      <testcase name="test_damage_type_classification_never_changes_heart_damage" assertions="12" status="pass" classname="tests/game/test_health_combat.gd" time="0.001577" >
+      </testcase>
+      <testcase name="test_strengthened_attacks_support_whole_hearts_and_unbounded_overkill" assertions="25" status="pass" classname="tests/game/test_health_combat.gd" time="0.001756" >
+      </testcase>
+      <testcase name="test_rejected_target_and_invulnerability_do_not_emit_damage_or_lose_health" assertions="6" status="pass" classname="tests/game/test_health_combat.gd" time="0.00077" >
+      </testcase>
+      <testcase name="test_neutral_and_unowned_environment_damage_use_explicit_all_policy" assertions="15" status="pass" classname="tests/game/test_health_combat.gd" time="0.000826" >
+      </testcase>
+      <testcase name="test_faction_changes_and_reflection_rebinding_use_current_owner" assertions="7" status="pass" classname="tests/game/test_health_combat.gd" time="0.000498" >
+      </testcase>
+      <testcase name="test_destroyed_source_keeps_faction_identity_without_becoming_environment" assertions="5" status="pass" classname="tests/game/test_health_combat.gd" time="0.002658" >
+      </testcase>
+      <testcase name="test_zero_health_default_death_is_once_and_reset_restores_active_health" assertions="8" status="pass" classname="tests/game/test_health_combat.gd" time="0.000643" >
+      </testcase>
+      <testcase name="test_knockdown_blocks_finishing_damage_but_script_can_kill" assertions="8" status="pass" classname="tests/game/test_health_combat.gd" time="0.000649" >
+      </testcase>
+      <testcase name="test_script_death_bypasses_invulnerability_and_knockdown_configuration" assertions="3" status="pass" classname="tests/game/test_health_combat.gd" time="0.000213" >
+      </testcase>
+      <testcase name="test_friendly_assistance_recovers_knockdown_with_positive_capped_half_hearts" assertions="26" status="pass" classname="tests/game/test_health_combat.gd" time="0.00112" >
+      </testcase>
+      <testcase name="test_knockdown_has_no_default_timer_and_explicit_recovery_can_be_cancelled" assertions="7" status="pass" classname="tests/game/test_health_combat.gd" time="0.666641" >
+      </testcase>
+      <testcase name="test_script_death_cancels_pending_knockdown_recovery" assertions="4" status="pass" classname="tests/game/test_health_combat.gd" time="0.191077" >
+      </testcase>
+      <testcase name="test_skill_level_resolution_preserves_and_validates_target_configuration" assertions="11" status="pass" classname="tests/game/test_health_combat.gd" time="0.004175" >
+      </testcase>
+      <testcase name="test_executors_carry_target_configuration_into_real_melee_and_fireball" assertions="9" status="pass" classname="tests/game/test_health_combat.gd" time="0.003779" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/game/test_health_scene.gd" tests="11" failures="0" skipped="0" time="45.752803" >
+      <testcase name="test_periodic_enemy_attacks_stationary_player_after_interval_without_chasing" assertions="4" status="pass" classname="tests/game/test_health_scene.gd" time="3.799986" >
+      </testcase>
+      <testcase name="test_player_melee_and_fireball_damage_and_kill_real_enemy" assertions="11" status="pass" classname="tests/game/test_health_scene.gd" time="6.987808" >
+      </testcase>
+      <testcase name="test_dead_player_cannot_move_jump_or_start_attacks" assertions="4" status="pass" classname="tests/game/test_health_scene.gd" time="0.375018" >
+      </testcase>
+      <testcase name="test_training_dummy_counts_resolved_damage_without_mutating_original_hit" assertions="5" status="pass" classname="tests/game/test_health_scene.gd" time="0.009159" >
+      </testcase>
+      <testcase name="test_real_active_melee_obeys_hit_interrupt_policy_and_preserves_cooldown" assertions="16" status="pass" classname="tests/game/test_health_scene.gd" time="0.705632" >
+      </testcase>
+      <testcase name="test_training_reset_restores_both_units_and_restarts_enemy_attack_clock" assertions="8" status="pass" classname="tests/game/test_health_scene.gd" time="3.490626" >
+      </testcase>
+      <testcase name="test_pause_menu_freezes_enemy_attack_and_optional_recovery_timer" assertions="7" status="pass" classname="tests/game/test_health_scene.gd" time="5.430492" >
+      </testcase>
+      <testcase name="test_both_health_bars_follow_damage_state_reset_and_three_language_fonts" assertions="402" status="pass" classname="tests/game/test_health_scene.gd" time="0.943716" >
+      </testcase>
+      <testcase name="test_actual_dummy_refills_from_twenty_melee_then_ten_fireballs_without_losing_stats" assertions="185" status="pass" classname="tests/game/test_health_scene.gd" time="23.594915" >
+      </testcase>
+      <testcase name="test_dummy_overkill_refills_without_carry_and_training_reset_clears_statistics" assertions="30" status="pass" classname="tests/game/test_health_scene.gd" time="0.222998" >
+      </testcase>
+      <testcase name="test_ten_dummy_containers_wrap_and_show_half_heart_values_in_three_languages" assertions="141" status="pass" classname="tests/game/test_health_scene.gd" time="0.192453" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/game/test_heart_units.gd" tests="5" failures="0" skipped="0" time="0.009202" >
+      <testcase name="test_invalid_heart_container_counts_are_rejected_without_resetting_life" assertions="20" status="pass" classname="tests/game/test_heart_units.gd" time="0.000928" >
+      </testcase>
+      <testcase name="test_quarter_hearts_and_other_invalid_damage_are_rejected_without_events" assertions="32" status="pass" classname="tests/game/test_heart_units.gd" time="0.001924" >
+      </testcase>
+      <testcase name="test_six_half_heart_hits_exactly_empty_three_containers" assertions="13" status="pass" classname="tests/game/test_heart_units.gd" time="0.000776" >
+      </testcase>
+      <testcase name="test_refill_repeats_twenty_half_hits_and_ten_whole_hits_without_death_events" assertions="98" status="pass" classname="tests/game/test_heart_units.gd" time="0.005073" >
+      </testcase>
+      <testcase name="test_zero_damage_is_valid_contact_without_losing_or_healing_hearts" assertions="5" status="pass" classname="tests/game/test_heart_units.gd" time="0.000501" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/game/test_hit_protection.gd" tests="15" failures="0" skipped="0" time="4.548066" >
+      <testcase name="test_hit_protection_defaults_match_public_config_and_real_actors" assertions="11" status="pass" classname="tests/game/test_hit_protection.gd" time="0.003265" >
+      </testcase>
+      <testcase name="test_player_saved_zero_protection_override_survives_ready_and_reload" assertions="20" status="pass" classname="tests/game/test_hit_protection.gd" time="0.002055" >
+      </testcase>
+      <testcase name="test_player_saved_custom_protection_override_controls_actual_damage_window" assertions="24" status="pass" classname="tests/game/test_hit_protection.gd" time="0.451778" >
+      </testcase>
+      <testcase name="test_player_pre_ready_protection_override_survives_initialization" assertions="8" status="pass" classname="tests/game/test_hit_protection.gd" time="0.005166" >
+      </testcase>
+      <testcase name="test_player_protection_override_round_trips_through_scene_save" assertions="19" status="pass" classname="tests/game/test_hit_protection.gd" time="0.013" >
+      </testcase>
+      <testcase name="test_zero_protection_bypasses_consecutive_hits_for_enemy_and_dummy" assertions="24" status="pass" classname="tests/game/test_hit_protection.gd" time="0.009736" >
+      </testcase>
+      <testcase name="test_invalid_hit_protection_configuration_and_damage_are_rejected" assertions="21" status="pass" classname="tests/game/test_hit_protection.gd" time="0.002408" >
+      </testcase>
+      <testcase name="test_rejected_and_zero_settled_damage_do_not_start_hit_protection" assertions="16" status="pass" classname="tests/game/test_hit_protection.gd" time="0.001578" >
+      </testcase>
+      <testcase name="test_protected_hit_has_no_damage_events_health_bar_change_or_action_interrupt" assertions="16" status="pass" classname="tests/game/test_hit_protection.gd" time="0.004769" >
+      </testcase>
+      <testcase name="test_hit_protection_expires_after_half_second_and_rejected_hits_do_not_extend_it" assertions="13" status="pass" classname="tests/game/test_hit_protection.gd" time="0.509655" >
+      </testcase>
+      <testcase name="test_hit_protection_prevents_same_frame_reentrant_signal_damage" assertions="9" status="pass" classname="tests/game/test_hit_protection.gd" time="0.006137" >
+      </testcase>
+      <testcase name="test_pause_freezes_hit_protection_and_training_reset_clears_it" assertions="9" status="pass" classname="tests/game/test_hit_protection.gd" time="1.225728" >
+      </testcase>
+      <testcase name="test_death_knockdown_and_recovery_clear_protection_without_breaking_recovery_timer" assertions="21" status="pass" classname="tests/game/test_hit_protection.gd" time="0.453897" >
+      </testcase>
+      <testcase name="test_real_enemy_melee_and_fireball_obey_player_hit_protection" assertions="11" status="pass" classname="tests/game/test_hit_protection.gd" time="1.305266" >
+      </testcase>
+      <testcase name="test_refill_with_nonzero_protection_blocks_reentry_and_force_death_clears_it" assertions="25" status="pass" classname="tests/game/test_hit_protection.gd" time="0.553628" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/game/test_localization_service.gd" tests="12" failures="0" skipped="0" time="0.056051" >
+      <testcase name="test_language_manifest_supports_a_fourth_locale_without_code_changes" assertions="5" status="pass" classname="tests/game/test_localization_service.gd" time="0.00651" >
+      </testcase>
+      <testcase name="test_language_selection_persists_and_a_new_service_restores_it" assertions="10" status="pass" classname="tests/game/test_localization_service.gd" time="0.007099" >
+      </testcase>
+      <testcase name="test_missing_empty_and_whitespace_translations_fall_back_to_default" assertions="7" status="pass" classname="tests/game/test_localization_service.gd" time="0.004173" >
+      </testcase>
+      <testcase name="test_named_placeholders_substitute_values_and_preserve_missing_arguments" assertions="5" status="pass" classname="tests/game/test_localization_service.gd" time="0.003112" >
+      </testcase>
+      <testcase name="test_unknown_locale_does_not_change_state_or_saved_preference" assertions="6" status="pass" classname="tests/game/test_localization_service.gd" time="0.002567" >
+      </testcase>
+      <testcase name="test_failed_settings_save_preserves_current_language" assertions="4" status="pass" classname="tests/game/test_localization_service.gd" time="0.001545" >
+      </testcase>
+      <testcase name="test_corrupt_settings_and_unsupported_saved_locale_use_default_with_diagnostics" assertions="15" status="pass" classname="tests/game/test_localization_service.gd" time="0.002241" >
+      </testcase>
+      <testcase name="test_invalid_manifest_is_rejected_with_a_readable_diagnostic" assertions="2" status="pass" classname="tests/game/test_localization_service.gd" time="0.000246" >
+      </testcase>
+      <testcase name="test_broken_optional_catalog_falls_back_without_engine_errors" assertions="4" status="pass" classname="tests/game/test_localization_service.gd" time="0.001121" >
+      </testcase>
+      <testcase name="test_initialize_is_idempotent_and_cannot_silently_change_storage_path" assertions="6" status="pass" classname="tests/game/test_localization_service.gd" time="0.001533" >
+      </testcase>
+      <testcase name="test_production_catalogs_cover_three_languages_and_all_declared_strings" assertions="173" status="pass" classname="tests/game/test_localization_service.gd" time="0.02038" >
+      </testcase>
+      <testcase name="test_bundled_fonts_have_glyphs_for_the_entire_three_language_corpus" assertions="19" status="pass" classname="tests/game/test_localization_service.gd" time="0.005524" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/game/test_localization_ui.gd" tests="7" failures="0" skipped="0" time="2.185867" >
+      <testcase name="test_actual_ui_switches_menu_hud_skill_and_manual_text_in_three_languages" assertions="99" status="pass" classname="tests/game/test_localization_ui.gd" time="0.575627" >
+      </testcase>
+      <testcase name="test_actual_language_picker_updates_ui_and_saves_isolated_preference" assertions="10" status="pass" classname="tests/game/test_localization_ui.gd" time="0.122999" >
+      </testcase>
+      <testcase name="test_open_menu_pauses_gameplay_and_resume_button_restores_movement" assertions="6" status="pass" classname="tests/game/test_localization_ui.gd" time="0.382729" >
+      </testcase>
+      <testcase name="test_help_buttons_and_escape_follow_help_then_menu_close_order" assertions="8" status="pass" classname="tests/game/test_localization_ui.gd" time="0.094872" >
+      </testcase>
+      <testcase name="test_reset_button_resets_training_and_closes_pause_menu" assertions="8" status="pass" classname="tests/game/test_localization_ui.gd" time="0.141816" >
+      </testcase>
+      <testcase name="test_menu_close_preserves_a_preexisting_paused_state" assertions="1" status="pass" classname="tests/game/test_localization_ui.gd" time="0.017251" >
+      </testcase>
+      <testcase name="test_engine_measured_ui_bounds_and_text_fit_all_three_languages" assertions="183" status="pass" classname="tests/game/test_localization_ui.gd" time="0.850573" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/game/test_map_world.gd" tests="22" failures="0" skipped="0" time="16.120508" >
+      <testcase name="test_map_sample_registry_matches_three_rooms_and_five_directed_routes" assertions="24" status="pass" classname="tests/game/test_map_world.gd" time="0.080488" >
+      </testcase>
+      <testcase name="test_map_shared_corridor_template_keeps_room_identity_and_visits_independent" assertions="15" status="pass" classname="tests/game/test_map_world.gd" time="0.11996" >
+      </testcase>
+      <testcase name="test_map_prepare_keeps_target_off_tree_disabled_without_activating_or_marking_visit" assertions="9" status="pass" classname="tests/game/test_map_world.gd" time="0.062944" >
+      </testcase>
+      <testcase name="test_map_room_sample_geometry_has_ground_and_approved_bounds" assertions="26" status="pass" classname="tests/game/test_map_world.gd" time="3.648558" >
+      </testcase>
+      <testcase name="test_map_player_jumps_onto_and_crosses_actual_corridor_and_hall_steps" assertions="18" status="pass" classname="tests/game/test_map_world.gd" time="4.663347" >
+      </testcase>
+      <testcase name="test_map_entering_each_entrance_is_safe_and_does_not_bounce_back" assertions="56" status="pass" classname="tests/game/test_map_world.gd" time="1.968691" >
+      </testcase>
+      <testcase name="test_map_travel_uses_explicit_reverse_routes_and_single_return_route" assertions="20" status="pass" classname="tests/game/test_map_world.gd" time="0.095223" >
+      </testcase>
+      <testcase name="test_map_actual_exit_area_and_mapped_input_drive_bidirectional_room_travel" assertions="7" status="pass" classname="tests/game/test_map_world.gd" time="1.235403" >
+      </testcase>
+      <testcase name="test_map_invalid_room_entrance_and_exit_leave_live_world_unchanged" assertions="19" status="pass" classname="tests/game/test_map_world.gd" time="0.148044" >
+      </testcase>
+      <testcase name="test_map_missing_or_wrong_scene_resource_fails_before_replacing_live_room" assertions="11" status="pass" classname="tests/game/test_map_world.gd" time="0.20119" >
+      </testcase>
+      <testcase name="test_map_bad_connection_target_entrance_fails_without_mutating_source" assertions="7" status="pass" classname="tests/game/test_map_world.gd" time="0.035268" >
+      </testcase>
+      <testcase name="test_map_queued_old_exit_cannot_travel_after_reset_to_same_room_identity" assertions="7" status="pass" classname="tests/game/test_map_world.gd" time="0.255853" >
+      </testcase>
+      <testcase name="test_map_registry_rejects_duplicate_identity_routes_and_unknown_targets" assertions="6" status="pass" classname="tests/game/test_map_world.gd" time="0.037954" >
+      </testcase>
+      <testcase name="test_map_transition_preserves_player_identity_health_level_cooldown_and_protection" assertions="16" status="pass" classname="tests/game/test_map_world.gd" time="0.317003" >
+      </testcase>
+      <testcase name="test_map_transition_clears_velocity_jump_buffer_action_and_old_effects" assertions="15" status="pass" classname="tests/game/test_map_world.gd" time="0.356248" >
+      </testcase>
+      <testcase name="test_map_pause_and_inactive_player_cannot_travel" assertions="11" status="pass" classname="tests/game/test_map_world.gd" time="0.160352" >
+      </testcase>
+      <testcase name="test_map_world_reset_restores_start_and_health_and_clears_session_visits" assertions="16" status="pass" classname="tests/game/test_map_world.gd" time="0.039531" >
+      </testcase>
+      <testcase name="test_map_camera_matches_zoom_and_clamps_actual_view_to_room_bounds" assertions="18" status="pass" classname="tests/game/test_map_world.gd" time="0.393588" >
+      </testcase>
+      <testcase name="test_map_capability_gate_has_one_query_without_implementing_climbing" assertions="9" status="pass" classname="tests/game/test_map_world.gd" time="0.037321" >
+      </testcase>
+      <testcase name="test_map_f6_overlay_tracks_real_collision_geometry_and_active_room_routes" assertions="20" status="pass" classname="tests/game/test_map_world.gd" time="0.536957" >
+      </testcase>
+      <testcase name="test_map_hud_and_menu_localize_rooms_visits_and_fit_three_languages" assertions="241" status="pass" classname="tests/game/test_map_world.gd" time="1.418058" >
+      </testcase>
+      <testcase name="test_map_menu_switches_to_retained_training_scene_and_back" assertions="7" status="pass" classname="tests/game/test_map_world.gd" time="0.308527" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/game/test_player_scene.gd" tests="14" failures="0" skipped="0" time="9.549776" >
+      <testcase name="test_main_scene_has_playable_nodes_and_real_input_bindings" assertions="13" status="pass" classname="tests/game/test_player_scene.gd" time="0.107356" >
+      </testcase>
+      <testcase name="test_player_moves_changes_facing_and_stops_with_no_input" assertions="5" status="pass" classname="tests/game/test_player_scene.gd" time="1.174355" >
+      </testcase>
+      <testcase name="test_mapped_input_drives_player_without_control_override" assertions="1" status="pass" classname="tests/game/test_player_scene.gd" time="0.463902" >
+      </testcase>
+      <testcase name="test_jump_leaves_floor_and_returns_to_graybox_ground" assertions="4" status="pass" classname="tests/game/test_player_scene.gd" time="1.370772" >
+      </testcase>
+      <testcase name="test_second_jump_in_air_cannot_reset_vertical_velocity" assertions="2" status="pass" classname="tests/game/test_player_scene.gd" time="0.367261" >
+      </testcase>
+      <testcase name="test_graybox_wall_blocks_character_movement" assertions="2" status="pass" classname="tests/game/test_player_scene.gd" time="0.531427" >
+      </testcase>
+      <testcase name="test_player_melee_hits_actual_training_dummy_once" assertions="4" status="pass" classname="tests/game/test_player_scene.gd" time="0.714207" >
+      </testcase>
+      <testcase name="test_player_fireball_waits_for_windup_then_hits_actual_dummy" assertions="7" status="pass" classname="tests/game/test_player_scene.gd" time="1.235338" >
+      </testcase>
+      <testcase name="test_player_upgrade_rebinds_shorter_windup_with_same_damage" assertions="4" status="pass" classname="tests/game/test_player_scene.gd" time="0.008746" >
+      </testcase>
+      <testcase name="test_training_reset_clears_projectiles_damage_action_and_cooldown" assertions="9" status="pass" classname="tests/game/test_player_scene.gd" time="0.751488" >
+      </testcase>
+      <testcase name="test_reverse_input_during_melee_keeps_facing_and_attack_origin_consistent" assertions="8" status="pass" classname="tests/game/test_player_scene.gd" time="0.840864" >
+      </testcase>
+      <testcase name="test_reset_disables_old_effects_before_next_physics_hit" assertions="7" status="pass" classname="tests/game/test_player_scene.gd" time="0.273114" >
+      </testcase>
+      <testcase name="test_fireball_cannot_spawn_beyond_right_wall" assertions="3" status="pass" classname="tests/game/test_player_scene.gd" time="0.871081" >
+      </testcase>
+      <testcase name="test_fireball_cannot_spawn_beyond_left_wall" assertions="4" status="pass" classname="tests/game/test_player_scene.gd" time="0.839865" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/game/test_unit_scale.gd" tests="14" failures="0" skipped="0" time="22.94748" >
+      <testcase name="test_unit_scale_matches_approved_player_and_dummy_collision_dimensions" assertions="11" status="pass" classname="tests/game/test_unit_scale.gd" time="0.147819" >
+      </testcase>
+      <testcase name="test_graybox_geometry_matches_approved_32_by_16_unit_envelope" assertions="17" status="pass" classname="tests/game/test_unit_scale.gd" time="0.669171" >
+      </testcase>
+      <testcase name="test_walk_speed_is_56_pixels_per_second_with_real_displacement" assertions="13" status="pass" classname="tests/game/test_unit_scale.gd" time="2.415843" >
+      </testcase>
+      <testcase name="test_short_medium_and_long_holds_produce_16_to_40_pixel_jumps" assertions="9" status="pass" classname="tests/game/test_unit_scale.gd" time="2.464077" >
+      </testcase>
+      <testcase name="test_physical_key_press_release_drives_variable_height_jump" assertions="10" status="pass" classname="tests/game/test_unit_scale.gd" time="1.824573" >
+      </testcase>
+      <testcase name="test_repress_during_ascent_does_not_restore_long_jump" assertions="7" status="pass" classname="tests/game/test_unit_scale.gd" time="2.365572" >
+      </testcase>
+      <testcase name="test_holding_jump_through_landing_does_not_auto_jump_again" assertions="6" status="pass" classname="tests/game/test_unit_scale.gd" time="1.742826" >
+      </testcase>
+      <testcase name="test_training_reset_clears_variable_jump_and_pending_input" assertions="9" status="pass" classname="tests/game/test_unit_scale.gd" time="1.639079" >
+      </testcase>
+      <testcase name="test_death_and_knockdown_recovery_clear_variable_jump_state" assertions="20" status="pass" classname="tests/game/test_unit_scale.gd" time="4.64452" >
+      </testcase>
+      <testcase name="test_coyote_jump_succeeds_just_after_walking_off_a_real_platform" assertions="7" status="pass" classname="tests/game/test_unit_scale.gd" time="0.46605" >
+      </testcase>
+      <testcase name="test_coyote_jump_expires_after_the_documented_point_one_seconds" assertions="7" status="pass" classname="tests/game/test_unit_scale.gd" time="0.625479" >
+      </testcase>
+      <testcase name="test_released_short_jump_buffer_fires_on_landing_at_one_unit_height" assertions="8" status="pass" classname="tests/game/test_unit_scale.gd" time="1.565575" >
+      </testcase>
+      <testcase name="test_real_ceiling_collision_stops_a_held_jump_and_returns_to_ground" assertions="7" status="pass" classname="tests/game/test_unit_scale.gd" time="0.34739" >
+      </testcase>
+      <testcase name="test_release_and_repress_between_physics_samples_still_cuts_the_current_jump" assertions="9" status="pass" classname="tests/game/test_unit_scale.gd" time="2.029506" >
+      </testcase>
+  </testsuite>
+</testsuites>

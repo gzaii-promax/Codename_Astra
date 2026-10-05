@@ -25,7 +25,7 @@
 | 开发隔离、工具借用、编辑器、集成锁、归档 | [worktrees.md](worktrees.md) |
 | Commit、PR、合并与 main 同步 | [git-workflow.md](git-workflow.md) |
 | Claude / Codex 协作：Issue、label、交接与审阅 | [agent-collaboration.md](agent-collaboration.md) |
-| 运行验收、读取报告、失败复跑与证据边界 | [testing.md](testing.md)、[tests/README.md](../tests/README.md) |
+| 检查分级、运行验收、失败复跑与长期证据 | [testing.md](testing.md)、[tests/README.md](../tests/README.md) |
 | 设计数值变更与独立机制回归 | [design-baselines.md](design-baselines.md)、[tests/baselines/README.md](../tests/baselines/README.md) |
 | 安装、检查入口和工具职责 | [tools/README.md](../tools/README.md)、[tools/toolchain.json](../tools/toolchain.json) |
 | GitHub Actions、原始 artifact 与合并门槛 | [ci.md](ci.md) |
@@ -49,7 +49,7 @@
 
 ## 文档维护
 
-- README 负责运行和可玩的操作；AGENTS 负责授权、约束与流程；ARCHITECTURE 负责职责、状态归属和改动入口。
-- 模块 README 与功能契约负责接口/规则；status 只保留当前结果、证据入口与尚未完成项。
+- README 负责运行和可玩的操作；AGENTS 负责持续授权、关键约束和权威入口；ARCHITECTURE 负责职责、状态归属和改动入口。
+- 模块 README 与功能契约负责接口/规则；testing 维护检查分级和证据细则，worktrees/git-workflow/ci 分别维护环境隔离、集成操作与 CI；避免在入口页重复细则。status 只保留当前提交基准、已核对结果、证据入口与尚未完成项。
 - 一次性交付过程与旧验收保留在历史记录。搬移历史时保留原始值、来源和失败，不把它改写成当前验收。
 - 新增/移动文档时更新本索引及直接引用者；新增错误时更新错误索引。事实变更先核对实现和执行证据，再改状态。

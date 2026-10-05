@@ -60,3 +60,16 @@
 CI 接入本轮已获授权，工作流与验收见 [ci.md](ci.md)。接入后，合并前须读取当前 head 的 `macOS / repository-checks` 实际运行与 artifact，核对有效配置、完整验收及源码哈希；PR 合并引用不能混同 head。当前私有套餐不支持分支保护（API 403 已核实），仍由 agent 执行同一门槛。工作流限只读权限，不持有自动合并或发布令牌；合并由已有授权流程执行，本轮不发布安装包。
 
 原轮次多语言 PR #3 与生命 PR #4 有草稿例外；本轮明确合并授权已取代该限制。CI PR #5已独立按持续授权合入main；把CI基础设施同步进草稿不意味着合并功能版本。
+
+
+## 2026-10-05 从 AGENTS 移出的历史整合说明
+
+以下保留原文；其中“本轮”指原整合轮次，路径按原根目录 `AGENTS.md` 阅读。现行持续授权仍由 AGENTS 维护，实际结果见 [status.md](status.md)。
+
+```markdown
+- 2026-10-02 用户已采纳地图系统讨论中的全部建议并授权第一版开发：Godot 原生编辑的 3 个灰盒房间、A ↔ B ↔ C 与 C → A、有向连接、共享模板与独立身份/探索、相机与调试入口。契约见 [docs/map-system.md](docs/map-system.md)，转场、预加载和攀爬为后续必做 TODO，不在第一版实现；持续提交/合并授权适用，用户手感仍独立验收。
+
+- 2026-10-02 用户明确授权把 `codex/health-combat-v3` 和 `feat/localization-v2` 合入 `main`；本轮同时整合已交付的心形分支，解决原反馈中的心形与跳跃缺失。此授权取代以下旧交付文档的 draft-only 限制；不扩大功能范围，不发布安装包。
+- 当前整合范围：多语言与菜单、通用生命与定时敌人、1 U=16 px 的统一尺度与 1–2.5 U 可变跳跃、心形生命和主角 0.5 秒受击保护。当前规则分别见 [localization-v2.md](docs/localization-v2.md)、[scale-movement-v4.md](docs/scale-movement-v4.md)、[heart-health-v5.md](docs/heart-health-v5.md)、[hit-protection.md](docs/hit-protection.md)；心单位取代旧减伤规则，其他角色默认 0 秒保护。
+- 合并链修复范围和当前验收见 [docs/integration-main.md](docs/integration-main.md)、[docs/status.md](docs/status.md)。旧 PR #4/#6/#7/#8 的 MERGED 状态仅表示合入原依赖分支；是否进入 main 以远端提交包含关系核实，不以 PR 状态推断。
+```

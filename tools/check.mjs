@@ -9,9 +9,14 @@ import { loadToolchain, toolPath, versionMatches } from './toolchain-config.mjs'
 const runnerPath = fileURLToPath(import.meta.url);
 const root = path.resolve(path.dirname(runnerPath), '..');
 const argv = process.argv.slice(2);
-if (argv.length !== 2 || argv[0] !== '--scope' || !['toolchain', 'game'].includes(argv[1])) {
-  console.error('Usage: node tools/check.mjs --scope toolchain|game; unsupported arguments are rejected.');
+if (argv.length !== 2 || argv[0] !== '--scope' || !['toolchain', 'game', 'docs'].includes(argv[1])) {
+  console.error('Usage: node tools/check.mjs --scope toolchain|game|docs; unsupported arguments are rejected.');
   process.exit(2);
+}
+if (argv[1] === 'docs') {
+  const { runDocsChecks } = await import('./check-docs.mjs');
+  await runDocsChecks(root);
+  process.exit(process.exitCode ?? 0);
 }
 if (argv[1] === 'game') {
   const { runGameChecks } = await import('./check-game.mjs');
@@ -216,7 +221,7 @@ try {
     report.toolchain_config = { path: relative(configuration.config_path), sha256: configuration.config_hash, manifest };
     return { observed_status: 'pass', manifest_path: relative(configuration.config_path), schema_version: 1 };
   });
-  for (const sourcePath of ['tools/check.mjs', 'tools/check-game.mjs', 'tools/classify-game-failures.mjs', 'tools/test-game-failures.mjs', 'tools/toolchain-config.mjs', 'tools/bootstrap.mjs', 'tools/test-toolchain.mjs', 'tools/prepare-worktree.mjs', 'tools/test-worktree.mjs', 'tools/test-worktree-runtime.mjs', 'tools/with-integration-lock.mjs', 'tools/play.mjs', 'tools/toolchain.json', 'tools/requirements-gdtoolkit.lock', '.github/workflows/check.yml', 'tools/read-junit.py', 'docs/testing.md', 'docs/worktrees.md', 'AGENTS.md']) {
+  for (const sourcePath of ['tools/check.mjs', 'tools/check-game.mjs', 'tools/check-docs.mjs', 'tools/test-docs.mjs', 'tools/change-scope.mjs', 'tools/test-change-scope.mjs', 'tools/classify-game-failures.mjs', 'tools/test-game-failures.mjs', 'tools/toolchain-config.mjs', 'tools/bootstrap.mjs', 'tools/test-toolchain.mjs', 'tools/prepare-worktree.mjs', 'tools/test-worktree.mjs', 'tools/test-worktree-runtime.mjs', 'tools/with-integration-lock.mjs', 'tools/play.mjs', 'tools/toolchain.json', 'tools/requirements-gdtoolkit.lock', '.github/workflows/check.yml', 'tools/read-junit.py', 'docs/testing.md', 'docs/worktrees.md', 'AGENTS.md']) {
     report.code_state.files_sha256[sourcePath] = createHash('sha256').update(await readFile(path.join(root, sourcePath))).digest('hex');
   }
   const tool = (name) => toolPath(root, manifest, name);

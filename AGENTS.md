@@ -4,13 +4,10 @@
 
 - 初次接手先读 [架构导航](ARCHITECTURE.md)、[文档索引](docs/index.md) 和 [当前状态](docs/status.md)。历史交付快照见 [status-history.md](docs/status-history.md)、[git-history.md](docs/git-history.md)；其中旧 PR 状态、数值与授权例外不能作为今天的 main 状态或新增限制。
 
-- 2026-10-02 用户已采纳地图系统讨论中的全部建议并授权第一版开发：Godot 原生编辑的 3 个灰盒房间、A ↔ B ↔ C 与 C → A、有向连接、共享模板与独立身份/探索、相机与调试入口。契约见 [docs/map-system.md](docs/map-system.md)，转场、预加载和攀爬为后续必做 TODO，不在第一版实现；持续提交/合并授权适用，用户手感仍独立验收。
-
-- 2026-10-02 用户明确授权把 `codex/health-combat-v3` 和 `feat/localization-v2` 合入 `main`；本轮同时整合已交付的心形分支，解决原反馈中的心形与跳跃缺失。此授权取代以下旧交付文档的 draft-only 限制；不扩大功能范围，不发布安装包。
-- 当前整合范围：多语言与菜单、通用生命与定时敌人、1 U=16 px 的统一尺度与 1–2.5 U 可变跳跃、心形生命和主角 0.5 秒受击保护。当前规则分别见 [localization-v2.md](docs/localization-v2.md)、[scale-movement-v4.md](docs/scale-movement-v4.md)、[heart-health-v5.md](docs/heart-health-v5.md)、[hit-protection.md](docs/hit-protection.md)；心单位取代旧减伤规则，其他角色默认 0 秒保护。
-- 合并链修复范围和当前验收见 [docs/integration-main.md](docs/integration-main.md)、[docs/status.md](docs/status.md)。旧 PR #4/#6/#7/#8 的 MERGED 状态仅表示合入原依赖分支；是否进入 main 以远端提交包含关系核实，不以 PR 状态推断。
+- 已采纳的功能、规则与尚未完成项见 [当前状态](docs/status.md) 和 [文档索引](docs/index.md)。地图转场、预加载、攀爬是后续必做 TODO，边界见 [地图契约](docs/map-system.md)；当前交付不代表用户已验收手感。
+- 历史整合授权与依赖分支链保留在 [git-history.md](docs/git-history.md)；旧 draft-only 例外已被明确整合授权取代。今天的 main 内容以提交包含关系核实，不以旧 PR 标签推断。
 - 第一版可玩基线见 [docs/first-version.md](docs/first-version.md)；剧情、互动道具、完整技能树、敌人决策 AI 和正式背景不在本轮范围。
-- CI 已经由 [PR #5](https://github.com/gzaii-promax/Codename_Astra/pull/5) 合入 main，规则见 [docs/ci.md](docs/ci.md)。合并前核对本轮 head、CI 原始报告和源码哈希；默认 Merge commit 保留历史，完成后验证远端并同步本地 main。
+- CI 与合并证据规则见 [docs/ci.md](docs/ci.md)、[Git 交接](docs/git-workflow.md)。适用检查以本轮实际 head 为准；默认 Merge commit 保留历史，远端合并后按主目录保护规则同步。
 - 测试协议见 [docs/testing.md](docs/testing.md)，错误流程见 [docs/errors/README.md](docs/errors/README.md)，工具职责见 [tools/README.md](tools/README.md)，Git 交接见 [docs/git-workflow.md](docs/git-workflow.md)。工具路径与固定版本记录在 `tools/toolchain.json`，工具本体置于 `.tools/`，不提交。
 - 实际验证以 `artifacts/test-runs/latest.json` 指向的本轮报告为准；旧报告、空测试或生成文件不能证明当前整合版本通过，也不能替代用户手感验收。
 
@@ -37,15 +34,12 @@
 - 用户已给予持续提交授权：以后在已授权的开发范围内，每次通过 agent 的必要验证后，可直接 commit、push 到功能分支并创建或更新 PR，无须再次请求提交许可。同一目标已有未合并 PR 时优先更新该 PR。用户试玩反馈不作为提交 PR 的前置许可，尚未收到的手感反馈应明确标为待验收。
 - 用户已追加持续合并授权：以后在已授权开发范围内，通过必要验收并提交 PR 后，agent 可自行合并，无须再次确认。合并前核对最新 PR head、验收证据及源码哈希、适用的检查和冲突状态；默认使用 Merge commit 保留详细历史，完成后验证远端结果并同步本地 main。该授权不扩大功能或重要架构决策范围，也不代表用户已验收手感。
 
-## 配置与设计基线的防回归约定
+## 配置、工程与验收的权威规则
 
-- 可维护性评审遵循 [docs/engineering-practices.md](docs/engineering-practices.md)：核对编辑配置入口、职责/依赖、signal 同步再入、运行效果归属和拆分成本；lint 与案例跑通不是全部验收。公共依赖不猜节点名，绑定失效应拒绝并提供诊断；事件携带本次结果，emit/回调后的旧流程核对代次和取消状态。
-- 运行效果显式登记世界/来源/中断策略，世界重置与角色中断不按直属层级或具体效果类型清理。涉及配置/路径/生命周期时补真实保存往返、错误绑定、嵌套/重挂、世界隔离及同步回调反例，并保留修复前失败证据。
-- `TrainingHUD` 是用户认可的临时测试实现，后续完全重做；当前代码集中/程序建树/父路径依赖属于 [ui/README.md](ui/README.md) 的工程债，不作为新模块标准，也不在本轮顺带重构。
-- Inspector 配置归属见 [docs/inspector-configuration.md](docs/inspector-configuration.md)：声明/场景/资源提供默认和保存覆盖，初始化与重置不得无条件重注入默认值；合法 `0` / `false` 不能当作未配置。程序管理例外必须在模块 README 标明真正入口与覆盖时机。
-- 修改配置链时验证真实保存、重新加载、入树、实际行为与重置；同次提交更新模块 Markdown 和测试清单。只测内存值或静态检索不足以证明保存配置生效。
-- 设计期望与机制回归按 [docs/design-baselines.md](docs/design-baselines.md) 分开维护。用户已认可的调参/布局变更更新独立基线和出处，保留机制用例；不得为了旧数值断言通过擅自恢复已认可的新设计，也不得从 production 自动生成期望。
-- `report.failure_classification` 是显式断言标签的诊断，不证明原因或用户认可。两类失败、混合失败、未分类错误、跳过、缺证据及超时都阻止正常交付；先查依赖/环境和公共错误记录，再按授权范围修复或更新基线。
+- [工程评审](docs/engineering-practices.md) 维护职责/依赖、signal 同步再入、效果世界/来源归属和针对性反例；[Inspector 配置归属](docs/inspector-configuration.md) 维护保存覆盖、初始化/reset 及合法 `0` / `false`。涉及这些契约的改动须验证真实保存与实际行为，不能只凭 lint 或内存值判断。
+- [设计基线流程](docs/design-baselines.md) 维护独立设计期望和机制回归。用户明确新指令足以授权对应基线更新，不重复批准；不得反向恢复已认可新配置，也不得从 production 自动生成期望。设计失败、机制失败、混合/未分类错误、缺证据、跳过与超时均阻止正常交付，错误标签不证明原因或用户认可。
+- [测试协议的检查分级](docs/testing.md#按影响选择检查) 是选择必要检查的唯一细则：纯文案/导航用 docs；保存配置/场景和游戏行为用 game；公共生命周期、测试工具或 CI 改动执行相关 Node/toolchain、game 和独立冻结验证。真实反例、源码身份、缺证据/跳过/超时失败规则保留。
+- `TrainingHUD` 是用户认可的临时测试实现，后续完全重做；债务与边界由 [ui/README.md](ui/README.md) 维护，不作为新模块标准。
 
 ## 已采纳的设计约束
 
@@ -78,8 +72,8 @@
 
 1. 阅读本文件、相关模块说明、最新测试报告与开放错误；已有 Git 仓库时读取近期提交及相关 PR，了解变化和遗留事项。无提交历史时明确记录，不虚构开发进度。
 2. 明确本轮范围与可观察的验收条件；写入前按多会话约定建立或复用自己的独立 worktree，核实目录、唯一分支和 base SHA。新工具先证明可执行、可识别失败、可读取报告和可复现问题。
-3. 执行本轮已授权工作；测试流程生成或修改后立即运行，不把“已生成”作为“已验证”。
-4. 优先把独立测试执行与报告阅读交给测试子 agent；它使用相同入口与协议。主 agent 核查原始结果，承担最终交付责任。
+3. 执行本轮已授权工作，按测试协议的影响分级完成必要检查；测试流程生成或修改后立即运行，不把“已生成”作为“已验证”。
+4. 需要引擎或独立冻结验证时，优先把测试执行与首次判读交给测试子 agent；它使用相同入口与协议。纯文案/导航不要求独立 Godot 复验；主 agent 仍核查报告并承担交付责任。
 5. 失败先查统一错误记录，再判断依赖、环境、资源/配置、代码或测试问题；修复后复跑失败项、相关回归与本轮必要检查。
 6. 交付前读取报告确认检查完成。失败、超时或阻塞必须保留证据和影响，不能报告完成验收。
 7. 提交时同步文档。Commit 写清改动、原因、验证与遗留问题；PR 描述最终行为变化、验证结果及重点审核内容。没有仓库或 PR 时不得声称已提交。
