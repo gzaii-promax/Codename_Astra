@@ -11,7 +11,7 @@ CI 已通过 PR #5 进入 main。上述接入时点的功能草稿例外已由�
 - `.github/workflows/check.yml`：工作流 `Repository checks`，检查名 `macOS / repository-checks`。所有目标分支的 PR 创建、更新、重开、转 ready、编辑均触发；main push 与手动触发也执行。草稿 PR 同样验收，不只过滤 main 目标。
 - runner 固定 `macos-15` ARM64。官方 Actions 固定完整 commit SHA，不依赖漂移 tag；权限为 contents:read，checkout 不保存 Git 凭据。同一 PR 新提交取消旧运行，每次 job 限时 15 分钟。
 - `tools/bootstrap.mjs`：Node 由固定官方 setup action 准备；Python 默认从固定 Astral python-build-standalone 归档准备，并按源配置 SHA-256 与精确版本验证；独立安装 Python、固定 Godot、GUT 和带 SHA-256 的 pip 锁到 `.tools/ci/`。失败保留安装报告与日志，不能以目录存在代替校验，也不覆盖本机已安装工具。
-- `tools/toolchain-config.mjs`：两个 scope 共用配置读取与版本判定。默认优先读取本 worktree 已准备的 `.tools/worktree/toolchain.json`，否则读取本机 `tools/toolchain.json`；显式 `ASTRA_TOOLCHAIN_CONFIG` 优先，可选择 CI 生成的 `.tools/ci/toolchain.json`，错误配置不悄悄回退。公共命令参数仍只有 `--scope toolchain|game`。
+- `tools/toolchain-config.mjs`：game/toolchain 共用配置读取与版本判定。默认优先读取本 worktree 已准备的 `.tools/worktree/toolchain.json`，否则读取本机 `tools/toolchain.json`；显式 `ASTRA_TOOLCHAIN_CONFIG` 优先，可选择 CI 生成的 `.tools/ci/toolchain.json`，错误配置不悄悄回退。公共入口支持 `--scope docs|toolchain|game`；docs 不读取引擎工具配置。
 - Godot、GUT、Python、Node、gdlint、gdformat 精确版本不变。Git 在 CI 只用于源码/提交元数据，采用明确最低版本 2.39.0 并记录实际版本；本机继续精确校验已有版本。CI 配置不要求 gh 或登录凭据。
 
 ## 同一验收入口

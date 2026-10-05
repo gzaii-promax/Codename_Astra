@@ -6,7 +6,7 @@
 - 工作目录：项目根目录，即 `AGENTS.md` 所在目录；尚未建立 Git 仓库时同样适用。
 - 单一入口：`node tools/check.mjs --scope docs|toolchain|game`（执行时选择一个范围）。未知范围和参数必须拒绝。
 - 路径、固定版本、来源：`tools/toolchain.json`。工具本体在 `.tools/`，不提交。
-- 新机器/CI 先执行 `node tools/bootstrap.mjs`；按输出配置路径设置 `ASTRA_TOOLCHAIN_CONFIG`。安装与验收分开，两个 scope 共用 `tools/toolchain-config.mjs`。CI 具体触发、证据与合并门槛见 [ci.md](ci.md)。
+- 新机器/CI 需要 game/toolchain 验收时先执行 `node tools/bootstrap.mjs`；按输出配置路径设置 `ASTRA_TOOLCHAIN_CONFIG`。安装与验收分开，game/toolchain 共用 `tools/toolchain-config.mjs`；docs 只需 Node 与 Git，不安装引擎依赖。CI 具体触发、证据与合并门槛见 [ci.md](ci.md)。
 - 具体安装与测试状态：见最新报告；未执行或报告缺失时为未验证。
 - 新建或修改测试流程后立即执行；每次准备验收前执行本轮必要检查。
 - 地图版完整 GUT 进程预算为 150 秒。新增真实物理用例使原 90 秒首轮真实超时，证据保留在 ERR-20261002-MAP-VALIDATION.md；提高有限预算不改变检查集合、断言、超时失败和原始 XML 要求。
@@ -57,7 +57,7 @@
 
 ## 关键证据的长期归档
 
-CI 原始 artifacts 保留 90 天；期限内可下载完整报告、日志、配置和源码快照。可从 Git 和固定工具重新运行，与能够取回当时的原始失败证据，是两个结论。
+CI 原始 artifacts 请求保留 90 天，实际期限受仓库/组织策略上限约束；期限内可下载完整报告、日志、配置和源码快照。可从 Git 和固定工具重新运行，与能够取回当时的原始失败证据，是两个结论。
 
 重要公共契约缺陷、测试检测能力缺陷及其修复，将精简证据归档到受版本控制的 `docs/evidence/<问题或PR>/`：至少说明原失败与修复/交付的源码身份、运行入口、具体反例和结果，保留必要原始日志或明确标为摘录的片段及原文件 SHA-256/行号，并提供对应 CI 链接。报告摘要必须标明摘要、原报告 SHA-256 和保留范围，不称为完整原报告。摘要里的通过结果不能代替本轮完整验收。
 

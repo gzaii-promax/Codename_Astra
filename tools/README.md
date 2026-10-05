@@ -12,7 +12,7 @@
 
 ## Worktree 开发
 
-先按 [多会话开发](../docs/worktrees.md) 建立独立 checkout，再运行 `node tools/prepare-worktree.mjs --tools-from <同仓库已验证目录>`。本目录派生配置默认优先加载；显式 ASTRA_TOOLCHAIN_CONFIG 优先且错误不回退。只读借用固定版本工具，缓存、报告、设置留在自己的 checkout；版本升级用自己目录的 bootstrap。准备后执行工具与相应游戏验收。
+先按 [多会话开发](../docs/worktrees.md) 建立独立 checkout。需要引擎/工具验证时运行 `node tools/prepare-worktree.mjs --tools-from <同仓库已验证目录>`，准备后执行工具与相应游戏验收；纯文案仅执行 docs。本目录派生配置默认优先加载；显式 ASTRA_TOOLCHAIN_CONFIG 优先且错误不回退。只读借用固定版本工具，缓存、报告、设置留在自己的 checkout；版本升级用自己目录的 bootstrap。
 
 `node tools/play.mjs [--editor]` 共用配置读取器，linked checkout 默认隔离试玩设置，每次日志独立；主目录保留用户默认设置。合并/同步完整序列使用 `node tools/with-integration-lock.mjs -- <集成脚本命令>`；竞争退出 73，失败传播，未知遗留锁人工核实，不抢占。
 
