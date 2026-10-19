@@ -202,7 +202,7 @@ func test_saved_zero_speed_stays_stationary_with_finite_visual_after_reset() -> 
 	assert_eq(player.move_speed, 0.0)
 	assert_eq(player.velocity.x, 0.0)
 	assert_almost_eq(player.position.x, 0.0, 0.01)
-	var sprite := player.visual.get_child(0) as Sprite2D
+	var sprite := player.visual.get_child(0) as Node2D
 	assert_true(sprite.transform.is_finite())
 	player.reset_state(Vector2.ZERO)
 	await wait_physics_frames(3)

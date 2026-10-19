@@ -178,6 +178,12 @@
     "test_training_missing_wrong_and_nonfinite_spawn_bindings_reject_reset_atomically",
     "test_debug_child_handles_f2_in_both_scenes_and_freezes_while_paused",
     "test_debug_paths_and_custom_room_key_survive_saved_nested_configuration",
-    "test_debug_missing_wrong_and_disabled_bindings_reject_commands_with_diagnostics"
+    "test_debug_missing_wrong_and_disabled_bindings_reject_commands_with_diagnostics",
+    "test_visual_stands_then_idles_with_continuous_frames",
+    "test_visual_runs_both_directions_stops_at_wall_and_keeps_frame_progress",
+    "test_visual_air_action_death_and_relocation_use_standing_fallback",
+    "test_visual_animation_freezes_with_pause_and_resumes",
+    "test_visual_saved_overrides_survive_reload_ready_behavior_and_reset",
+    "test_visual_rejects_incomplete_animation_and_invalid_runtime_configuration"
   ]
 }

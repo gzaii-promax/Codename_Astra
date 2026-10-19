@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=3]
+[gd_scene load_steps=10 format=3]
 
 [ext_resource type="Script" path="res://player/player_character.gd" id="1_player"]
 [ext_resource type="Script" path="res://skills/action_controller.gd" id="2_actions"]
@@ -6,6 +6,7 @@
 [ext_resource type="Script" path="res://combat/combatant.gd" id="4_combatant"]
 [ext_resource type="Script" path="res://combat/damage_receiver.gd" id="5_receiver"]
 [ext_resource type="Script" path="res://ui/health_bar.gd" id="6_health_bar"]
+[ext_resource type="SpriteFrames" path="res://assets/characters/r4/locomotion.tres" id="7_frames"]
 
 [sub_resource type="RectangleShape2D" id="Body"]
 size = Vector2(16, 32)
@@ -28,6 +29,7 @@ script = ExtResource("2_actions")
 
 [node name="Visual" type="Node2D" parent="."]
 script = ExtResource("3_visual")
+sprite_frames = ExtResource("7_frames")
 
 [node name="Combatant" type="Node" parent="."]
 script = ExtResource("4_combatant")
