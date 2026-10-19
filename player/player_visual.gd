@@ -23,6 +23,12 @@ var _facing: float = 1.0
 var _sprite: Sprite2D
 var _animated_sprite: AnimatedSprite2D
 var _rest_seconds: float = 0.0
+var _visual_facing: float = 1.0
+var _was_moving: bool = false
+var _was_available: bool = false
+var _transition: StringName = &""
+var _transition_position: float = 0.0
+var _turn_from: float = 1.0
 
 
 func _ready() -> void:
@@ -87,25 +93,93 @@ func update_state(actor: PlayerCharacter, delta: float) -> void:
 
 
 func _update_animation(actor: PlayerCharacter, delta: float) -> void:
-	_animated_sprite.flip_h = _facing < 0.0
 	var available := (
 		actor.is_on_floor()
 		and actor.combatant.life_state == Combatant.LifeState.ACTIVE
 		and actor.get_action_controller().phase == ActionController.Phase.IDLE
 	)
-	# Requested velocity can survive wall contact; recovery motion is not locomotion.
 	var distance := absf(actor.get_position_delta().x)
 	var speed := absf(actor.get_real_velocity().x)
-	if available and distance > actor.safe_margin and speed > run_threshold:
+	var moving := available and distance > actor.safe_margin and speed > run_threshold
+	if not available:
+		_clear_transition()
+		_visual_facing = _facing
+	elif _transition == &"turn":
+		_advance_transition(delta)
+	elif _facing != _visual_facing and sprite_frames.has_animation(&"turn"):
+		_turn_from = _visual_facing
+		_begin_transition(&"turn")
+	elif _transition == &"run_start":
+		if moving:
+			_advance_transition(delta)
+		else:
+			_clear_transition()
+	elif moving and not _was_moving and _was_available:
+		_visual_facing = _facing
+		if sprite_frames.has_animation(&"run_start"):
+			_begin_transition(&"run_start")
+	else:
+		_visual_facing = _facing
+	_was_moving = moving
+	_was_available = available
+	_rest_seconds = _rest_seconds + delta if available and not moving else 0.0
+	if _transition != &"":
 		_rest_seconds = 0.0
+		_show_transition()
+		return
+	_animated_sprite.flip_h = _visual_facing < 0.0
+	_animated_sprite.speed_scale = 1.0
+	if moving:
 		_play_animation(&"run")
 		_animated_sprite.speed_scale = (
 			clampf(speed / actor.move_speed, 0.35, 1.8) if actor.move_speed > 0.0 else 1.0
 		)
-		return
-	_rest_seconds = _rest_seconds + delta if available else 0.0
+	else:
+		_play_animation(&"idle" if available and _rest_seconds >= idle_delay else &"stand")
+
+
+func _begin_transition(animation: StringName) -> void:
+	_transition = animation
+	_transition_position = 0.0
+
+
+func _clear_transition() -> void:
+	_transition = &""
+	_transition_position = 0.0
+
+
+func _transition_length() -> float:
+	var total := 0.0
+	for index in range(sprite_frames.get_frame_count(_transition)):
+		total += sprite_frames.get_frame_duration(_transition, index)
+	return total
+
+
+func _advance_transition(delta: float) -> void:
+	# The canonical turn goes right -> front -> left. Reversal retraces the same poses.
+	var direction := -1.0 if _transition == &"turn" and _facing == _turn_from else 1.0
+	_transition_position += delta * sprite_frames.get_animation_speed(_transition) * direction
+	if (
+		_transition_position >= _transition_length()
+		or (direction < 0.0 and _transition_position <= 0.0)
+	):
+		_visual_facing = _facing
+		_clear_transition()
+
+
+func _show_transition() -> void:
+	_animated_sprite.animation = _transition
+	_animated_sprite.pause()
 	_animated_sprite.speed_scale = 1.0
-	_play_animation(&"idle" if available and _rest_seconds >= idle_delay else &"stand")
+	_animated_sprite.flip_h = (_turn_from if _transition == &"turn" else _visual_facing) < 0.0
+	var remaining := _transition_position
+	var last := sprite_frames.get_frame_count(_transition) - 1
+	for index in range(last + 1):
+		var duration := sprite_frames.get_frame_duration(_transition, index)
+		if remaining < duration or index == last:
+			_animated_sprite.set_frame_and_progress(index, clampf(remaining / duration, 0.0, 1.0))
+			return
+		remaining -= duration
 
 
 func _play_animation(animation: StringName) -> void:
@@ -123,6 +197,11 @@ func reset_visual(facing: float = 1.0) -> void:
 	_rest_seconds = 0.0
 	_charging = false
 	_facing = facing
+	_visual_facing = facing
+	_turn_from = facing
+	_was_moving = false
+	_was_available = false
+	_clear_transition()
 	if _animated_sprite != null:
 		_play_animation(&"stand")
 		_animated_sprite.flip_h = facing < 0.0
@@ -179,14 +258,24 @@ func _validate_animation(errors: Array[String]) -> void:
 		errors.append("frame_body_height must be finite and positive")
 		return
 	var canvas := Vector2.ZERO
-	for animation in [&"stand", &"idle", &"run"]:
+	for animation in [&"stand", &"idle", &"run", &"run_start", &"turn"]:
+		var transition: bool = animation in [&"run_start", &"turn"]
+		if transition and not sprite_frames.has_animation(animation):
+			continue
 		if (
 			not sprite_frames.has_animation(animation)
 			or sprite_frames.get_frame_count(animation) == 0
 		):
 			errors.append("sprite_frames needs a nonempty %s animation" % animation)
 			continue
+		if transition:
+			var fps := sprite_frames.get_animation_speed(animation)
+			if not is_finite(fps) or fps <= 0.0 or sprite_frames.get_animation_loop(animation):
+				errors.append("%s must be nonlooping with finite positive speed" % animation)
 		for index in range(sprite_frames.get_frame_count(animation)):
+			var duration := sprite_frames.get_frame_duration(animation, index)
+			if transition and (not is_finite(duration) or duration <= 0.0):
+				errors.append("%s frame duration must be finite and positive" % animation)
 			var frame := sprite_frames.get_frame_texture(animation, index)
 			if frame == null or frame.get_width() <= 0 or frame.get_height() <= 0:
 				errors.append("%s frame %d needs a texture" % [animation, index])

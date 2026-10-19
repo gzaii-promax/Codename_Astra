@@ -184,6 +184,12 @@
     "test_visual_air_action_death_and_relocation_use_standing_fallback",
     "test_visual_animation_freezes_with_pause_and_resumes",
     "test_visual_saved_overrides_survive_reload_ready_behavior_and_reset",
-    "test_visual_rejects_incomplete_animation_and_invalid_runtime_configuration"
+    "test_visual_rejects_incomplete_animation_and_invalid_runtime_configuration",
+    "test_start_transition_advances_once_without_delaying_motion",
+    "test_turn_retraces_on_reversal_and_completes_both_directions",
+    "test_transitions_cancel_on_stop_jump_action_death_and_reset",
+    "test_turn_freezes_on_pause_and_releases_to_idle_without_restarting",
+    "test_saved_transition_timing_and_optional_legacy_frames",
+    "test_transition_invalid_loop_and_speed_are_rejected"
   ]
 }

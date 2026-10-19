@@ -23,3 +23,9 @@
 ## 验证入口
 
 真实状态切换、帧推进、左右朝向、碰墙停止、跳跃/动作/死亡回退、暂停、配置保存重载与重置由 `tests/game/test_player_visual.gd` 验证，统一执行 `node tools/check.mjs --scope game`。图形探针 `tests/probes/player_visual.gd` 捕获真实游戏状态与放大预览；实际报告位置见本轮 [状态记录](../../../docs/status.md)。
+
+## 2026-10-20 起跑与转身
+
+新增 `transitions.png`，内置 image_gen 依据原图集生成，1254×1254 RGBA原字节保留。提示词、SHA-256及每个 AtlasTexture 的区域/留白见 [transitions-generation.json](transitions-generation.json)。选前4帧为run_start（24 FPS），后8帧为turn（32 FPS），不循环；第二行的额外跑步姿势未接入。原始生成网格存在少量偏移，按实际完整人物区域裁取并用原生透明margin统一352画布、y=324脚底；不修改PNG像素。原有stand/idle/run帧不变。
+
+起跑包含站姿、屈膝、推蹬和第一步；转身经过正面至反向。生成素材仍有轻微衣装/肢体变化，最终外观由用户审核。播放和打断规则见player模块。

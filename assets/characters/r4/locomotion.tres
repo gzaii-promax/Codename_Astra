@@ -1,6 +1,8 @@
-[gd_resource type="SpriteFrames" load_steps=18 format=3]
+[gd_resource type="SpriteFrames" load_steps=31 format=3]
 
 [ext_resource type="Texture2D" path="res://assets/characters/r4/locomotion.png" id="1_atlas"]
+
+[ext_resource type="Texture2D" path="res://assets/characters/r4/transitions.png" id="2_transitions"]
 
 [sub_resource type="AtlasTexture" id="Atlas_00"]
 atlas = ExtResource("1_atlas")
@@ -98,6 +100,78 @@ region = Rect2(940, 940, 314, 314)
 margin = Rect2(20, 22, 38, 38)
 filter_clip = true
 
+[sub_resource type="AtlasTexture" id="Transition_00"]
+atlas = ExtResource("2_transitions")
+region = Rect2(97, 19, 114, 298)
+margin = Rect2(119, 26, 238, 54)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="Transition_01"]
+atlas = ExtResource("2_transitions")
+region = Rect2(420, 61, 152, 254)
+margin = Rect2(100, 70, 200, 98)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="Transition_02"]
+atlas = ExtResource("2_transitions")
+region = Rect2(724, 58, 176, 261)
+margin = Rect2(88, 63, 176, 91)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="Transition_03"]
+atlas = ExtResource("2_transitions")
+region = Rect2(1015, 57, 200, 262)
+margin = Rect2(76, 62, 152, 90)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="Transition_08"]
+atlas = ExtResource("2_transitions")
+region = Rect2(50, 645, 203, 283)
+margin = Rect2(74, 41, 149, 69)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="Transition_09"]
+atlas = ExtResource("2_transitions")
+region = Rect2(379, 645, 170, 288)
+margin = Rect2(91, 36, 182, 64)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="Transition_10"]
+atlas = ExtResource("2_transitions")
+region = Rect2(708, 643, 168, 287)
+margin = Rect2(92, 37, 184, 65)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="Transition_11"]
+atlas = ExtResource("2_transitions")
+region = Rect2(1009, 643, 191, 289)
+margin = Rect2(80, 35, 161, 63)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="Transition_12"]
+atlas = ExtResource("2_transitions")
+region = Rect2(59, 951, 212, 278)
+margin = Rect2(70, 46, 140, 74)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="Transition_13"]
+atlas = ExtResource("2_transitions")
+region = Rect2(388, 947, 187, 280)
+margin = Rect2(82, 44, 165, 72)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="Transition_14"]
+atlas = ExtResource("2_transitions")
+region = Rect2(669, 949, 210, 280)
+margin = Rect2(71, 44, 142, 72)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="Transition_15"]
+atlas = ExtResource("2_transitions")
+region = Rect2(991, 949, 233, 280)
+margin = Rect2(59, 44, 119, 72)
+filter_clip = true
+
 [resource]
 animations = [
 {
@@ -118,4 +192,4 @@ animations = [
 "name": &"run",
 "speed": 12.0
 }
-]
+, {"frames": [{"duration": 1.0, "texture": SubResource("Transition_00")}, {"duration": 1.0, "texture": SubResource("Transition_01")}, {"duration": 1.0, "texture": SubResource("Transition_02")}, {"duration": 1.0, "texture": SubResource("Transition_03")}], "loop": false, "name": &"run_start", "speed": 24.0}, {"frames": [{"duration": 1.0, "texture": SubResource("Transition_08")}, {"duration": 1.0, "texture": SubResource("Transition_09")}, {"duration": 1.0, "texture": SubResource("Transition_10")}, {"duration": 1.0, "texture": SubResource("Transition_11")}, {"duration": 1.0, "texture": SubResource("Transition_12")}, {"duration": 1.0, "texture": SubResource("Transition_13")}, {"duration": 1.0, "texture": SubResource("Transition_14")}, {"duration": 1.0, "texture": SubResource("Transition_15")}], "loop": false, "name": &"turn", "speed": 32.0}]

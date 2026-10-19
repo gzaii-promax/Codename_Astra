@@ -142,7 +142,9 @@ func test_visual_saved_overrides_survive_reload_ready_behavior_and_reset() -> vo
 	assert_almost_eq(sprite.scale.y, 40.0 / 300.0, 0.00001)
 	player.set_control_input(1.0)
 	await wait_physics_frames(2)
-	assert_eq(sprite.animation, &"run", "Saved zero movement threshold takes effect")
+	assert_eq(
+		sprite.animation, &"run_start", "Saved zero threshold enters the new start transition"
+	)
 	player.reset_state(Vector2(300.0, 440.0))
 	assert_eq(player.visual.display_height, 40.0)
 	assert_eq(player.visual.idle_delay, 0.0)

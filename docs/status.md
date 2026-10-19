@@ -1,5 +1,11 @@
 # 当前工程状态
 
+## 2026-10-20 R4 起跑与转身
+
+在已合并的R4基准 `179af5406826210e41af20f73808ce374bcc3b8d` 上增加4帧起跑（约0.167秒）和8帧转身（0.25秒）。转身过程中再次换向沿当前进度回转；跳跃、动作、死亡、reset/切房即时打断，暂停冻结。仅改变视觉，移动和战斗保持即时响应。帧资源、时长与兼容入口见 [player](../player/README.md)、[R4素材](../assets/characters/r4/README.md)。
+
+本轮分支 `codex/r4-transitions-01a10533`，关联 [Issue #22](https://github.com/gzaii-promax/Codename_Astra/issues/22)。独立 game `20261019T152056397Z-f56e81d2`：14/14 checks、189 tests /3418 assertions，零失败/错误/跳过；主agent核对原始XML、21份日志、202项源码哈希一致。10张实际图形截图全部查看，位于本任务 `artifacts/r4-transitions/visual/`。首轮解析错误及复验见 [错误记录](errors/ERR-20261020-R4-TRANSITIONS.md)。文案、导入元数据及UID收尾不改变已验收实现，远端最终head与merge CI另核查。生成素材仍有轻微形变，用户视觉和手感待验收。
+
 ## 2026-10-19 R4 主角动画
 
 用户已选择 [R4 符印旅装](protagonist-r4.md) 为当前主角；本轮在 `codex/r4-sprites-01a10533`、base `b71f2c179b676b1019408e55f12578f610b7b26e` 接入原生 SpriteFrames：站立1帧、待机8帧6 FPS、跑步8帧12 FPS，保留32 px显示尺度与现有物理/战斗。地面停止后0.6秒进入待机；持续顶墙不跑步；左右翻转、暂停和重置已接入。空中、攻击及死亡专用帧尚未制作，暂用站立。
