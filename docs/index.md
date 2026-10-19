@@ -13,7 +13,7 @@
 | 受击保护 | [hit-protection.md](hit-protection.md)：主角 0.5 秒、其他角色默认零秒及完整边界 | [combat](../combat/README.md)、[shared](../shared/README.md)、[player](../player/README.md) |
 | 技能与阶段 | 已采纳扩展约束见 [AGENTS](../AGENTS.md)；当前属性、单位、等级解析和行为接口见模块文档 | [skills](../skills/README.md) |
 | 语言与菜单 | [localization-v2.md](localization-v2.md)：多语言需求与原验收边界；原 draft-only 已被后续整合授权取代 | [localization](../localization/README.md)、[ui](../ui/README.md)、[字体](../assets/fonts/README.md) |
-| 素材替换 | 原型占位，不代表正式视觉或故事 | [assets](../assets/README.md)、[graybox](../assets/graybox/README.md)、[player](../player/README.md) |
+| 主角与素材替换 | [R4 主角基线](protagonist-r4.md)：已选人设与基础动画；其他剧情仍未定 | [assets](../assets/README.md)、[graybox](../assets/graybox/README.md)、[player](../player/README.md) |
 
 数值和接口在所属契约/模块文档维护；本页只提供入口。地图 TODO 不复制为另一份待办。剧情、玩法、手感和重要架构决策仍由用户负责，待确定事项见 AGENTS 与当前状态。
 

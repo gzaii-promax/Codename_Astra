@@ -1,0 +1,51 @@
+{
+  "date": "2026-10-19",
+  "mode": "built-in image_gen",
+  "reference": "concept.png",
+  "prompt": "Use case: stylized-concept\nAsset type: production sprite atlas for a Godot 2D side-scrolling PIXEL ART game.\nInput image 1 is the approved R4 CHARACTER IDENTITY AND COSTUME reference, not a sheet layout reference.\nCreate one square sprite atlas with EXACTLY 16 complete full-body poses arranged in a strict evenly spaced 4 COLUMN by 4 ROW grid. No labels, text, lines, grid borders or background. REAL TRANSPARENT ALPHA everywhere between sprites.\nAll sixteen sprites depict the SAME slender 21-year-old young human man from R4, STRICT RIGHT-FACING SIDE VIEW (nose and toes point RIGHT), orthographic side-scroller camera, same proportions/scale/palette and identical costume construction. Black rough short hair to the ears, pale youthful face, dark indigo mid-thigh straight tunic, short slate gray-green hooded shoulder cape (hood lowered), off-white linen collar/cuffs, plain brown waist belt, small brown belt pouch with tiny dull silver rune token, narrow charcoal trousers and plain worn brown boots. Slim but competent, not muscular, not child/chibi. No weapons or additional equipment.\nStyle: genuine low-resolution 2D hand-placed pixel-art look, large clean square pixel clusters, restricted matte palette, dark readable outlines, simple two-tone shading, absolutely no painterly strokes, smooth gradients, blur, anti-aliasing, ground shadows or environment. Around 48 by 48 logical pixels per cell; character about 32 logical pixels tall, generous transparent margins for running arms/legs. All sprites have same head size and body segment lengths. Keep head and pelvis horizontally near center of each cell; consistent common foot baseline.\nRows 1 and 2 together are ONE EIGHT-FRAME IDLE BREATHING LOOP, read left-to-right then next row. Frame 1 is the neutral stationary standing pose: feet planted at comfortable small separation, relaxed visible arms and shoulders, alert forward gaze. Frames 2-4 inhale very subtly, shoulders/cape rise by about one logical pixel, feet stay planted. Frames 5-8 exhale to neutral, tiny cloth settling. Never change viewpoint, face shape, body scale or foot placement in idle.\nRows 3 and 4 together are ONE EIGHT-FRAME RUN CYCLE, read left-to-right then next row: frame 1 right/front leg forward contact with opposite arm forward; 2 weight compression; 3 passing legs; 4 airborne extension; 5 LEFT/back leg forward contact with arms swapped; 6 compression; 7 opposite passing; 8 opposite airborne. Show a true alternating running gait with distinct contact/passing/flight poses, bent elbows and naturally swinging arms. Modest forward lean, subtle cape/tunic bounce. Feet, hands, hair and cape must remain fully inside each cell. The character runs IN PLACE toward the right, not translating across the sheet. No duplicated static running poses, no extra limbs. Both boot soles share baseline in contact frames, feet are a little above it in airborne frames.\nComposition: exactly sixteen separate sprites only, fully visible, nothing overlaps adjacent cells, identical spacing and fixed cell centers, strong silhouette. Transparent pixels remain transparent, not a drawn checkerboard. No text, title, frame numbers, arrows, palette samples, extra close-ups or concept-sheet elements. Preserve the reference's costume identity but render clean readable GAME SPRITES.",
+  "revision_prompt": "Edit the supplied sprite atlas, preserving the transparent background, exact 4x4 arrangement, same R4 character, pixel-art rendering, outfit, palette, head/body scale, and the TOP TWO ROWS of eight idle sprites. Fix ONLY the BOTTOM TWO ROWS into a genuinely alternating eight-frame running loop. At present the near-side arm remains forward for nearly every pose. Correct a full cycle with visibly opposing arm swing: third row left-to-right shows near arm forward, then dropping, then back, then back at peak; fourth row left-to-right shows near arm BACK behind torso with hand on left of torso (opposite leg now forward), then near arm begins moving down/forward, then passing, then forward again to reconnect to first pose. Opposite far arm moves in counterphase and remains visible where appropriate. Each frame needs TWO anatomically coherent arms and legs with consistent segment lengths, not extra fingers or limbs. In frames 1 and 5 of the running cycle the leading legs are DIFFERENT legs; make the far limbs a darker shade for depth and clear phase distinction. Frames 2 and 6 compression, 3 and 7 passing, 4 and 8 airborne with knees flexed and feet raised a little. All characters face strictly RIGHT. Do not translate the body inside each cell; preserve the same hip anchor and common ground baseline, allow only small natural vertical running bounce. Generous transparent margins, whole boots and hands inside every cell. No ground shadow, text, grid lines, background or other objects. Keep the first two rows and all identity features unchanged. This is a game animation atlas, not an illustration.",
+  "source": "/Users/hanguo/.codex/generated_images/01a10533-18c0-7e23-9ad5-2fe6b83ae621/exec-3ae1708b-a57c-4d3b-a99b-788ac0dac102.png",
+  "sha256": "9538ea7d535399f4c1f1b416091954ca2937466f5decf414a31dec77cb42d4cb",
+  "dimensions": [
+    1254,
+    1254
+  ],
+  "source_bytes_preserved": true,
+  "atlas": {
+    "grid_boundaries": [
+      0,
+      314,
+      627,
+      940,
+      1254
+    ],
+    "canvas_size": [
+      352,
+      352
+    ],
+    "source_body_height": 288,
+    "feet_y": 324,
+    "cell_y_offsets": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      9,
+      13,
+      10,
+      2,
+      22,
+      26,
+      24,
+      10
+    ]
+  },
+  "limitations": [
+    "像素风格生成图，并非严格手工低分辨率像素网格",
+    "面部与衣物有轻微逐帧形变，后续美术精修仍可替换同一 SpriteFrames 资源"
+  ]
+}

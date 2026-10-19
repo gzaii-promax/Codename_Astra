@@ -1,6 +1,14 @@
 # 当前工程状态
 
-## 当前实现基准
+## 2026-10-19 R4 主角动画
+
+用户已选择 [R4 符印旅装](protagonist-r4.md) 为当前主角；本轮在 `codex/r4-sprites-01a10533`、base `b71f2c179b676b1019408e55f12578f610b7b26e` 接入原生 SpriteFrames：站立1帧、待机8帧6 FPS、跑步8帧12 FPS，保留32 px显示尺度与现有物理/战斗。地面停止后0.6秒进入待机；持续顶墙不跑步；左右翻转、暂停和重置已接入。空中、攻击及死亡专用帧尚未制作，暂用站立。
+
+独立 game `20261019T093828824Z-3e5b519f`：14/14 checks、183 tests /3371 assertions，零失败/错误/跳过；主 agent 核对原始XML、21份日志及195项源码哈希一致。工具准备回归44/44、toolchain22/22；本地文档另经docs入口检查。最终画面6张已查看，证据在本任务 `artifacts/r4-visual/final/`；原失败与修复见 [R4记录](errors/ERR-20261019-R4-VALIDATION-FIXTURES.md)。最终说明文案、两个Godot生成UID及默认纹理导入元数据的收尾不改变已验收实现，远端最新head CI另验。
+
+素材为可替换的首版生成像素风图集，存在轻微帧间形变，视觉与手感待用户审核。当前独立工作目录为 `/Users/hanguo/.codex/worktrees/aec1/Godot-project`，已完成实际工作目录的导入与主场景120帧启动，无引擎错误，可运行其中的 `Play.command`。主目录现场存在未提交的 `project.godot` 修改，未自动覆盖或同步；远端提交/合并与主目录同步是不同状态，交付回执以本轮实际结果为准。
+
+## 前一版实现基准
 
 2026-10-05 [PR #18](https://github.com/gzaii-promax/Codename_Astra/pull/18) 已合并，游戏与工具实现基准为 `74fe97841e1c936035c5647223df8df38a2f96ce`。下表包含该版本；后续仅状态文档记录更新不改变这个行为基准，实际 checkout/HEAD 仍从工作区读取。
 
@@ -56,7 +64,7 @@
 - 用户手感、动作数值/平衡、正式译文和视觉仍待审核；当前数值是可按明确指令调整的原型初值。
 - 地图转场、提前预加载、攀爬为已采纳的后续必做 TODO，边界仅在 [地图契约](map-system.md) 维护。
 - 尚无剧情、互动道具、完整技能树、敌人决策 AI、磁盘世界/成长存档、音乐、正式背景、发行包或跨平台验证。发布平台与正式素材规格未定。
-- 主角为静态占位视觉；TrainingHUD 是用户认可的临时测试实现，正式重做与其他工程债见 [ui](../ui/README.md)、[工程评审](engineering-practices.md)。
+- 主角已接入R4基础动画，其他动作帧及最终像素素材仍待完善；TrainingHUD 是用户认可的临时测试实现，正式重做与其他工程债见 [ui](../ui/README.md)、[工程评审](engineering-practices.md)。
 - 稻草人统计为命中次数和累计心伤害，DPS 范围待确定；主动取消尚未绑定按键，反弹、击倒协助与计时恢复仅有公共接口。
 
 自动测试、真实截图审核与用户试玩分别判断。原问题与反馈入口见 [公共错误记录](errors/README.md)；历次交付原文见 [status-history.md](status-history.md) 和 [git-history.md](git-history.md)。

@@ -269,6 +269,7 @@ func _clear_motion_at(spawn_position: Vector2, facing: float) -> void:
 	_jump_release_pending = false
 	_jump_origin_y = 0.0
 	facing_direction = -1.0 if facing < 0.0 else 1.0
+	visual.reset_visual(facing_direction)
 
 
 func _on_damaged(_hit: HitData, amount: float) -> void:

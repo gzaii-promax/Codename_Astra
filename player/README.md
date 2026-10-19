@@ -31,14 +31,21 @@ Actions 按物理帧 tick。每阶段的 inertia_scale 只在进入阶段时缩�
 
 新增技能先完成 skills 定义/执行器，然后在角色的绑定和输入映射处注册。已有控制器无需理解新行为。若加入墙跳、滑铲、锁定朝向等新移动机制，必须明确与阶段策略的组合并更新行为测试。
 
-## 替换角色素材
+## 角色动画与素材替换
 
-静态图通过 Visual 的 texture、texture_region、display_height 配置替换；当前 region=Rect2(348,46,578,1173)，显示高度 2U（32 px）。保留脚底原点和独立碰撞；施法提示与当前释放点对齐。后续 AnimatedSprite2D 可替换 Visual 实现，保留 `update_state(actor,delta)`，无需改伤害逻辑。素材来源和实际限制见 assets/README.md。
+当前主角使用用户选定的 [R4 人设](../docs/protagonist-r4.md) 与 [R4 SpriteFrames](../assets/characters/r4/README.md)。`Visual.sprite_frames` 是帧资源入口，包含 `stand`、`idle`、`run` 三个非空动画。运行时创建 AnimatedSprite2D，使用 nearest 过滤；`update_state(actor, delta)` 仍是控制器唯一更新接口。
 
-`validate_visual()` / `configuration_error` 检查纹理、有限区域、正尺寸和正显示高度；启动无效时不创建 Sprite，运行时发现无效配置时隐藏已有 Sprite。move_speed=0 不参与倾斜除法。纹理和区域/缩放在 `_ready()` 建立，修改后重新运行场景；本轮没有实现编辑器预览或完整热重建，启动配置修正后需重建实例。
+- 地面自由行动时，`get_real_velocity()` 的实际水平速度大于 `run_threshold`（默认 1 px/s），且本帧水平位移超过角色碰撞恢复余量 `safe_margin`，播放 run；按实际速度与 move_speed 的比值调整播放速度至 0.35–1.8 倍。微小碰撞恢复位移不作为跑步，持续顶墙保持站立/待机；不按输入或请求速度判断。合法零阈值仍保留，碰撞抖动过滤独立生效。
+- 地面静止先保持 stand，经过 `idle_delay`（默认 0.6 s）播放 idle；合法零延迟立即待机，合法零阈值仍受上一条微位移过滤约束（默认 safe_margin=0.08、60 Hz 时需超过约 4.8 px/s，正常移动为 56 px/s）。重复同一状态不会每帧重启动画。
+- 空中、动作阶段和非 ACTIVE 生命状态暂回退 stand；没有跳跃、攻击或死亡专用帧。原有施法变色与释放点提示保留。暂停继承场景树的暂停状态。
+- `reset_visual(facing)` 清除动画进度、待机计时和施法提示；角色重置与正常切房调用它，但不会改保存的配置或共享帧资源。
+
+显示高度仍为 `display_height=32`（2 U）。动画的 `frame_body_height=288` 和 `frame_feet_y=324` 描述等大帧画布中的主体高度与脚底位置。Sprite 的 scale、position、flip_h、播放状态和施法调色属于程序管理结果，配置权威是 Visual 的导出字段和 SpriteFrames；不要编辑运行时生成的 Sprite 来保存设计参数。纹理与显示几何在入树时建立，更换资源/几何后重新实例化场景；当前不支持编辑器即时预览或完整热重建。动画参数和合法零值经保存、重新加载、入树、实际行为与 reset 验证。
+
+`sprite_frames=null` 时保留旧静态 texture/texture_region 回退接口。`validate_visual()` / `configuration_error` 验证配置及非空/等大动画帧；启动无效不创建 Sprite，运行时无效隐藏并暂停已有 Sprite。动画本身不改变脚底原点、碰撞、伤害或技能时序。
 
 ## 验证与限制
 
-统一入口 `node tools/check.mjs --scope game` 检查真实主场景中的移动速度、短/中/长跳峰高、真实键盘按松、跳跃缓冲/土狼时间、碰撞与攻击；实际执行状态以最新测试报告为准。没有正式行走、跳跃或攻击动画；当前程序偏移不等同于动画素材。手感待用户反馈。
+统一入口 `node tools/check.mjs --scope game` 检查真实主场景中的移动速度、短/中/长跳峰高、真实键盘按松、跳跃缓冲/土狼时间、碰撞与攻击；实际执行状态以最新测试报告为准。新增 `test_player_visual.gd` 检查站立/待机/跑步、连续帧、左右朝向、碰墙、空中/动作/死亡回退、暂停、保存重载与重置。图形探针 `tests/probes/player_visual.gd` 另捕获实际 viewport；跳跃和攻击等专用动画仍未制作，画面与手感待用户反馈。
 
 配置默认、保存覆盖与运行状态归属遵循 [Inspector 配置契约](../docs/inspector-configuration.md)；设计数值调整与机制回归遵循 [设计基线流程](../docs/design-baselines.md)。
