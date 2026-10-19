@@ -7,12 +7,13 @@
 - 最新测试证据通过 `artifacts/test-runs/latest.json` 定位；具体安装与测试状态见最新报告。
 - 同一问题再次出现时追加复现记录并重新打开原记录；仅报错文字相同不能确认同一原因。
 
-## 记录索引（2026-10-19）
+## 记录索引（2026-10-20）
 
 以下状态按各记录正文核对；本轮工程契约修复的验证状态见最新记录。`MAIN-INTEGRATION` 只关闭缺少代码的技术问题，用户手感仍单独待反馈。resolved 不代表换环境后不会复发。新增、重开或关闭记录时同步本表，原始证据留在各记录中。
 
 | 记录 | 状态 | 问题 |
 | --- | --- | --- |
+| [ERR-20261020-R4-TRANSITIONS](ERR-20261020-R4-TRANSITIONS.md) | resolved | 过渡校验的布尔类型推断导致导入失败，显式类型修复；189项回归通过 |
 | [ERR-20261019-R4-VALIDATION-FIXTURES](ERR-20261019-R4-VALIDATION-FIXTURES.md) | resolved | 动画测试父级、旧节点类型、图形探针依赖与真实顶墙动画；183项回归通过 |
 | [ERR-20261005-ENGINEERING-CONTRACTS](ERR-20261005-ENGINEERING-CONTRACTS.md) | resolved | 输入配置、隐式依赖、效果归属、signal 再入与有限值边界；171项组合回归通过，交付证据另核对 |
 | [ERR-20261003-GUT-BARE-FAILURE](ERR-20261003-GUT-BARE-FAILURE.md) | resolved | GUT 无冒号布尔断言漏读；真实日志32条失败复验与Node回归保留 |

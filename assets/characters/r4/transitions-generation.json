@@ -1,0 +1,213 @@
+{
+  "mode": "built-in image_gen",
+  "date": "2026-10-20",
+  "prompt": "Use case: identity-preserve. Asset type: production sprite animation atlas for a 2D sidescroller.\nUse the attached existing R4 sprite sheet as the exact identity, drawing style, size, and GRID reference. Create a NEW sibling transparent atlas, replacing all poses with two new animations; do not keep the old idle or run sequence.\nPreserve the exact 1254x1254 square canvas, four equally spaced columns and four rows, 16 full-body figures, one per cell, transparent RGBA backdrop. Preserve his youthful black rough ear-length hair, gray-green hooded short cape, indigo medieval tunic, light linen cuffs, brown belt/pouch, dark trousers and worn boots, face/body proportions, hand-drawn pixel-like rendering and line weight.\nRows 1 and 2 read left-to-right as ONE 8-frame RUN-START animation all facing RIGHT: first relaxed right-facing stand; then slight knee bend and weight lowering; forward lean, arms prepare; rear heel rises; push-off; front foot advances; first running stride; last right-facing running contact pose matching reference run. Subtle anticipation, no huge leaps.\nRows 3 and 4 read left-to-right as ONE 8-frame TURN animation, from facing RIGHT to facing LEFT via the FRONT: right profile bracing; right three-quarter torso; three-quarter front; full front facing viewer with BOTH shoulders/eyes; front with head looking left; left three-quarter; left profile stepping out; last LEFT-facing run pose. Crucial: bottom row ends unmistakably facing LEFT. Do not repeat right-facing run poses for the turn. Feet pivot under body, body rotates, pouch changes side with body rotation. Character stays centered, same size, feet aligned to each cell baseline, head ~25 pixels from cell top, feet ~310 pixels from cell top. Every cell contains complete hands/feet with clear margins. Transparent empty area, no text, borders, arrows, shadows, ground, extra props, effects or background. Keep consistent character scale and grounded anatomy throughout. Not a contact sheet of different characters.",
+  "source": "exec-97c3a618-0f41-4511-8e63-95ef63c8bc4f.png",
+  "reference": "locomotion.png",
+  "selected_frames": {
+    "run_start": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "turn": [
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15
+    ]
+  },
+  "notes": "Original RGBA bytes retained. Native AtlasTexture crops with transparent margins align feet at y=324 on a 352px canvas. No source pixel editing.",
+  "sha256": "354c4afc3e7e390efdf6136699e32d780fcb5458959a2d427f1ace9d1a0fa9f8",
+  "size": [
+    1254,
+    1254
+  ],
+  "atlas_geometry": [
+    {
+      "index": 0,
+      "region": [
+        97,
+        19,
+        114,
+        298
+      ],
+      "margin": [
+        119,
+        26,
+        238,
+        54
+      ]
+    },
+    {
+      "index": 1,
+      "region": [
+        420,
+        61,
+        152,
+        254
+      ],
+      "margin": [
+        100,
+        70,
+        200,
+        98
+      ]
+    },
+    {
+      "index": 2,
+      "region": [
+        724,
+        58,
+        176,
+        261
+      ],
+      "margin": [
+        88,
+        63,
+        176,
+        91
+      ]
+    },
+    {
+      "index": 3,
+      "region": [
+        1015,
+        57,
+        200,
+        262
+      ],
+      "margin": [
+        76,
+        62,
+        152,
+        90
+      ]
+    },
+    {
+      "index": 8,
+      "region": [
+        50,
+        645,
+        203,
+        283
+      ],
+      "margin": [
+        74,
+        41,
+        149,
+        69
+      ]
+    },
+    {
+      "index": 9,
+      "region": [
+        379,
+        645,
+        170,
+        288
+      ],
+      "margin": [
+        91,
+        36,
+        182,
+        64
+      ]
+    },
+    {
+      "index": 10,
+      "region": [
+        708,
+        643,
+        168,
+        287
+      ],
+      "margin": [
+        92,
+        37,
+        184,
+        65
+      ]
+    },
+    {
+      "index": 11,
+      "region": [
+        1009,
+        643,
+        191,
+        289
+      ],
+      "margin": [
+        80,
+        35,
+        161,
+        63
+      ]
+    },
+    {
+      "index": 12,
+      "region": [
+        59,
+        951,
+        212,
+        278
+      ],
+      "margin": [
+        70,
+        46,
+        140,
+        74
+      ]
+    },
+    {
+      "index": 13,
+      "region": [
+        388,
+        947,
+        187,
+        280
+      ],
+      "margin": [
+        82,
+        44,
+        165,
+        72
+      ]
+    },
+    {
+      "index": 14,
+      "region": [
+        669,
+        949,
+        210,
+        280
+      ],
+      "margin": [
+        71,
+        44,
+        142,
+        72
+      ]
+    },
+    {
+      "index": 15,
+      "region": [
+        991,
+        949,
+        233,
+        280
+      ],
+      "margin": [
+        59,
+        44,
+        119,
+        72
+      ]
+    }
+  ]
+}

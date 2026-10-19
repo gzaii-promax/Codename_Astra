@@ -22,9 +22,28 @@ func _run() -> void:
 	arena.enemy.attack_enabled = false
 	arena.player.set_control_input(0.0)
 	var observations: Array[Dictionary] = []
-	for state in ["stand", "idle", "run_right", "run_left", "jump"]:
+	for state in [
+		"stand",
+		"idle",
+		"start",
+		"run_right",
+		"turn_to_left",
+		"run_left",
+		"turn_to_right",
+		"run_again",
+		"jump"
+	]:
 		var ticks := 6 if state == "stand" else 45
-		if state == "run_right":
+		if state == "start":
+			arena.player.set_control_input(1.0)
+			ticks = 6
+		elif state == "turn_to_left":
+			arena.player.set_control_input(-1.0)
+			ticks = 8
+		elif state == "turn_to_right":
+			arena.player.set_control_input(1.0)
+			ticks = 8
+		elif state == "run_right" or state == "run_again":
 			arena.player.set_control_input(1.0)
 			ticks = 24
 		elif state == "run_left":
@@ -56,20 +75,20 @@ func _run() -> void:
 	var preview := Node2D.new()
 	root.add_child(preview)
 	var frames := load("res://assets/characters/r4/locomotion.tres") as SpriteFrames
-	for index in range(3):
-		var animation: StringName = [&"stand", &"idle", &"run"][index]
-		var sprite := _preview_sprite(frames, Vector2(185 + index * 295, 190), 0.8)
+	for index in range(4):
+		var sprite := _preview_sprite(frames, Vector2(120 + index * 240, 160), 0.65)
 		preview.add_child(sprite)
-		sprite.play(animation)
-		var label := Label.new()
-		label.text = "R4 / " + String(animation)
-		label.position = Vector2(140 + index * 295, 25)
-		preview.add_child(label)
-	for index in range(8):
-		var sprite := _preview_sprite(frames, Vector2(60 + index * 120, 440), 0.35)
-		preview.add_child(sprite)
-		sprite.animation = &"run"
+		sprite.animation = &"run_start"
 		sprite.frame = index
+	for index in range(8):
+		var sprite := _preview_sprite(frames, Vector2(60 + index * 120, 420), 0.35)
+		preview.add_child(sprite)
+		sprite.animation = &"turn"
+		sprite.frame = index
+	var label := Label.new()
+	label.text = "R4 / run start (4 frames)                         turn R -> L (8 frames below)"
+	label.position = Vector2(30, 20)
+	preview.add_child(label)
 	for _tick in range(12):
 		await process_frame
 	await RenderingServer.frame_post_draw
