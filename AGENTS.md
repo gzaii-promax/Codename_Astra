@@ -68,6 +68,17 @@
 - PR 合并与主目录同步必须使用 `tools/with-integration-lock.mjs` 公共串行锁包住完整核对/合并/同步序列；锁竞争退出后等待重试，不抢未知锁。主目录脏或有人使用时延期同步，不替用户 stash/reset/switch。
 - 收尾仅归档当前任务自己创建且已无用途的 worktree，先保存必要 ignored 证据；持续合并授权不扩大这些操作边界。
 
+## Godot development
+
+- Use Godot AI MCP to inspect the live editor state and scene hierarchy when editor context is relevant.
+- Prefer normal file editing tools for large GDScript changes and refactoring.
+- Prefer Godot AI MCP for scene nodes, signals, animations, editor properties, and runtime inspection.
+- After implementing a feature, validate scripts, check editor/game logs, and run relevant tests.
+- Use screenshots when visual verification is relevant. Do not claim gameplay feel or animation smoothness has been verified from a static screenshot.
+- Do not overwrite existing scenes or resources unnecessarily.
+- If Godot AI MCP is unavailable, report the limitation and use CLI validation where possible.
+- Do not claim a feature is tested unless tests or runtime checks actually ran.
+
 ## 每次工作的固定流程
 
 1. 阅读本文件、相关模块说明、最新测试报告与开放错误；已有 Git 仓库时读取近期提交及相关 PR，了解变化和遗留事项。无提交历史时明确记录，不虚构开发进度。
